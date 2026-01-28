@@ -98,18 +98,18 @@ BEGIN
                 SELECT GHD.id
                      , GH.id idGuiaHouse
                      , GHD.estadoPieza
-                     , GHD.idClienteFinal
+                     , GHD.ShipToId
                      , PC.fechaDespacho
                      , ISNULL(B1.nombre, B.nombre) AS nombreBodega
                      , ISNULL(ub.idBodega, GH.idBodega) AS idBodega
                      , PC.idCarrier
                      , PC.id idProgramacionCarrier
-                     ,ISNULL(CLF.nombreClienteFinal, CLF.nombre) AS nombreClienteFinal
+                     , CLF.nombre AS nombreClienteFinal
                      , GH.nroGuia
                      , PE.nroPo
                      , CLF.idPais idPaisCliente
                      , GHD.truckId
-                     , CLI.nombre nombreConsignee
+                     , CLI.nombre AS nombreConsignee
                      , CLI.id idConsignee
                      , edi.idUsuarioLog idUsuarioLogEdi
                      , GH.idUsuarioLog idUsuarioLogHouse
@@ -126,7 +126,7 @@ BEGIN
                      , SUM(IIF(V.picking = 1, 1, 0)) totalPicking
                      , V.id
                      , GHD.po
-                     , GH.idCliente
+                     , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                      , GHD.despachadoDestino
                      , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0)) idUsuarioLogPicking
 					 , TE.idTE idTEGuid
@@ -142,12 +142,13 @@ BEGIN
 																	 AND PCA.valor = 'NO'
                      INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                      INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
-                     INNER JOIN ParametrosLista PLC WITH (NOLOCK) ON PLC.codigo = 'TipoManifiestoDespacho'
-                                    AND PLC.idEmpresa = GH.idEmpresa
-                     INNER JOIN Clientes CLF ON GHD.idClienteFinal = CLF.id
-                     INNER JOIN Clientes cli ON GH.idCliente = CLI.id
-                     LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.idEntidad = GH.idCliente
-                                   AND PCAT.idParametroLista = PLC.id
+					 INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
+					 -- CAMBIO: Join con la vista para ShipTo (Detalle) usando el nuevo campo ShipToId
+					 INNER JOIN [dbo].[v_ClientsEntities] CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
+					 -- CAMBIO: Join con la vista para Consignee/BillTo (Header) usando la nueva lógica híbrida
+					 INNER JOIN [dbo].[v_ClientsEntities] CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+					 -- CAMBIO: ParametrosCatalogos ahora se une con el ConsigneeId normalizado de la vista (siempre es ETY)
+					 LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
 					 LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
 					 LEFT JOIN EDI ON PC.idCarrier = edi.idCarrier AND PC.fechaDespacho = edi.fechaDespacho
                      LEFT JOIN Usuarios US WITH (NOLOCK) ON edi.idUsuarioLog = US.id
