@@ -155,12 +155,12 @@ BEGIN
                 GROUP BY GHD.id
                        , GH.id
                        , GHD.estadoPieza
-                       , GHD.idClienteFinal
+                       , GHD.ShipToId
                        , PC.fechaDespacho
                        , ISNULL(B1.nombre, B.nombre)
                        , ISNULL(ub.idBodega, GH.idBodega)
                        , PC.idCarrier
-                       , PC.id
+                       , CLF.nombre
                        , ISNULL(CLF.nombreClienteFinal, CLF.nombre)
                        , GH.nroGuia
                        , PE.nroPo
@@ -180,7 +180,7 @@ BEGIN
                        , GH.idExportador
                        , pal.pallet
                        , GHD.po
-                       , GH.idCliente
+                       , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                        , GH.idExportador
                        , GHD.despachadoDestino  
 					   , TE.idTE
@@ -399,13 +399,13 @@ BEGIN
                     GROUP BY GHD.id
                            , GH.id
                            , GHD.estadoPieza
-                           , GHD.idClienteFinal
+                           , GHD.ShipToId
                            , PC.fechaDespacho
                            , ISNULL(B1.nombre, B.nombre) 
 						   , ISNULL(ub.idBodega, GH.idBodega)
                            , PC.idCarrier
                            , PC.id
-                           , ISNULL(CLF.nombreClienteFinal, CLF.nombre)
+                           , CLF.nombre
                            , GH.nroGuia
                            , PE.nroPo
                            , CLF.idPais
@@ -424,7 +424,7 @@ BEGIN
                            , GH.idExportador
                            , pal.pallet
                            , GHD.po
-                           , GH.idCliente
+                           , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                            , GH.idExportador
                            , GHD.despachadoDestino
 						   , GHD.codigoBarra 
@@ -500,8 +500,8 @@ BEGIN
                         OR APU.po LIKE '%' + @po + '%')
 						AND (@nroManifiesto IS NULL
                         OR MD.nroManifiesto LIKE '%' + @nroManifiesto + '%')
-                        -- CAMBIO: Filtro Consignee directo sobre la vista (Busca en Alias o Nombre)
-                        AND (@Consignee IS NULL OR CLI.nombre LIKE '%' + @Consignee + '%')
+                        -- CAMBIO FORMA CORRECTA Y OPTIMIZADA
+                        AND (@Consignee IS NULL OR APU.nombreConsignee LIKE '%' + @Consignee + '%')
                         AND (@supplier IS NULL
                         OR APU.idExportador IN (SELECT id FROM Exportadores WHERE nombre LIKE '%' + @supplier + '%'))
 						AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
