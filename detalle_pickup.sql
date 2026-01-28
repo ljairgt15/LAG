@@ -1,26 +1,9 @@
 USE [alliance_desa]
 GO
-/****** Object:  StoredProcedure [dbo].[pro_Despacho_DespachoDetallePickUp]    Script Date: 28/01/2026 12:21:18 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-/*
-VERSION		AUTOR				FECHA		HU				CAMBIO
-1			Jesus Yandun        11-01-2021                  Codigo Inicial -Extrae información para detalle de modulo de pickup
-2			Jonathan Merino     09-04-2021                  se modifica listado para devolver TipoManifiesto en base al parametro del cliente Consignee
-3			Jonathan Merino     01-10-2021                  se modifica listado para filtrar por pallet
-4			Jonathan Merino     05-11-2021                  se modifica listado para agregar total picking y asi manejar el estado sold
-5			Luchin Campos       15-04-2022                  Mostrar Bodega de acuerdo con la ubicación de la pieza
-6			Jorge Ortiz         21-03-2022  25211           Muestra todos los detalles(consulta = 2) pickup con esPod=0 y con fecha de hace 3 meses, refactorizaicon de codigo, correcion de campos declarados. Correccion de las tablas temporales y la asignacion de campos.
-7 			Jose Ganchozo		12-06-2023	25674			Agregar columnas despachadoDestino y totalPickingLoading
-8			Jean Martillo       01-09-2023  29121           Agregar parametro IdEmpresa y colocarlo dentro del where si la consulta es 2 (usuario interno), se agrega en el select codigo de barra
-9			Jean Martillo       24-11-2023  29121           Quitar el filtro que discrimina las piezas Lost
-10			Damian Briones		07-02-2024	35758			Agregar id T&E y cambio encabezado
-11			Fernando Ordoñez	07-10-2024	41334			Agrega EsInventario
-12			Jose Ganchozo		29-11-2024	Bug-46654	    Se corrige la logica para las piezas que son de inventario
-13			Edwin Casa			20-01-2024	WMS-47594	    Optimizacion de querys, se agrega outeraplly para documentos despacho y se hace una preconsulta de los carriers no delivery
-*/
 ALTER     PROCEDURE [dbo].[pro_Despacho_DespachoDetallePickUp]
 (
 	@nroDocument	VARCHAR(20) = NULL,
@@ -528,22 +511,3 @@ BEGIN
         EXEC [pro_LogError]
     END CATCH;
 END;
-/*===========================================\======================================================
-exec sp_executesql N'pro_Despacho_DespachoDetallePickUp @nroDocument, @po, @Consignee, @status, @nroManifiesto, @barcode, @supplier, @pending, @consulta, @idClienteFinal, @idCarrier,@fechaDespacho, @fechaDesde, @palletLabel, @idBodega
-',N'@nroDocument varchar(32),@po varchar(32),@Consignee varchar(100),@status nvarchar(7),@nroManifiesto varchar(50),@barcode varchar(20),@supplier varchar(100),@pending int,@consulta int,@idClienteFinal varchar(32),@idCarrier varchar(20),@fechaDespacho da
-tetime,@fechaDesde int,@palletLabel varchar(20),@idBodega varchar(8000)'
-    ,@nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=N'PENDING',@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@consulta=2,@idClienteFinal=NULL,@idCarrier=NULL,@fechaDespacho=NULL,@fechaDesde=3,@palletLabel=NULL,@idBodega=NULL
-
-
-Prueba 1 idEmpresa = MIA, idCliente = null
-exec pro_Despacho_DespachoDetallePickUp @nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=NULL,@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@consulta=2,@idClienteFinal=NULL,@idCarrier=NULL,@fechaDespacho=NULL,@fechaDesde=3,@palletLabel=NUL
-L,@idBodega=NULL,@idOrdenVenta=NULL,@idEmpresa=N'EMP014'
-
-Prueba 2 idEmpresa = AMS, idCliente = null
-exec pro_Despacho_DespachoDetallePickUp @nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=NULL,@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@consulta=2,@idClienteFinal=NULL,@idCarrier=NULL,@fechaDespacho=NULL,@fechaDesde=3,@palletLabel=NULL,@idBodega=NULL,@idOrdenVenta=NULL,@idEmpresa=N'EMP015'
-
-exec sp_executesql N'pro_Despacho_DespachoDetallePickUp @nroDocument, @po, @Consignee, @status, @nroManifiesto, @barcode, @supplier, @pending, @consulta, @idClienteFinal, @idCarrier,@fechaDespacho, @fechaDesde, @palletLabel, @idBodega, @idEmpresa
-',N'@nroDocument varchar(32),@po varchar(32),@Consignee varchar(100),@status nvarchar(7),@nroManifiesto varchar(50),@barcode varchar(20),@supplier varchar(100),@pending int,@consulta int,@idClienteFinal nvarchar(10),@idCarrier nvarchar(12),@fechaDespacho 
-nvarchar(10),@fechaDesde int,@palletLabel varchar(20),@idBodega varchar(8),@idOrdenVenta uniqueidentifier,@idEmpresa nvarchar(6)',@nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=N'PENDING',@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@co
-nsulta=1,@idClienteFinal=N'CLI0114374',@idCarrier=N'ybOy4oex7F5E',@fechaDespacho=N'02-02-2024',@fechaDesde=3,@palletLabel=NULL,@idBodega='LXgyot5M',@idOrdenVenta=NULL,@idEmpresa=N'EMP014'
- */
