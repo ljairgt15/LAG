@@ -109,8 +109,8 @@ BEGIN
                      , PE.nroPo
                      , CLF.idPais idPaisCliente
                      , GHD.truckId
-                     , CLI.nombre AS nombreConsignee
-                     , CLI.id idConsignee
+                     , CGN.nombre AS nombreConsignee
+                     , CGN.id idConsignee
                      , edi.idUsuarioLog idUsuarioLogEdi
                      , GH.idUsuarioLog idUsuarioLogHouse
                      , US.nombre nombreUsuario
@@ -183,8 +183,8 @@ BEGIN
                        , PE.nroPo
                        , CLF.idPais
                        , GHD.truckId
-                       , CLI.nombre
-                       , CLI.id
+                       , CGN.nombre
+                       , CGN.id
                        , edi.idUsuarioLog
                        , GH.idUsuarioLog
                        , US.nombre
@@ -342,19 +342,19 @@ BEGIN
                     SELECT GHD.id
                          , GH.id idGuiaHouse
                          , GHD.estadoPieza
-                         , GHD.idClienteFinal
+                         , GHD.ShipToId
                          , PC.fechaDespacho
                          , ISNULL(B1.nombre, B.nombre) AS nombreBodega
 						 , ISNULL(ub.idBodega, GH.idBodega) AS idBodega
                          , PC.idCarrier
                          , PC.id idProgramacionCarrier
-                         , ISNULL(CLF.nombreClienteFinal, CLF.nombre) AS nombreClienteFinal
+                         , CLF.nombre AS nombreClienteFinal
                          , GH.nroGuia
                          , PE.nroPo
                          , CLF.idPais idPaisCliente
                          , GHD.truckId
-                         , CLI.nombre nombreConsignee
-                         , CLI.id idConsignee
+                         , CGN.nombre AS nombreConsignee
+                         , CGN.id idConsignee
                          , edi.idUsuarioLog idUsuarioLogEdi
                          , GH.idUsuarioLog idUsuarioLogHouse
                          , US.nombre nombreUsuario
@@ -370,7 +370,7 @@ BEGIN
                          , SUM(IIF(V.picking = 1, 1, 0)) totalPicking
                          , V.id
                          , GHD.po
-                         , GH.idCliente
+                         , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                          , GHD.despachadoDestino
 						 , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0)) idUsuarioLogPicking
 						 , TE.idTE idTEGuid
@@ -387,9 +387,12 @@ BEGIN
                          INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                          INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
                          INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
-                         INNER JOIN Clientes CLF ON GHD.idClienteFinal = CLF.id
-                         INNER JOIN Clientes CLI ON GH.idCliente = CLI.id
-                         LEFT JOIN ParametrosCatalogos PCAT ON PCAT.idEntidad = GH.idCliente AND PCAT.idParametroLista = PLC.id
+                         -- CAMBIO: Vista ShipTo
+                         INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
+                         -- CAMBIO: Vista Header Híbrida
+                         INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+                         -- CAMBIO: ParametrosCatalogos con ID Normalizado
+                         LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
 						 LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
                          LEFT JOIN edi ON PC.idCarrier = edi.idCarrier AND PC.fechaDespacho = edi.fechaDespacho
                          LEFT JOIN Usuarios US ON edi.idUsuarioLog = US.id
@@ -424,8 +427,8 @@ BEGIN
                            , PE.nroPo
                            , CLF.idPais
                            , GHD.truckId
-                           , CLI.nombre
-                           , CLI.id
+                           , CGN.nombre
+                           , CGN.id
                            , edi.idUsuarioLog
                            , GH.idUsuarioLog
                            , US.nombre
@@ -514,8 +517,8 @@ BEGIN
                         OR APU.po LIKE '%' + @po + '%')
 						AND (@nroManifiesto IS NULL
                         OR MD.nroManifiesto LIKE '%' + @nroManifiesto + '%')
-						AND (@Consignee IS NULL
-                        OR APU.idCliente IN (SELECT id FROM Clientes WHERE nombre LIKE '%' + @Consignee + '%'))
+                        -- CAMBIO: Filtro Consignee directo sobre la vista (Busca en Alias o Nombre)
+                        AND (@Consignee IS NULL OR CLI.nombre LIKE '%' + @Consignee + '%')
                         AND (@supplier IS NULL
                         OR APU.idExportador IN (SELECT id FROM Exportadores WHERE nombre LIKE '%' + @supplier + '%'))
 						AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
