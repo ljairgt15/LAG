@@ -351,7 +351,7 @@ BEGIN
                          , GH.fechaCambio
                          , GH.idExportador
                          , pal.pallet
-                         , SUM(IIF(V.picking = 1, 1, 0)) totalPicking
+                         , SUM(IIF(V.picking = 1, 1, 0))
                          , V.id
                          , GHD.po
                          , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
