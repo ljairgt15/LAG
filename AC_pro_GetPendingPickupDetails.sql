@@ -398,17 +398,32 @@ BEGIN
                     AND GH.idEmpresa = @idEmpresa                     
                     AND GHD.esPOD = 0
 
-                    -- ==============================================================================
-                    -- FILTROS OPTIMIZADOS (ANTES DE ENTRAR A LA TABLA TEMPORAL)
-                    -- ==============================================================================
-                    
-                    -- 1. FILTRO CONSIGNATARIO (Busca por Alias o Nombre del Hijo)
+                    -- 1. FILTROS NUEVOS (CONSIGNEE / BILLTO)
                     AND (@Consignee IS NULL OR CGN.nombre LIKE '%' + @Consignee + '%')
-
-                    -- 2. FILTRO PAGADOR / BILL-TO (Busca por Nombre del Padre, solo si es Relación)
-                    AND (@BillTo IS NULL 
-                        OR (CGN.BillToId IS NOT NULL AND CGN.EntityName LIKE '%' + @BillTo + '%')
-                    )
+                    AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.EntityName LIKE '%' + @BillTo + '%'))
+                    -- 2. FILTROS OPTIMIZADOS (MOVIDOS DEL FINAL AL PRINCIPIO) --------------------
+                    AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
+                    -- Bodega (Replica la lógica del SELECT: ISNULL(Ubicacion, Header))
+                    AND (@idBodega IS NULL OR ISNULL(ub.idBodega, GH.idBodega) = @idBodega)
+                    -- Nro Documento (Guía)
+                    AND (@nroDocument IS NULL OR GH.nroGuia LIKE '%' + @nroDocument + '%')
+                    -- PO
+                    AND (@po IS NULL OR GHD.po LIKE '%' + @po + '%')
+                    -- Barcode
+                    AND (@barcode IS NULL OR GHD.codigoBarra LIKE '%' + @barcode + '%')
+                    -- Supplier (Exportador)
+                    AND (@supplier IS NULL OR GH.idExportador IN (SELECT id FROM Exportadores WITH (NOLOCK) WHERE nombre LIKE '%' + @supplier + '%'))
+                    -- Pallet Label
+                    AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
+                    -- Es Inventario (Replica la lógica del CASE del SELECT)
+                    AND (@esInventario IS NULL OR 
+                        (CASE 
+                                WHEN V.tipoVenta < 4 THEN 1 
+                                WHEN V.tipoVenta = 5 AND V.tipoPieza = 1 THEN 1 
+                                ELSE 0 
+                            END) = @esInventario
+                        )
+                    ------------------------------------------------------------------------------
                     GROUP BY GHD.id
                            , GH.id
                            , GHD.estadoPieza
@@ -497,25 +512,10 @@ BEGIN
                          LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                          LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle
                          LEFT JOIN Pallets pal WITH (NOLOCK) ON PLD.idPallet = pal.id
-                    WHERE CASE 
-							WHEN @esInventario IS NULL THEN 1
-							WHEN APU.esInventario = @esInventario THEN 1
-							ELSE 0
-						END = 1
-						AND ISNULL(DD.esPOD, 0) = 0
-						AND (@barcode IS NULL OR APU.codigoBarra LIKE '%' + @barcode + '%')
-						AND APU.idCarrier =  ISNULL(@idCarrier, APU.idCarrier)
-						AND (@barcode IS NULL
-                        OR APU.codigoBarra LIKE '%' + @barcode + '%')
-						AND (@nroDocument IS NULL
-                        OR APU.nroGuia LIKE '%' + @nroDocument + '%')
-						AND (@po IS NULL
-                        OR APU.po LIKE '%' + @po + '%')
-						AND (@nroManifiesto IS NULL
+                    WHERE 
+						(@nroManifiesto IS NULL
                         OR MD.nroManifiesto LIKE '%' + @nroManifiesto + '%')
-                        AND (@supplier IS NULL
-                        OR APU.idExportador IN (SELECT id FROM Exportadores WHERE nombre LIKE '%' + @supplier + '%'))
-						AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
+                        AND ISNULL(DD.esPOD, 0) = 0
                 END;
     END TRY
     BEGIN CATCH
