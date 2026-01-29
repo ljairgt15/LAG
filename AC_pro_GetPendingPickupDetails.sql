@@ -95,7 +95,7 @@ BEGIN
                      , GHD.truckId
                      , CGN.nombre AS nombreConsignee
                      , CGN.id idConsignee
-                     , edi.idUsuarioLog idUsuarioLogEdi
+                     , EDI.idUsuarioLog idUsuarioLogEdi
                      , GH.idUsuarioLog idUsuarioLogHouse
                      , US.nombre nombreUsuario
                      , 0 totalPiezas
@@ -103,7 +103,7 @@ BEGIN
                      , NULL codigoBarra
                      , V.nroOrden
                      , GH.house
-                     , edi.fechaCambio
+                     , EDI.fechaCambio
                      , GH.fechaCambio
                      , GH.idExportador
                      , PAL.pallet
@@ -134,8 +134,8 @@ BEGIN
 					 -- CAMBIO: ParametrosCatalogos ahora se une con el ConsigneeId normalizado de la vista (siempre es ETY)
 					 LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
 					 LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
-					 LEFT JOIN EDI ON PC.idCarrier = edi.idCarrier AND PC.fechaDespacho = edi.fechaDespacho
-                     LEFT JOIN Usuarios US WITH (NOLOCK) ON edi.idUsuarioLog = US.id
+					 LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
+                     LEFT JOIN Usuarios US WITH (NOLOCK) ON EDI.idUsuarioLog = US.id
                      LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.idPoDetalle = PD.id
                      LEFT JOIN PoEncabezado PE ON PD.idPo = PE.id
                      OUTER APPLY (SELECT TOP (1) SV.id, SV.nroOrden, SVD.picking, SV.tipoVenta, SVD.tipoPieza
@@ -169,14 +169,14 @@ BEGIN
                        , GHD.truckId
                        , CGN.nombre
                        , CGN.id
-                       , edi.idUsuarioLog
+                       , EDI.idUsuarioLog
                        , GH.idUsuarioLog
                        , US.nombre
                        , PCAT.valor
                        , V.nroOrden
                        , V.id
                        , GH.house
-                       , edi.fechaCambio
+                       , EDI.fechaCambio
                        , GH.fechaCambio
                        , GH.idExportador
                        , PAL.pallet
@@ -339,7 +339,7 @@ BEGIN
                          , GHD.truckId
                          , CGN.nombre
                          , CGN.id
-                         , edi.idUsuarioLog
+                         , EDI.idUsuarioLog
                          , GH.idUsuarioLog
                          , US.nombre
                          , 0 totalPiezas
@@ -347,7 +347,7 @@ BEGIN
                          , GHD.codigoBarra
                          , V.nroOrden
                          , GH.house
-                         , edi.fechaCambio
+                         , EDI.fechaCambio
                          , GH.fechaCambio
                          , GH.idExportador
                          , PAL.pallet
@@ -374,8 +374,8 @@ BEGIN
                          -- CAMBIO: ParametrosCatalogos con ID Normalizado
                          LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
 						 LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
-                         LEFT JOIN edi ON PC.idCarrier = edi.idCarrier AND PC.fechaDespacho = edi.fechaDespacho
-                         LEFT JOIN Usuarios US ON edi.idUsuarioLog = US.id
+                         LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
+                         LEFT JOIN Usuarios US ON EDI.idUsuarioLog = US.id
                          LEFT JOIN PoDetalles PD ON GHD.idPoDetalle = PD.id
                          LEFT JOIN PoEncabezado PE ON PD.idPo = PE.id
                          OUTER APPLY (SELECT TOP (1) SV.id, SV.nroOrden, SVD.picking, SV.tipoVenta, SVD.tipoPieza
@@ -436,14 +436,14 @@ BEGIN
                            , GHD.truckId
                            , CGN.nombre
                            , CGN.id
-                           , edi.idUsuarioLog
+                           , EDI.idUsuarioLog
                            , GH.idUsuarioLog
                            , US.nombre
 						   , PCAT.valor
                            , V.nroOrden
                            , V.id
                            , GH.house
-                           , edi.fechaCambio
+                           , EDI.fechaCambio
                            , GH.fechaCambio
                            , GH.idExportador
                            , PAL.pallet
