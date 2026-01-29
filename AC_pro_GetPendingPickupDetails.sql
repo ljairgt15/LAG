@@ -117,17 +117,17 @@ BEGIN
                      , CalcInventario.ValorEsInventario -- Usando Cross Apply
                 FROM  ProgramacionCarrier PC  WITH (NOLOCK)
                      INNER JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id
-					 INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
-																	 AND PCA.idParametroLista = @idParametroDelivery 
-																	 AND PCA.valor = 'NO'
+                     INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
+                                                                     AND PCA.idParametroLista = @idParametroDelivery 
+                                                                     AND PCA.valor = 'NO'
                      INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                      INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
-					 INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
+                     INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
                      INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
                      INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-					 LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
-					 LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
-					 LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
+                     LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
+                     LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
+                     LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
                      LEFT JOIN Usuarios US WITH (NOLOCK) ON EDI.idUsuarioLog = US.id
                      LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.idPoDetalle = PD.id
                      LEFT JOIN PoEncabezado PE ON PD.idPo = PE.id
@@ -152,7 +152,7 @@ BEGIN
                         END AS ValorEsInventario
                      ) AS CalcInventario
                 WHERE PC.fechaDespacho = @fechaDespacho
-				  AND GH.idEmpresa = @idEmpresa              
+                  AND GH.idEmpresa = @idEmpresa              
                   AND (@idOrdenVenta IS NULL OR V.id = @idOrdenVenta)
                   AND GHD.ShipToId = @idClienteFinal -- Filtro Principal de esta consulta
                   
@@ -191,8 +191,8 @@ BEGIN
                        , PAL.pallet
                        , GHD.po
                        , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-                       , GHD.despachadoDestino  
-					   , TE.idTE
+                       , GHD.despachadoDestino
+                       , TE.idTE
                        , CalcInventario.ValorEsInventario
 
                 IF (@nroManifiesto IS NULL)
@@ -219,7 +219,7 @@ BEGIN
                              , APU.nroPo
                              , APU.idPaisCliente
                              , DD.nombreArchivo tipoNubeDocs
-							 , ISNULL(ISNULL(APU.fechaCambio, MD.fechaCambio), APU.fechaCambioHouse) AS usuarioFechaCambio
+                             , ISNULL(ISNULL(APU.fechaCambio, MD.fechaCambio), APU.fechaCambioHouse) AS usuarioFechaCambio
                              , APU.truckId
                              , APU.nombreConsignee
                              , APU.idConsignee
@@ -232,18 +232,18 @@ BEGIN
                              , APU.idOrdenventa
                              , APU.despachadoDestino
                              , APU.totalPickingLoading TotalPickingLoading
-							 , APU.idTEGuid
-							 , APU.esInventario
+                             , APU.idTEGuid
+                             , APU.esInventario
                         FROM #TablaAgrupacionGuiasPickUp APU
                              LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                              LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
-							 OUTER APPLY (
-								SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
-								FROM DocumentosDespacho DD WITH (NOLOCK)
-								WHERE DD.idManifiesto = MD.id
-								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC
-							) DD
+                             OUTER APPLY (
+                                SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
+                                FROM DocumentosDespacho DD WITH (NOLOCK)
+                                WHERE DD.idManifiesto = MD.id
+                                AND DD.idDocumento = 'DOC052395'
+                                ORDER BY EsPod DESC
+                            ) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                         WHERE MD.nroManifiesto IS NULL
@@ -285,20 +285,22 @@ BEGIN
                              , APU.idOrdenventa
                              , APU.despachadoDestino
                              , APU.totalPickingLoading TotalPickingLoading
-							 , APU.idTEGuid
-							 , APU.esInventario
+                             , APU.idTEGuid
+                             , APU.esInventario
                         FROM #TablaAgrupacionGuiasPickUp APU
-                             LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
-                             LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
-							 OUTER APPLY (
-								SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
-								FROM DocumentosDespacho DD WITH (NOLOCK)
-								WHERE DD.idManifiesto = MD.id
-								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC
-							) DD
+                             -- CAMBIO: INNER JOIN para mayor velocidad (Si busco manifiesto, TIENE que haber manifiesto)
+                             INNER JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
+                             INNER JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
+                             OUTER APPLY (
+                                SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
+                                FROM DocumentosDespacho DD WITH (NOLOCK)
+                                WHERE DD.idManifiesto = MD.id
+                                AND DD.idDocumento = 'DOC052395'
+                                ORDER BY EsPod DESC
+                            ) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
+                        --Un LEFT JOIN con un filtro WHERE obligatorio sobre la tabla derecha se convierte funcionalmente en un INNER JOIN.
                         WHERE MD.nroManifiesto = @nroManifiesto
                           AND ISNULL(DD.esPOD, 0) = 0
                     END;
