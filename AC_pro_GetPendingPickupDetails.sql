@@ -85,7 +85,7 @@ BEGIN
                      , GHD.ShipToId
                      , PC.fechaDespacho
                      , ISNULL(B1.nombre, B.nombre) AS nombreBodega
-                     , ISNULL(ub.idBodega, GH.idBodega) AS idBodega
+                     , ISNULL(UB.idBodega, GH.idBodega) AS idBodega
                      , PC.idCarrier
                      , PC.id idProgramacionCarrier
                      , CLF.nombre AS nombreClienteFinal
@@ -106,7 +106,7 @@ BEGIN
                      , edi.fechaCambio
                      , GH.fechaCambio
                      , GH.idExportador
-                     , pal.pallet
+                     , PAL.pallet
                      , SUM(IIF(V.picking = 1, 1, 0)) totalPicking
                      , V.id
                      , GHD.po
@@ -144,12 +144,12 @@ BEGIN
                                   WHERE SVD.idGuiaHouseDetalle = GHD.id
                                   ORDER BY SV.fechaSolicitud DESC) V
                      LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON GHD.id = PLD.idGuiasHouseDetalle
-                     LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = pal.id
+                     LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
                      LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
                      LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
-                     LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = ub.id
+                     LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
                      LEFT JOIN Bodegas B ON GH.idBodega = B.id
-                     LEFT JOIN Bodegas B1 ON ub.idBodega = B1.id
+                     LEFT JOIN Bodegas B1 ON UB.idBodega = B1.id
                 WHERE PC.fechaDespacho = @fechaDespacho
 				  AND GH.idEmpresa = @idEmpresa              
                   AND (@idOrdenVenta IS NULL OR V.id = @idOrdenVenta)
@@ -159,7 +159,7 @@ BEGIN
                        , GHD.ShipToId
                        , PC.fechaDespacho
                        , ISNULL(B1.nombre, B.nombre)
-                       , ISNULL(ub.idBodega, GH.idBodega)
+                       , ISNULL(UB.idBodega, GH.idBodega)
                        , PC.idCarrier
                        , CLF.nombre
                        , ISNULL(CLF.nombreClienteFinal, CLF.nombre)
@@ -179,7 +179,7 @@ BEGIN
                        , edi.fechaCambio
                        , GH.fechaCambio
                        , GH.idExportador
-                       , pal.pallet
+                       , PAL.pallet
                        , GHD.po
                        , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                        , GH.idExportador
@@ -242,11 +242,11 @@ BEGIN
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                              LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle 
-                             LEFT JOIN Pallets pal WITH (NOLOCK) ON PLD.idPallet = pal.id
+                             LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
                         WHERE MD.nroManifiesto IS NULL
                           AND APU.idClienteFinal = @idClienteFinal
                           AND APU.idCarrier = @idCarrier
-                          AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%') 
+                          AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%') 
                           AND APU.idBodega = @IdBodega
 						  AND CASE 
 								WHEN @esInventario IS NULL THEN 1
@@ -306,11 +306,11 @@ BEGIN
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                              LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle
-                             LEFT JOIN Pallets pal WITH (NOLOCK) ON PLD.idPallet = pal.id
+                             LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
                         WHERE APU.idClienteFinal = @idClienteFinal
                         AND MD.nroManifiesto = @nroManifiesto
                         AND APU.idCarrier = @idCarrier
-                        AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
+                        AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
                         AND APU.idBodega = @IdBodega
 						AND CASE 
 								WHEN @esInventario IS NULL THEN 1
@@ -329,7 +329,7 @@ BEGIN
                          , GHD.ShipToId
                          , PC.fechaDespacho
                          , ISNULL(B1.nombre, B.nombre)
-						 , ISNULL(ub.idBodega, GH.idBodega)
+						 , ISNULL(UB.idBodega, GH.idBodega)
                          , PC.idCarrier
                          , PC.id
                          , CLF.nombre
@@ -350,7 +350,7 @@ BEGIN
                          , edi.fechaCambio
                          , GH.fechaCambio
                          , GH.idExportador
-                         , pal.pallet
+                         , PAL.pallet
                          , SUM(IIF(V.picking = 1, 1, 0))
                          , V.id
                          , GHD.po
@@ -384,12 +384,12 @@ BEGIN
                                       WHERE SVD.idGuiaHouseDetalle = GHD.id
                                       ORDER BY SV.fechaSolicitud DESC) AS V
                          LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON GHD.id = PLD.idGuiasHouseDetalle
-                         LEFT JOIN Pallets pal WITH (NOLOCK) ON PLD.idPallet = pal.id
+                         LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
                          LEFT JOIN UbicacionPiezas AS UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
                          LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
-                         LEFT JOIN UbicacionesBodega ub ON U.idUbicacionBodega = ub.id
+                         LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
                          LEFT JOIN Bodegas B ON GH.idBodega = B.id
-                         LEFT JOIN Bodegas B1 ON ub.idBodega = B1.id
+                         LEFT JOIN Bodegas B1 ON UB.idBodega = B1.id
                          CROSS APPLY (
                                 SELECT CASE 
                                     WHEN V.tipoVenta < 4 THEN 1 
@@ -407,7 +407,7 @@ BEGIN
                     -- 2. FILTROS OPTIMIZADOS (MOVIDOS DEL FINAL AL PRINCIPIO) --------------------
                     AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
                     -- Bodega (Replica la lógica del SELECT: ISNULL(Ubicacion, Header))
-                    AND (@idBodega IS NULL OR ISNULL(ub.idBodega, GH.idBodega) = @idBodega)
+                    AND (@idBodega IS NULL OR ISNULL(UB.idBodega, GH.idBodega) = @idBodega)
                     -- Nro Documento (Guía)
                     AND (@nroDocument IS NULL OR GH.nroGuia LIKE '%' + @nroDocument + '%')
                     -- PO
@@ -417,7 +417,7 @@ BEGIN
                     -- Supplier (Exportador)
                     AND (@supplier IS NULL OR GH.idExportador IN (SELECT id FROM Exportadores WITH (NOLOCK) WHERE nombre LIKE '%' + @supplier + '%'))
                     -- Pallet Label
-                    AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
+                    AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
                     -- Es Inventario (Replica la lógica del CASE del SELECT)
                     AND (@esInventario IS NULL OR CalcInventario.ValorEsInventario = @esInventario)
                     ------------------------------------------------------------------------------
@@ -427,7 +427,7 @@ BEGIN
                            , GHD.ShipToId
                            , PC.fechaDespacho
                            , ISNULL(B1.nombre, B.nombre) 
-						   , ISNULL(ub.idBodega, GH.idBodega)
+						   , ISNULL(UB.idBodega, GH.idBodega)
                            , PC.idCarrier
                            , PC.id
                            , CLF.nombre
@@ -447,7 +447,7 @@ BEGIN
                            , edi.fechaCambio
                            , GH.fechaCambio
                            , GH.idExportador
-                           , pal.pallet
+                           , PAL.pallet
                            , GHD.po
                            , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                            , GH.idExportador
