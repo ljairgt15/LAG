@@ -4,7 +4,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER     PROCEDURE [dbo].[pro_Despacho_DespachoDetallePickUp]
+ALTER     PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 (
 	@nroDocument	VARCHAR(20) = NULL,
 	@po				VARCHAR(20) = NULL,
