@@ -299,18 +299,8 @@ BEGIN
 							) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
-                             LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle
-                             LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
-                        WHERE APU.idClienteFinal = @idClienteFinal
-                        AND MD.nroManifiesto = @nroManifiesto
-                        AND APU.idCarrier = @idCarrier
-                        AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
-                        AND APU.idBodega = @IdBodega
-						AND CASE 
-								WHEN @esInventario IS NULL THEN 1
-								WHEN APU.esInventario = @esInventario THEN 1
-								ELSE 0
-							END = 1
+                        WHERE MD.nroManifiesto = @nroManifiesto
+                          AND ISNULL(DD.esPOD, 0) = 0
                     END;
             END;
         ELSE
