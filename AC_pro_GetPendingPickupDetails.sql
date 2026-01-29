@@ -112,13 +112,9 @@ BEGIN
                      , GHD.po
                      , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                      , GHD.despachadoDestino
-                     , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0)) idUsuarioLogPicking
-					 , TE.idTE idTEGuid
-					 , CASE 
-							WHEN V.tipoVenta < 4 THEN 1 
-							WHEN V.tipoVenta = 5 AND V.tipoPieza = 1  THEN 1 
-							ELSE 0
-						END esInventario
+                     , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0))
+                     , TE.idTE
+                     , CalcInventario.ValorEsInventario -- Usando Cross Apply
                 FROM  ProgramacionCarrier PC  WITH (NOLOCK)
                      INNER JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id
 					 INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
@@ -147,6 +143,14 @@ BEGIN
                      LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
                      LEFT JOIN Bodegas B ON GH.idBodega = B.id
                      LEFT JOIN Bodegas B1 ON UB.idBodega = B1.id
+                     -- CROSS APPLY para cálculo de inventario
+                     CROSS APPLY (
+                        SELECT CASE 
+                            WHEN V.tipoVenta < 4 THEN 1 
+                            WHEN V.tipoVenta = 5 AND V.tipoPieza = 1 THEN 1 
+                            ELSE 0 
+                        END AS ValorEsInventario
+                     ) AS CalcInventario
                 WHERE PC.fechaDespacho = @fechaDespacho
 				  AND GH.idEmpresa = @idEmpresa              
                   AND (@idOrdenVenta IS NULL OR V.id = @idOrdenVenta)
@@ -182,10 +186,7 @@ BEGIN
                        , GH.idExportador
                        , GHD.despachadoDestino  
 					   , TE.idTE
-					   , CASE WHEN V.tipoVenta < 4 THEN 1 
-							WHEN V.tipoVenta = 5 AND V.tipoPieza = 1  THEN 1 
-							ELSE 0 
-						END
+                       , CalcInventario.ValorEsInventario
 
                 IF (@nroManifiesto IS NULL)
                     BEGIN
