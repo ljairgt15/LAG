@@ -358,11 +358,7 @@ BEGIN
                          , GHD.despachadoDestino
 						 , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0)) idUsuarioLogPicking
 						 , TE.idTE idTEGuid
-						 , CASE 
-								WHEN V.tipoVenta < 4 THEN 1 
-								WHEN V.tipoVenta = 5 AND V.tipoPieza = 1  THEN 1 
-								ELSE 0
-						   END esInventario
+						 , CalcInventario.ValorEsInventario esInventario
                     FROM ProgramacionCarrier PC  WITH (NOLOCK)
                          INNER JOIN Transportes T ON PC.idCarrier = T.id
                          INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
@@ -394,6 +390,13 @@ BEGIN
                          LEFT JOIN UbicacionesBodega ub ON U.idUbicacionBodega = ub.id
                          LEFT JOIN Bodegas B ON GH.idBodega = B.id
                          LEFT JOIN Bodegas B1 ON ub.idBodega = B1.id
+                         CROSS APPLY (
+                                SELECT CASE 
+                                    WHEN V.tipoVenta < 4 THEN 1 
+                                    WHEN V.tipoVenta = 5 AND V.tipoPieza = 1 THEN 1 
+                                    ELSE 0 
+                                END AS ValorEsInventario
+                        ) AS CalcInventario
                     WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE())            
                     AND GH.idEmpresa = @idEmpresa                     
                     AND GHD.esPOD = 0
@@ -416,13 +419,7 @@ BEGIN
                     -- Pallet Label
                     AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
                     -- Es Inventario (Replica la lógica del CASE del SELECT)
-                    AND (@esInventario IS NULL OR 
-                        (CASE 
-                                WHEN V.tipoVenta < 4 THEN 1 
-                                WHEN V.tipoVenta = 5 AND V.tipoPieza = 1 THEN 1 
-                                ELSE 0 
-                            END) = @esInventario
-                        )
+                    AND (@esInventario IS NULL OR CalcInventario.ValorEsInventario = @esInventario)
                     ------------------------------------------------------------------------------
                     GROUP BY GHD.id
                            , GH.id
@@ -457,9 +454,7 @@ BEGIN
                            , GHD.despachadoDestino
 						   , GHD.codigoBarra 
 						   , TE.idTE
-						   , CASE WHEN V.tipoVenta < 4 THEN 1 
-							WHEN V.tipoVenta = 5 AND V.tipoPieza = 1  THEN 1 
-							ELSE 0 END
+						   , CalcInventario.ValorEsInventario
 						   
                     SELECT APU.id
                          , APU.idGuiaHouse
