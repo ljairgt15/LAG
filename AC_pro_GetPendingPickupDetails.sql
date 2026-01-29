@@ -328,23 +328,23 @@ BEGIN
                          , GHD.estadoPieza
                          , GHD.ShipToId
                          , PC.fechaDespacho
-                         , ISNULL(B1.nombre, B.nombre) AS nombreBodega
-						 , ISNULL(ub.idBodega, GH.idBodega) AS idBodega
+                         , ISNULL(B1.nombre, B.nombre)
+						 , ISNULL(ub.idBodega, GH.idBodega)
                          , PC.idCarrier
-                         , PC.id idProgramacionCarrier
-                         , CLF.nombre AS nombreClienteFinal
+                         , PC.id
+                         , CLF.nombre
                          , GH.nroGuia
                          , PE.nroPo
-                         , CLF.idPais idPaisCliente
+                         , CLF.idPais
                          , GHD.truckId
-                         , CGN.nombre AS nombreConsignee
-                         , CGN.id idConsignee
-                         , edi.idUsuarioLog idUsuarioLogEdi
-                         , GH.idUsuarioLog idUsuarioLogHouse
-                         , US.nombre nombreUsuario
+                         , CGN.nombre
+                         , CGN.id
+                         , edi.idUsuarioLog
+                         , GH.idUsuarioLog
+                         , US.nombre
                          , 0 totalPiezas
                          , PCAT.valor
-                         , GHD.codigoBarra codigoBarra
+                         , GHD.codigoBarra
                          , V.nroOrden
                          , GH.house
                          , edi.fechaCambio
@@ -356,9 +356,9 @@ BEGIN
                          , GHD.po
                          , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                          , GHD.despachadoDestino
-						 , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0)) idUsuarioLogPicking
-						 , TE.idTE idTEGuid
-						 , CalcInventario.ValorEsInventario esInventario
+						 , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0))
+						 , TE.idTE
+						 , CalcInventario.ValorEsInventario
                     FROM ProgramacionCarrier PC  WITH (NOLOCK)
                          INNER JOIN Transportes T ON PC.idCarrier = T.id
                          INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
