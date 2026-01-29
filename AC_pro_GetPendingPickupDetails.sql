@@ -508,10 +508,9 @@ BEGIN
 								AND DD.idDocumento = 'DOC052395'
 								ORDER BY EsPod DESC
 							) DD
+                            ---usados para traer informacion de usuario, aunque no se use en where
                          LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                          LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
-                         LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle
-                         LEFT JOIN Pallets pal WITH (NOLOCK) ON PLD.idPallet = pal.id
                     WHERE 
 						(@nroManifiesto IS NULL
                         OR MD.nroManifiesto LIKE '%' + @nroManifiesto + '%')
