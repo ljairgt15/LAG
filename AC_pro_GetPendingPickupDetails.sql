@@ -400,7 +400,6 @@ BEGIN
                     WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE())            
                     AND GH.idEmpresa = @idEmpresa                     
                     AND GHD.esPOD = 0
-
                     -- 1. FILTROS NUEVOS (CONSIGNEE / BILLTO)
                     AND (@Consignee IS NULL OR CGN.nombre LIKE '%' + @Consignee + '%')
                     AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.EntityName LIKE '%' + @BillTo + '%'))
@@ -465,7 +464,7 @@ BEGIN
                          , APU.fechaDespacho
                          , APU.nombreBodega
                          , APU.idBodega
-                         ,ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
+                         , ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
                          , CASE
                                WHEN APU.idUsuarioLogEdi IS NOT NULL THEN APU.nombreUsuario
                                WHEN MD.idUsuarioLog IS NOT NULL THEN U.nombre
