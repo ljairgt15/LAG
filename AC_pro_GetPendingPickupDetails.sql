@@ -23,7 +23,8 @@ ALTER     PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 	@idBodega		VARCHAR(32) = NULL,
 	@idEmpresa		VARCHAR(16) = NULL,
 	@idOrdenVenta	UNIQUEIDENTIFIER = NULL,
-	@esInventario	BIT = NULL
+	@esInventario   BIT = NULL,
+    @BillTo         VARCHAR(100) = NULL -- NUEVO PARÁMETRO
 )
 AS
 BEGIN
@@ -393,9 +394,21 @@ BEGIN
                          LEFT JOIN UbicacionesBodega ub ON U.idUbicacionBodega = ub.id
                          LEFT JOIN Bodegas B ON GH.idBodega = B.id
                          LEFT JOIN Bodegas B1 ON ub.idBodega = B1.id
-                    WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE()) 				  
-                      AND GH.idEmpresa = @idEmpresa					 
-                      AND GHD.esPOD = 0
+                    WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE())            
+                    AND GH.idEmpresa = @idEmpresa                     
+                    AND GHD.esPOD = 0
+
+                    -- ==============================================================================
+                    -- FILTROS OPTIMIZADOS (ANTES DE ENTRAR A LA TABLA TEMPORAL)
+                    -- ==============================================================================
+                    
+                    -- 1. FILTRO CONSIGNATARIO (Busca por Alias o Nombre del Hijo)
+                    AND (@Consignee IS NULL OR CGN.nombre LIKE '%' + @Consignee + '%')
+
+                    -- 2. FILTRO PAGADOR / BILL-TO (Busca por Nombre del Padre, solo si es Relación)
+                    AND (@BillTo IS NULL 
+                        OR (CGN.BillToId IS NOT NULL AND CGN.EntityName LIKE '%' + @BillTo + '%')
+                    )
                     GROUP BY GHD.id
                            , GH.id
                            , GHD.estadoPieza
@@ -500,8 +513,6 @@ BEGIN
                         OR APU.po LIKE '%' + @po + '%')
 						AND (@nroManifiesto IS NULL
                         OR MD.nroManifiesto LIKE '%' + @nroManifiesto + '%')
-                        -- CAMBIO FORMA CORRECTA Y OPTIMIZADA
-                        AND (@Consignee IS NULL OR APU.nombreConsignee LIKE '%' + @Consignee + '%')
                         AND (@supplier IS NULL
                         OR APU.idExportador IN (SELECT id FROM Exportadores WHERE nombre LIKE '%' + @supplier + '%'))
 						AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
