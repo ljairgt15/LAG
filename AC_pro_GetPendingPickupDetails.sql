@@ -80,34 +80,34 @@ BEGIN
             BEGIN
                 INSERT INTO #TablaAgrupacionGuiasPickUp
                 SELECT GHD.id
-                     , GH.id idGuiaHouse
+                     , GH.id
                      , GHD.estadoPieza
                      , GHD.ShipToId
                      , PC.fechaDespacho
-                     , ISNULL(B1.nombre, B.nombre) AS nombreBodega
-                     , ISNULL(UB.idBodega, GH.idBodega) AS idBodega
+                     , ISNULL(B1.nombre, B.nombre)
+                     , ISNULL(UB.idBodega, GH.idBodega)
                      , PC.idCarrier
-                     , PC.id idProgramacionCarrier
-                     , CLF.nombre AS nombreClienteFinal
+                     , PC.id
+                     , CLF.nombre
                      , GH.nroGuia
                      , PE.nroPo
-                     , CLF.idPais idPaisCliente
+                     , CLF.idPais
                      , GHD.truckId
-                     , CGN.nombre AS nombreConsignee
-                     , CGN.id idConsignee
-                     , EDI.idUsuarioLog idUsuarioLogEdi
-                     , GH.idUsuarioLog idUsuarioLogHouse
-                     , US.nombre nombreUsuario
-                     , 0 totalPiezas
+                     , CGN.nombre
+                     , CGN.id
+                     , EDI.idUsuarioLog
+                     , GH.idUsuarioLog
+                     , US.nombre
+                     , 0 -- TotalPiezas
                      , PCAT.valor
-                     , NULL codigoBarra
+                     , NULL -- CodigoBarra (En consulta 1 suele ir nulo según tu original)
                      , V.nroOrden
                      , GH.house
                      , EDI.fechaCambio
                      , GH.fechaCambio
                      , GH.idExportador
                      , PAL.pallet
-                     , SUM(IIF(V.picking = 1, 1, 0)) totalPicking
+                     , SUM(IIF(V.picking = 1, 1, 0))
                      , V.id
                      , GHD.po
                      , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
