@@ -248,7 +248,7 @@ BEGIN
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                         WHERE MD.nroManifiesto IS NULL
                     END;
-                ELSE -- Consulta todos los detalles pickup pendientes de hace 3 meses
+                ELSE -- Consulta todos los detalles pickup pendientes de hace 3 meses Cuando @nroManifiesto TIENE VALOR
                     BEGIN
                         SELECT APU.id
                              , APU.idGuiaHouse
@@ -259,12 +259,12 @@ BEGIN
                              , APU.fechaDespacho
                              , APU.nombreBodega
                              , APU.idBodega
-                             ,ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
+                             , ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
                              , CASE
                                    WHEN APU.idUsuarioLogEdi IS NOT NULL THEN APU.nombreUsuario
                                    WHEN MD.idUsuarioLog IS NOT NULL THEN U.nombre
                                    ELSE USH.nombre
-                               END nombreUsuario
+                               END AS nombreUsuario
                              , APU.nombreClienteFinal
                              , APU.idCarrier
                              , APU.nroGuia
