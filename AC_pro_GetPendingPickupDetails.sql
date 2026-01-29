@@ -183,7 +183,6 @@ BEGIN
                        , PAL.pallet
                        , GHD.po
                        , ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-                       , GH.idExportador
                        , GHD.despachadoDestino  
 					   , TE.idTE
                        , CalcInventario.ValorEsInventario
@@ -199,7 +198,7 @@ BEGIN
                              , APU.fechaDespacho
                              , APU.nombreBodega
                              , APU.idBodega
-							 ,ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
+                             , ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
                              , CASE
                                    WHEN APU.idUsuarioLogEdi IS NOT NULL THEN APU.nombreUsuario
                                    WHEN MD.idUsuarioLog IS NOT NULL THEN U.nombre
