@@ -154,6 +154,14 @@ BEGIN
                 WHERE PC.fechaDespacho = @fechaDespacho
 				  AND GH.idEmpresa = @idEmpresa              
                   AND (@idOrdenVenta IS NULL OR V.id = @idOrdenVenta)
+                  AND GHD.ShipToId = @idClienteFinal -- Filtro Principal de esta consulta
+                  
+                  -- FILTROS OPTIMIZADOS (AGUAS ARRIBA)
+                  AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
+                  AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
+                  AND (@idBodega IS NULL OR ISNULL(UB.idBodega, GH.idBodega) = @idBodega)
+                  AND (@esInventario IS NULL OR CalcInventario.ValorEsInventario = @esInventario)
+
                 GROUP BY GHD.id
                        , GH.id
                        , GHD.estadoPieza
@@ -238,18 +246,7 @@ BEGIN
 							) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
-                             LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle 
-                             LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
                         WHERE MD.nroManifiesto IS NULL
-                          AND APU.idClienteFinal = @idClienteFinal
-                          AND APU.idCarrier = @idCarrier
-                          AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%') 
-                          AND APU.idBodega = @IdBodega
-						  AND CASE 
-								WHEN @esInventario IS NULL THEN 1
-								WHEN APU.esInventario = @esInventario THEN 1
-								ELSE 0
-							END = 1
                     END;
                 ELSE -- Consulta todos los detalles pickup pendientes de hace 3 meses
                     BEGIN
