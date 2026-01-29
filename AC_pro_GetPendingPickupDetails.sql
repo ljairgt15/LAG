@@ -161,8 +161,8 @@ BEGIN
                        , ISNULL(B1.nombre, B.nombre)
                        , ISNULL(UB.idBodega, GH.idBodega)
                        , PC.idCarrier
+                       , PC.id
                        , CLF.nombre
-                       , ISNULL(CLF.nombreClienteFinal, CLF.nombre)
                        , GH.nroGuia
                        , PE.nroPo
                        , CLF.idPais
