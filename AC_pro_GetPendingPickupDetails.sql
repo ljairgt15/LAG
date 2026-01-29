@@ -127,11 +127,8 @@ BEGIN
                      INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                      INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
 					 INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
-					 -- CAMBIO: Join con la vista para ShipTo (Detalle) usando el nuevo campo ShipToId
-					 INNER JOIN [dbo].[v_ClientsEntities] CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
-					 -- CAMBIO: Join con la vista para Consignee/BillTo (Header) usando la nueva lógica híbrida
-					 INNER JOIN [dbo].[v_ClientsEntities] CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-					 -- CAMBIO: ParametrosCatalogos ahora se une con el ConsigneeId normalizado de la vista (siempre es ETY)
+                     INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
+                     INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
 					 LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
 					 LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
 					 LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
