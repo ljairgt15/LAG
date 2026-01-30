@@ -260,7 +260,7 @@ BEGIN
             -- BREAKING CHANGE
             INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
             INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            INNER JOIN dbo.Exportadores EXP WITH (NOLOCK) ON GH.idExportador = EXP.id
+            INNER JOIN dbo.Exportadores EXP ON GH.idExportador = EXP.id
             
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
             INNER JOIN #TMP_TRANS T ON PC.idCarrier = T.id AND T.idEmpresa = GH.idEmpresa
