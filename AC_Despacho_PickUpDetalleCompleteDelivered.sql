@@ -29,74 +29,87 @@ BEGIN
 
         DECLARE @emptyUID UNIQUEIDENTIFIER = 0x0;
 
-        CREATE TABLE #TablaAgrupacionGuiasHouse (Id INT IDENTITY(1, 1) NOT NULL,
-                                                 IdClienteFinal VARCHAR(16) NOT NULL,
-                                                 IdClienteConsignee VARCHAR(16) NOT NULL,
-                                                 FechaPickUpProgramada DATETIME NOT NULL,
-                                                 FechaPickUpEntrega DATETIME NOT NULL,
-                                                 idUsuarioLog VARCHAR(32) NULL,
-												 TotalPending INT NOT NULL,
-												 TotalHold INT NOT NULL,
-												 TotalShort INT NOT NULL,
-												 TotalReceived INT NOT NULL,
-												 TotalStandBy INT NOT NULL,
-                                                 TotalDespachado INT NOT NULL,
-                                                 Total INT NOT NULL,
-                                                 IdBodega VARCHAR(16) NULL,
-                                                 IdManifiesto UNIQUEIDENTIFIER NULL,
-                                                 IdCarrier VARCHAR(16) NOT NULL,
-                                                 NombreCarrier VARCHAR(512) NOT NULL,
-                                                 IdGuia VARCHAR(128) NOT NULL,
-                                                 NroDocumento VARCHAR(32) NOT NULL,
-                                                 IdOrdenVenta UNIQUEIDENTIFIER NULL,
-                                                 NroOrdenVenta VARCHAR(32) NULL,
-                                                 ConPOD INT NOT NULL,
-                                                 Enviado INT NOT NULL,
-                                                 Procesado INT NOT NULL);
+        -- Se agregan campos de Nombres para evitar Joins al final
+        CREATE TABLE #TablaAgrupacionGuiasHouse (
+            Id INT IDENTITY(1, 1) NOT NULL,
+            IdClienteFinal VARCHAR(16) NOT NULL,
+            NombreClienteFinal VARCHAR(256) NULL, -- NUEVO
+            IdClienteConsignee VARCHAR(16) NOT NULL,
+            NombreClienteConsignee VARCHAR(256) NULL, -- NUEVO
+            FechaPickUpProgramada DATETIME NOT NULL,
+            FechaPickUpEntrega DATETIME NOT NULL,
+            idUsuarioLog VARCHAR(32) NULL,
+            TotalPending INT NOT NULL,
+            TotalHold INT NOT NULL,
+            TotalShort INT NOT NULL,
+            TotalReceived INT NOT NULL,
+            TotalStandBy INT NOT NULL,
+            TotalDespachado INT NOT NULL,
+            Total INT NOT NULL,
+            IdBodega VARCHAR(16) NULL,
+            NombreBodega NVARCHAR(512) NULL, -- NUEVO
+            IdManifiesto UNIQUEIDENTIFIER NULL,
+            IdCarrier VARCHAR(16) NOT NULL,
+            NombreCarrier VARCHAR(512) NOT NULL,
+            IdGuia VARCHAR(128) NOT NULL,
+            NroDocumento VARCHAR(32) NOT NULL,
+            IdOrdenVenta UNIQUEIDENTIFIER NULL,
+            NroOrdenVenta VARCHAR(32) NULL,
+            ConPOD INT NOT NULL,
+            Enviado INT NOT NULL,
+            Procesado INT NOT NULL
+        );
 
-        CREATE TABLE #TablaAgrupacionGuiasHouseFinal (Id INT IDENTITY(1, 1) NOT NULL,
-                                                      IdClienteFinal VARCHAR(16) NOT NULL,
-                                                      IdClienteConsignee VARCHAR(16) NOT NULL,
-                                                      FechaPickUpProgramada DATETIME NOT NULL,
-                                                      FechaPickUpEntrega DATETIME NOT NULL,
-                                                      idUsuarioLog VARCHAR(32) NULL,
-													  TotalPending INT NOT NULL,
-													  TotalHold INT NOT NULL,
-													  TotalShort INT NOT NULL,
-													  TotalReceived INT NOT NULL,
-													  TotalStandBy INT NOT NULL,
-                                                      TotalDespachado INT NOT NULL,
-                                                      Total INT NOT NULL,
-                                                      IdBodega VARCHAR(16) NULL,
-                                                      IdManifiesto UNIQUEIDENTIFIER NULL,
-                                                      IdCarrier VARCHAR(16) NOT NULL,
-                                                      NombreCarrier VARCHAR(512) NOT NULL,
-                                                      IdGuia VARCHAR(128) NOT NULL,
-                                                      NroDocumento VARCHAR(32) NOT NULL,
-                                                      IdOrdenVenta UNIQUEIDENTIFIER NULL,
-                                                      NroOrdenVenta VARCHAR(32) NULL,
-                                                      ConPOD INT NOT NULL,
-                                                      Enviado INT NOT NULL,
-                                                      Procesado INT NOT NULL);
+        -- Misma estructura para la tabla final
+        CREATE TABLE #TablaAgrupacionGuiasHouseFinal (
+            Id INT IDENTITY(1, 1) NOT NULL,
+            IdClienteFinal VARCHAR(16) NOT NULL,
+            NombreClienteFinal VARCHAR(256) NULL, -- NUEVO
+            IdClienteConsignee VARCHAR(16) NOT NULL,
+            NombreClienteConsignee VARCHAR(256) NULL, -- NUEVO
+            FechaPickUpProgramada DATETIME NOT NULL,
+            FechaPickUpEntrega DATETIME NOT NULL,
+            idUsuarioLog VARCHAR(32) NULL,
+            TotalPending INT NOT NULL,
+            TotalHold INT NOT NULL,
+            TotalShort INT NOT NULL,
+            TotalReceived INT NOT NULL,
+            TotalStandBy INT NOT NULL,
+            TotalDespachado INT NOT NULL,
+            Total INT NOT NULL,
+            IdBodega VARCHAR(16) NULL,
+            NombreBodega NVARCHAR(512) NULL, -- NUEVO
+            IdManifiesto UNIQUEIDENTIFIER NULL,
+            IdCarrier VARCHAR(16) NOT NULL,
+            NombreCarrier VARCHAR(512) NOT NULL,
+            IdGuia VARCHAR(128) NOT NULL,
+            NroDocumento VARCHAR(32) NOT NULL,
+            IdOrdenVenta UNIQUEIDENTIFIER NULL,
+            NroOrdenVenta VARCHAR(32) NULL,
+            ConPOD INT NOT NULL,
+            Enviado INT NOT NULL,
+            Procesado INT NOT NULL
+        );
 
-			SELECT parametroLista.idEmpresa, subCarrier.id, subCarrier.nombre
-			INTO #TMP_TRANS
-			FROM  dbo.Transportes subCarrier
-			INNER JOIN  dbo.Transportes carrier ON subCarrier.idTransportePrincipal = carrier.id
-			INNER JOIN  dbo.ParametrosCatalogos parametroCatalogo
-			ON carrier.id = parametroCatalogo.idEntidad
-			INNER JOIN  dbo.ParametrosLista parametroLista
-			ON parametroCatalogo.idParametroLista = parametroLista.id
-			AND parametroLista.codigo = 'EsDelivery'
-			WHERE parametroCatalogo.valor = 'NO';
+        -- Tablas auxiliares se mantienen igual
+        SELECT parametroLista.idEmpresa, subCarrier.id, subCarrier.nombre
+        INTO #TMP_TRANS
+        FROM  dbo.Transportes subCarrier
+        INNER JOIN  dbo.Transportes carrier ON subCarrier.idTransportePrincipal = carrier.id
+        INNER JOIN  dbo.ParametrosCatalogos parametroCatalogo
+        ON carrier.id = parametroCatalogo.idEntidad
+        INNER JOIN  dbo.ParametrosLista parametroLista
+        ON parametroCatalogo.idParametroLista = parametroLista.id
+        AND parametroLista.codigo = 'EsDelivery'
+        WHERE parametroCatalogo.valor = 'NO';
 
-			SELECT	GHDH.idGuiaHouseDetalle
-				, MAX(GHDH.fechaCambio) AS fechaCambio 
-			INTO #GuiaHouseDetalleHistoricoTemp
-			FROM GuiasHouseDetallesHistorico GHDH WITH (NOLOCK)
-			WHERE GHDH.fechaCambio BETWEEN @FechaDesde AND @FechaHasta
-			AND GHDH.VALOR = 'DISPATCHED WH'
-			GROUP BY GHDH.idGuiaHouseDetalle
+        SELECT	GHDH.idGuiaHouseDetalle
+              , MAX(GHDH.fechaCambio) AS fechaCambio 
+        INTO #GuiaHouseDetalleHistoricoTemp
+        FROM GuiasHouseDetallesHistorico GHDH WITH (NOLOCK)
+        WHERE GHDH.fechaCambio BETWEEN @FechaDesde AND @FechaHasta
+        AND GHDH.VALOR = 'DISPATCHED WH'
+        GROUP BY GHDH.idGuiaHouseDetalle;
 
         IF (   @NroDocumento IS NULL
          AND   @Po IS NULL
