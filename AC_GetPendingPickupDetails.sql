@@ -388,7 +388,7 @@ BEGIN
                     AND GHD.esPOD = 0
                     -- 1. FILTROS NUEVOS (CONSIGNEE / BILLTO)
                     AND (@Consignee IS NULL OR CGN.nombre LIKE '%' + @Consignee + '%')
-                    AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.EntityName LIKE '%' + @BillTo + '%'))
+                    AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.BillToName LIKE '%' + @BillTo + '%'))
                     -- 2. FILTROS OPTIMIZADOS (MOVIDOS DEL FINAL AL PRINCIPIO) --------------------
                     AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
                     -- Bodega (Replica la lógica del SELECT: ISNULL(Ubicacion, Header))
