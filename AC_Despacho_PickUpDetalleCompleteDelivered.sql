@@ -22,7 +22,8 @@ CREATE OR ALTER     PROCEDURE [dbo].[AC_Despacho_PickUpDetalleCompleteDelivered]
 @FechaPickUpProgramada DATE = NULL,
 @FechaPickUpEntrega DATE = NULL,
 @PalletLabel VARCHAR(20) = NULL,
-@idEmpresa VARCHAR(16) = NULL)
+@idEmpresa VARCHAR(16) = NULL),
+@BillTo VARCHAR(100) = NULL
 AS
 BEGIN
     BEGIN TRY
@@ -286,6 +287,7 @@ BEGIN
               AND (@NroDocumento IS NULL OR GH.nroGuia LIKE '%' + @NroDocumento + '%')
               AND (@Po IS NULL OR GHD.po LIKE '%' + @Po + '%')
               AND (@NombreClienteConsignee IS NULL OR CGN.nombre LIKE '%' + @NombreClienteConsignee + '%') -- Usa nombre de la vista
+              AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.BillToName LIKE '%' + @BillTo + '%'))
               AND (@NroPOD IS NULL OR MD.nroManifiesto LIKE '%' + @NroPOD + '%')
               AND (@CodigoBarras IS NULL OR GHD.codigoBarra LIKE '%' + @CodigoBarras + '%')
               AND (@NombreComercialExportador IS NULL OR EXP.nombreComercial LIKE '%' + @NombreComercialExportador + '%')
