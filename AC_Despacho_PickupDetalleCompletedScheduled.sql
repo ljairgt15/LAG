@@ -31,7 +31,9 @@ BEGIN
 
         CREATE TABLE #TablaAgrupacionGuiasHouse (Id INT IDENTITY(1, 1) NOT NULL,
                                                  IdClienteFinal VARCHAR(16) NOT NULL,
+                                                 NombreClienteFinal VARCHAR(512) NULL, -- NUEVO
                                                  IdClienteConsignee VARCHAR(16) NOT NULL,
+                                                 NombreClienteConsignee VARCHAR(512) NULL, -- NUEVO
                                                  FechaPickUpProgramada DATETIME NOT NULL,
                                                  FechaPickUpEntrega DATETIME NOT NULL,
                                                  idUsuarioLog VARCHAR(32) NULL,
@@ -43,6 +45,7 @@ BEGIN
                                                  TotalDespachado INT NOT NULL,
                                                  Total INT NOT NULL,
                                                  IdBodega VARCHAR(16) NULL,
+                                                 NombreBodega NVARCHAR(512) NULL, -- NUEVO
                                                  IdManifiesto UNIQUEIDENTIFIER NULL,
                                                  IdCarrier VARCHAR(16) NOT NULL,
                                                  NombreCarrier VARCHAR(512) NOT NULL,
@@ -57,7 +60,9 @@ BEGIN
 
         CREATE TABLE #TablaAgrupacionGuiasHouseFinal (Id INT IDENTITY(1, 1) NOT NULL,
                                                       IdClienteFinal VARCHAR(16) NOT NULL,
+                                                      NombreClienteFinal VARCHAR(512) NULL, -- NUEVO
                                                       IdClienteConsignee VARCHAR(16) NOT NULL,
+                                                      NombreClienteConsignee VARCHAR(512) NULL, -- NUEVO
                                                       FechaPickUpProgramada DATETIME NOT NULL,
                                                       FechaPickUpEntrega DATETIME NOT NULL,
                                                       idUsuarioLog VARCHAR(32) NULL,
@@ -69,6 +74,7 @@ BEGIN
                                                       TotalDespachado INT NOT NULL,
                                                       Total INT NOT NULL,
                                                       IdBodega VARCHAR(16) NULL,
+                                                      NombreBodega NVARCHAR(512) NULL, -- NUEVO
                                                       IdManifiesto UNIQUEIDENTIFIER NULL,
                                                       IdCarrier VARCHAR(16) NOT NULL,
                                                       NombreCarrier VARCHAR(512) NOT NULL,
