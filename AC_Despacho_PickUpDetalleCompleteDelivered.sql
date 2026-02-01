@@ -115,6 +115,7 @@ BEGIN
         IF (   @NroDocumento IS NULL
            AND @Po IS NULL
            AND @NombreClienteConsignee IS NULL
+           AND @BillTo IS NULL
            AND @NroPOD IS NULL
            AND @CodigoBarras IS NULL
            AND @NombreComercialExportador IS NULL)
