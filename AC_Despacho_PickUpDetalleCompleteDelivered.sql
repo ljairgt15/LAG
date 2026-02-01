@@ -34,9 +34,9 @@ BEGIN
         CREATE TABLE #TablaAgrupacionGuiasHouse (
             Id INT IDENTITY(1, 1) NOT NULL,
             IdClienteFinal VARCHAR(16) NOT NULL,
-            NombreClienteFinal VARCHAR(256) NULL, -- NUEVO
+            NombreClienteFinal VARCHAR(512) NULL, -- NUEVO
             IdClienteConsignee VARCHAR(16) NOT NULL,
-            NombreClienteConsignee VARCHAR(256) NULL, -- NUEVO
+            NombreClienteConsignee VARCHAR(512) NULL, -- NUEVO
             FechaPickUpProgramada DATETIME NOT NULL,
             FechaPickUpEntrega DATETIME NOT NULL,
             idUsuarioLog VARCHAR(32) NULL,
@@ -65,9 +65,9 @@ BEGIN
         CREATE TABLE #TablaAgrupacionGuiasHouseFinal (
             Id INT IDENTITY(1, 1) NOT NULL,
             IdClienteFinal VARCHAR(16) NOT NULL,
-            NombreClienteFinal VARCHAR(256) NULL, -- NUEVO
+            NombreClienteFinal VARCHAR(512) NULL, -- NUEVO
             IdClienteConsignee VARCHAR(16) NOT NULL,
-            NombreClienteConsignee VARCHAR(256) NULL, -- NUEVO
+            NombreClienteConsignee VARCHAR(512) NULL, -- NUEVO
             FechaPickUpProgramada DATETIME NOT NULL,
             FechaPickUpEntrega DATETIME NOT NULL,
             idUsuarioLog VARCHAR(32) NULL,
