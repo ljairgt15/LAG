@@ -121,7 +121,7 @@ BEGIN
                  , SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0))
                  , COUNT(1)
                  , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                 , ISNULL(B_UB.nombre, B_GH.nombre) -- Nombre Bodega
+                 , ISNULL(BUB.nombre, BGH.nombre) -- Nombre Bodega
                  , MD.id
                  , PC.idCarrier
                  , TRA.nombre -- Nombre Carrier (SubCarrier en tu query original)
@@ -164,8 +164,8 @@ BEGIN
             LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
-            LEFT JOIN Bodegas B_GH ON GH.idBodega = B_GH.id
-            LEFT JOIN Bodegas B_UB ON UB.idBodega = B_UB.id
+            LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
+            LEFT JOIN Bodegas BUB ON UB.idBodega = BUB.id
 
             WHERE GH.idEmpresa = @idEmpresa
               AND PC.fechaDespacho BETWEEN @FechaDesde AND @FechaHasta 
@@ -177,7 +177,7 @@ BEGIN
                    , GH.ConsigneeId
                    , VEC.nombre
                    , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                   , ISNULL(B_UB.nombre, B_GH.nombre)
+                   , ISNULL(BUB.nombre, BGH.nombre)
                    , PC.fechaDespacho
                    , MD.id
                    , PC.idCarrier
@@ -214,7 +214,7 @@ BEGIN
                  , SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0))
                  , COUNT(1)
                  , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                 , ISNULL(B_UB.nombre, B_GH.nombre) -- Nombre Bodega
+                 , ISNULL(BUB.nombre, BGH.nombre) -- Nombre Bodega
                  , MD.id
                  , PC.idCarrier
                  , TRA.nombre -- Nombre SubCarrier
@@ -260,8 +260,8 @@ BEGIN
             LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
-            LEFT JOIN Bodegas B_GH ON GH.idBodega = B_GH.id
-            LEFT JOIN Bodegas B_UB ON UB.idBodega = B_UB.id
+            LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
+            LEFT JOIN Bodegas BUB ON UB.idBodega = BUB.id
 
             WHERE GH.idEmpresa = @idEmpresa
               AND PC.fechaDespacho BETWEEN @FechaDesde AND @FechaHasta 
@@ -282,7 +282,7 @@ BEGIN
                    , GH.ConsigneeId
                    , VEC.nombre
                    , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                   , ISNULL(B_UB.nombre, B_GH.nombre)
+                   , ISNULL(BUB.nombre, BGH.nombre)
                    , PC.fechaDespacho
                    , MD.id
                    , PC.idCarrier

@@ -150,7 +150,7 @@ BEGIN
                  , SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0))
                  , COUNT(1)
                  , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                 , ISNULL(B_UB.nombre, B_GH.nombre) -- Nombre Bodega (Prioridad Ubicacion vs Header)
+                 , ISNULL(BUB.nombre, BGH.nombre) -- Nombre Bodega (Prioridad Ubicacion vs Header)
                  , MD.id
                  , PC.idCarrier
                  , T.nombre
@@ -185,8 +185,8 @@ BEGIN
             LEFT JOIN UbicacionPiezas AS UP ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones AS U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega AS UB ON U.idUbicacionBodega = UB.id
-            LEFT JOIN Bodegas B_GH ON GH.idBodega = B_GH.id
-            LEFT JOIN Bodegas B_UB ON UB.idBodega = B_UB.id
+            LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
+            LEFT JOIN Bodegas BUB ON UB.idBodega = BUB.id
 
             WHERE GH.idEmpresa = @idEmpresa
               AND (@PalletLabel IS NULL OR pal.pallet LIKE '%' + @PalletLabel + '%') 
@@ -196,7 +196,7 @@ BEGIN
                    , GH.ConsigneeId
                    , CGN.nombre
                    , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                   , ISNULL(B_UB.nombre, B_GH.nombre)
+                   , ISNULL(BUB.nombre, BGH.nombre)
                    , PC.fechaDespacho
                    , CONVERT(DATE, A.fechaCambio)
                    , MD.id
@@ -244,7 +244,7 @@ BEGIN
                  , SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0))
                  , COUNT(1)
                  , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                 , ISNULL(B_UB.nombre, B_GH.nombre)
+                 , ISNULL(BUB.nombre, BGH.nombre)
                  , MD.id
                  , PC.idCarrier
                  , T.nombre
@@ -281,8 +281,8 @@ BEGIN
             LEFT JOIN UbicacionPiezas UP ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
-            LEFT JOIN Bodegas B_GH ON GH.idBodega = B_GH.id
-            LEFT JOIN Bodegas B_UB ON UB.idBodega = B_UB.id
+            LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
+            LEFT JOIN Bodegas BUB ON UB.idBodega = BUB.id
 
             WHERE GH.idEmpresa = @idEmpresa
               AND (@NroDocumento IS NULL OR GH.nroGuia LIKE '%' + @NroDocumento + '%')
@@ -299,7 +299,7 @@ BEGIN
                    , GH.ConsigneeId
                    , CGN.nombre
                    , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
-                   , ISNULL(B_UB.nombre, B_GH.nombre)
+                   , ISNULL(BUB.nombre, BGH.nombre)
                    , PC.fechaDespacho
                    , MD.id
                    , PC.idCarrier
