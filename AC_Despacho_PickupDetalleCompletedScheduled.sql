@@ -351,105 +351,84 @@ BEGIN
                , tbl.ConPOD, tbl.Enviado, tbl.Procesado
                , tbl.IdGuia, tbl.NroDocumento
                , tbl.IdOrdenVenta, tbl.NroOrdenVenta;
-
+        
         IF @IdClienteFinal IS NULL
         BEGIN
-            SELECT      tmp.Id AS Id,
-                        'Entregada' AS Estatus,
-                        'dispatch-pick-up-delivered' AS ClaseCssEstatus,      
-						tmp.IdGuia,
-                        tmp.NroDocumento,
-                        tmp.IdOrdenVenta,
-                        tmp.NroOrdenVenta,                  
-                        tmp.IdClienteFinal,
-                        CASE
-                             WHEN clienteFinal.nombreClienteFinal IS NULL THEN clienteFinal.nombre
-                             ELSE clienteFinal.nombreClienteFinal END AS NombreClienteFinal,
-                        tmp.IdClienteConsignee,
-                        clienteConsignatario.nombre AS NombreClienteConsignee,
-                        tmp.FechaPickUpProgramada,
-                        '' AS FechaPickUpProgramadaString,
-                        tmp.FechaPickUpEntrega,
-                        '' AS FechaPickUpEntregaString,
-                        CONVERT(TIME, tmp.FechaPickUpEntrega) AS HoraEntrega,
-                        tmp.TotalPending AS PcsPending,
-						tmp.TotalHold AS PcsHold,
-						tmp.TotalShort AS PcsShort,
-						tmp.TotalReceived AS PcsReceivedWh,
-						tmp.TotalStandBy AS PcsStandby,
-						tmp.TotalDespachado AS TotalDespachado,
-						tmp.Total AS Total,
-                        tmp.IdBodega,
-                        bodega.nombre AS NombreBodega,
-                        tmp.IdManifiesto,
-                        tmp.IdCarrier,
-                        tmp.NombreCarrier,                        
-                        usuario.nombre + ' ' AS UsuarioFechaCambio,
-                        CONVERT(BIT, tmp.Enviado) AS Enviado,
-                        CONVERT(BIT, tmp.Procesado) AS Procesado
-					
-              FROM      #TablaAgrupacionGuiasHouseFinal AS tmp
-             INNER JOIN dbo.Bodegas bodega
-                ON tmp.IdBodega           = bodega.Id
-             INNER JOIN dbo.Clientes clienteFinal
-                ON tmp.IdClienteFinal     = clienteFinal.Id
-             INNER JOIN dbo.Clientes AS clienteConsignatario
-                ON tmp.IdClienteConsignee = clienteConsignatario.Id
-             INNER JOIN dbo.Usuarios usuario
-                ON usuario.Id             = tmp.idUsuarioLog
-
+            SELECT tmp.Id
+                 , 'Entregada' AS Estatus
+                 , 'dispatch-pick-up-delivered' AS ClaseCssEstatus       
+                 , tmp.IdGuia
+                 , tmp.NroDocumento
+                 , tmp.IdOrdenVenta
+                 , tmp.NroOrdenVenta                  
+                 , tmp.IdClienteFinal
+                 , tmp.NombreClienteFinal
+                 , tmp.IdClienteConsignee
+                 , tmp.NombreClienteConsignee
+                 , tmp.FechaPickUpProgramada
+                 , '' AS FechaPickUpProgramadaString
+                 , tmp.FechaPickUpEntrega
+                 , '' AS FechaPickUpEntregaString
+                 , CONVERT(TIME, tmp.FechaPickUpEntrega) AS HoraEntrega
+                 , tmp.TotalPending AS PcsPending
+                 , tmp.TotalHold AS PcsHold
+                 , tmp.TotalShort AS PcsShort
+                 , tmp.TotalReceived AS PcsReceivedWh
+                 , tmp.TotalStandBy AS PcsStandby
+                 , tmp.TotalDespachado AS TotalDespachado
+                 , tmp.Total
+                 , tmp.IdBodega
+                 , tmp.NombreBodega
+                 , tmp.IdManifiesto
+                 , tmp.IdCarrier
+                 , tmp.NombreCarrier 
+                 , ISNULL(usuario.nombre, '') + ' ' AS UsuarioFechaCambio
+                 , CONVERT(BIT, tmp.Enviado) AS Enviado
+                 , CONVERT(BIT, tmp.Procesado) AS Procesado
+            FROM #TablaAgrupacionGuiasHouseFinal AS tmp
+            INNER JOIN dbo.Usuarios usuario ON usuario.Id = tmp.idUsuarioLog
         END;
         ELSE
         BEGIN
-            SELECT      tmp.Id AS Id,
-                        'Entregada' AS Estatus,
-                        'dispatch-pick-up-delivered' AS ClaseCssEstatus,      
-						tmp.IdGuia,
-                        tmp.NroDocumento,
-                        tmp.IdOrdenVenta,
-                        tmp.NroOrdenVenta,                  
-                        tmp.IdClienteFinal,
-                        CASE
-                             WHEN clienteFinal.nombreClienteFinal IS NULL THEN clienteFinal.nombre
-                             ELSE clienteFinal.nombreClienteFinal END AS NombreClienteFinal,
-                        tmp.IdClienteConsignee,
-                        clienteConsignatario.nombre AS NombreClienteConsignee,
-                        tmp.FechaPickUpProgramada,
-                        '' AS FechaPickUpProgramadaString,
-                        tmp.FechaPickUpEntrega,
-                        '' AS FechaPickUpEntregaString,
-                        CONVERT(TIME, tmp.FechaPickUpEntrega) AS HoraEntrega,
-                        SUM(tmp.TotalPending) AS PcsPending,
-					    SUM(tmp.TotalHold) AS PcsHold,
-					    SUM(tmp.TotalShort) AS PcsShort,
-					    SUM(tmp.TotalReceived) AS PcsReceivedWh,
-					    SUM(tmp.TotalStandBy) AS PcsStandby,
-					    SUM(tmp.TotalDespachado) AS TotalDespachado,
-					    SUM(tmp.Total) AS Total,
-                        tmp.IdBodega,
-                        bodega.nombre AS NombreBodega,
-                        tmp.IdManifiesto,
-                        tmp.IdCarrier,
-                        tmp.NombreCarrier,                        
-                        usuario.nombre + ' ' AS UsuarioFechaCambio,
-                        CONVERT(BIT, tmp.Enviado) AS Enviado,
-                        CONVERT(BIT, tmp.Procesado) AS Procesado
-              FROM      #TablaAgrupacionGuiasHouseFinal AS tmp
-             INNER JOIN dbo.Bodegas bodega
-                ON tmp.IdBodega           = bodega.Id
-             INNER JOIN dbo.Clientes clienteFinal
-                ON tmp.IdClienteFinal     = clienteFinal.Id
-             INNER JOIN dbo.Clientes AS clienteConsignatario
-                ON tmp.IdClienteConsignee = clienteConsignatario.Id
-             INNER JOIN dbo.Usuarios usuario
-                ON usuario.Id             = tmp.idUsuarioLog
-             WHERE      ISNULL(tmp.IdManifiesto, @emptyUID)   = ISNULL(@IdManifiesto, @emptyUID)
-               AND      tmp.IdCarrier                         = @IdCarrier
-               AND      tmp.IdClienteFinal                    = @IdClienteFinal
-               AND      tmp.IdBodega                          = @IdBodega
-               AND      CONVERT(DATE, tmp.FechaPickUpEntrega) = @FechaPickUpEntrega
-               AND      tmp.FechaPickUpProgramada             = @FechaPickUpProgramada
-
+            SELECT tmp.Id
+                 , 'Entregada' AS Estatus
+                 , 'dispatch-pick-up-delivered' AS ClaseCssEstatus       
+                 , tmp.IdGuia
+                 , tmp.NroDocumento
+                 , tmp.IdOrdenVenta
+                 , tmp.NroOrdenVenta                  
+                 , tmp.IdClienteFinal
+                 , tmp.NombreClienteFinal
+                 , tmp.IdClienteConsignee
+                 , tmp.NombreClienteConsignee
+                 , tmp.FechaPickUpProgramada
+                 , '' AS FechaPickUpProgramadaString
+                 , tmp.FechaPickUpEntrega
+                 , '' AS FechaPickUpEntregaString
+                 , CONVERT(TIME, tmp.FechaPickUpEntrega) AS HoraEntrega
+                 , tmp.TotalPending AS PcsPending
+                 , tmp.TotalHold AS PcsHold
+                 , tmp.TotalShort AS PcsShort
+                 , tmp.TotalReceived AS PcsReceivedWh
+                 , tmp.TotalStandBy AS PcsStandby
+                 , tmp.TotalDespachado AS TotalDespachado
+                 , tmp.Total
+                 , tmp.IdBodega
+                 , tmp.NombreBodega
+                 , tmp.IdManifiesto
+                 , tmp.IdCarrier
+                 , tmp.NombreCarrier
+                 , ISNULL(usuario.nombre, '') + ' ' AS UsuarioFechaCambio
+                 , CONVERT(BIT, tmp.Enviado) AS Enviado
+                 , CONVERT(BIT, tmp.Procesado) AS Procesado
+            FROM #TablaAgrupacionGuiasHouseFinal AS tmp
+            INNER JOIN dbo.Usuarios usuario ON usuario.Id = tmp.idUsuarioLog
+            WHERE ISNULL(tmp.IdManifiesto, @emptyUID) = ISNULL(@IdManifiesto, @emptyUID)
+              AND tmp.IdCarrier = @IdCarrier
+              AND tmp.IdClienteFinal = @IdClienteFinal
+              AND tmp.IdBodega = @IdBodega
+              AND CONVERT(DATE, tmp.FechaPickUpEntrega) = @FechaPickUpEntrega
+              AND tmp.FechaPickUpProgramada = @FechaPickUpProgramada
         END;
         DROP TABLE #TablaAgrupacionGuiasHouse;
         DROP TABLE #TablaAgrupacionGuiasHouseFinal;
