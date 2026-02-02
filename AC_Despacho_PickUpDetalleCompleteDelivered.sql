@@ -171,8 +171,8 @@ BEGIN
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
             INNER JOIN #TMP_TRANS T ON PC.idCarrier = T.id AND T.idEmpresa = GH.idEmpresa
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.idProgramacionCarrier = PC.id
-            LEFT JOIN dbo.DocumentosDespacho DD WITH(NOLOCK) ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
-            LEFT JOIN dbo.ManifiestosDespacho MD WITH(NOLOCK) ON MD.id = PM.idManifiestoDespacho
+            LEFT JOIN dbo.DocumentosDespacho DD ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
+            LEFT JOIN dbo.ManifiestosDespacho MD ON MD.id = PM.idManifiestoDespacho
             OUTER APPLY (   
                 SELECT TOP (1) S.id, S.nroOrden
                 FROM dbo.SolicitudDeVentaDetalles SD WITH(NOLOCK)
@@ -180,9 +180,9 @@ BEGIN
                 WHERE SD.idGuiaHouseDetalle = GHD.id
                 ORDER BY S.fechaSolicitud DESC
             ) AS solicitud
-            LEFT JOIN dbo.PalletsDetalles pld ON GHD.id = pld.idGuiasHouseDetalle
-            LEFT JOIN dbo.Pallets pal ON pld.idPallet = pal.id
-            LEFT JOIN UbicacionPiezas AS UP ON GHD.id = UP.idGuiaHouseDetalle
+            LEFT JOIN dbo.PalletsDetalles pld WITH(NOLOCK) ON GHD.id = pld.idGuiasHouseDetalle
+            LEFT JOIN dbo.Pallets pal ON WITH(NOLOCK) pld.idPallet = pal.id
+            LEFT JOIN UbicacionPiezas AS WITH(NOLOCK) UP ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones AS U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega AS UB ON U.idUbicacionBodega = UB.id
             LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
@@ -267,8 +267,8 @@ BEGIN
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
             INNER JOIN #TMP_TRANS T ON PC.idCarrier = T.id AND T.idEmpresa = GH.idEmpresa
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.idProgramacionCarrier = PC.id
-            LEFT JOIN dbo.DocumentosDespacho DD WITH(NOLOCK) ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
-            LEFT JOIN dbo.ManifiestosDespacho MD WITH(NOLOCK) ON MD.id = PM.idManifiestoDespacho
+            LEFT JOIN dbo.DocumentosDespacho DD ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
+            LEFT JOIN dbo.ManifiestosDespacho MD ON MD.id = PM.idManifiestoDespacho
             
             OUTER APPLY (SELECT TOP (1) S.id, S.nroOrden
                          FROM dbo.SolicitudDeVentaDetalles SD WITH(NOLOCK)
@@ -278,7 +278,7 @@ BEGIN
 
             LEFT JOIN dbo.PalletsDetalles pld WITH(NOLOCK) ON GHD.id = pld.idGuiasHouseDetalle
             LEFT JOIN dbo.Pallets pal WITH(NOLOCK) ON pld.idPallet = pal.id
-            LEFT JOIN UbicacionPiezas UP ON GHD.id = UP.idGuiaHouseDetalle
+            LEFT JOIN UbicacionPiezas UP WITH(NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
             LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
