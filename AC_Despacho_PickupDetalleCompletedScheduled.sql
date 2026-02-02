@@ -1,4 +1,4 @@
-USE [alliance_testing]
+USE [alliance_desa]
 GO
 /****** Object:  StoredProcedure [dbo].[pro_Despacho_PickUpDetalleCompleteScheduled_BORRAR]    Script Date: 01/02/2026 03:17:46 p. m. ******/
 SET ANSI_NULLS ON
