@@ -6,7 +6,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-ALTER     PROCEDURE [dbo].[AC_Despacho_PickupDetalleCompletedScheduled] (
+CREATE OR ALTER     PROCEDURE [dbo].[AC_Despacho_PickupDetalleCompletedScheduled] (
 @FechaDesde DATE,
 @FechaHasta DATE,
 @NroDocumento VARCHAR(32) = NULL,
