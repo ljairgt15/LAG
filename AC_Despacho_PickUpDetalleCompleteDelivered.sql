@@ -181,8 +181,8 @@ BEGIN
                 ORDER BY S.fechaSolicitud DESC
             ) AS solicitud
             LEFT JOIN dbo.PalletsDetalles pld WITH(NOLOCK) ON GHD.id = pld.idGuiasHouseDetalle
-            LEFT JOIN dbo.Pallets pal ON WITH(NOLOCK) pld.idPallet = pal.id
-            LEFT JOIN UbicacionPiezas AS WITH(NOLOCK) UP ON GHD.id = UP.idGuiaHouseDetalle
+            LEFT JOIN dbo.Pallets pal WITH(NOLOCK) ON  pld.idPallet = pal.id
+            LEFT JOIN UbicacionPiezas AS UP WITH(NOLOCK)  ON GHD.id = UP.idGuiaHouseDetalle
             LEFT JOIN Ubicaciones AS U ON UP.idUbicacion = U.id
             LEFT JOIN UbicacionesBodega AS UB ON U.idUbicacionBodega = UB.id
             LEFT JOIN Bodegas BGH ON GH.idBodega = BGH.id
