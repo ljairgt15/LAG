@@ -104,13 +104,13 @@ BEGIN
         AND parametroLista.codigo = 'EsDelivery'
         WHERE parametroCatalogo.valor = 'NO';
 
-        SELECT	GHDH.idGuiaHouseDetalle
-              , MAX(GHDH.fechaCambio) AS fechaCambio 
+        SELECT	GHH.idGuiaHouseDetalle
+              , MAX(GHH.fechaCambio) AS fechaCambio 
         INTO #GuiaHouseDetalleHistoricoTemp
-        FROM GuiasHouseDetallesHistorico GHDH WITH (NOLOCK)
-        WHERE GHDH.fechaCambio BETWEEN @FechaDesde AND @FechaHasta
-        AND GHDH.VALOR = 'DISPATCHED WH'
-        GROUP BY GHDH.idGuiaHouseDetalle;
+        FROM GuiasHouseDetallesHistorico GHH WITH (NOLOCK)
+        WHERE GHH.fechaCambio BETWEEN @FechaDesde AND @FechaHasta
+        AND GHH.VALOR = 'DISPATCHED WH'
+        GROUP BY GHH.idGuiaHouseDetalle;
 
         IF (   @NroDocumento IS NULL
            AND @Po IS NULL
