@@ -155,10 +155,10 @@ BEGIN
             
             OUTER APPLY (SELECT TOP (1) S.id, S.nroOrden
              FROM      dbo.SolicitudDeVentaDetalles SLL
-                               LEFT JOIN dbo.SolicitudDeVenta SUD
-                                 ON SUD.id = SLL.idSolicitud
+                               LEFT JOIN dbo.SolicitudDeVenta S
+                                 ON S.id = SLL.idSolicitud
                               WHERE      SLL.idGuiaHouseDetalle = GHD.id
-                              ORDER BY SUD.fechaSolicitud DESC ) AS SDV
+                              ORDER BY S.fechaSolicitud DESC ) AS SDV
             LEFT JOIN dbo.PalletsDetalles PD WITH(NOLOCK) ON GHD.id = PD.idGuiasHouseDetalle
             LEFT JOIN dbo.Pallets PAL WITH(NOLOCK) ON PD.idPallet = PAL.id
             LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
@@ -188,138 +188,112 @@ BEGIN
                    , SDV.id
                    , SDV.nroOrden
             HAVING COUNT(1) = SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0));
-        END;	
-
+        END;
         ELSE
         BEGIN
+            INSERT INTO #TablaAgrupacionGuiasHouse (
+                IdClienteFinal, NombreClienteFinal,
+                IdClienteConsignee, NombreClienteConsignee,
+                FechaPickUpProgramada, FechaPickUpEntrega, idUsuarioLog, 
+                TotalPending, TotalHold, TotalShort, TotalReceived, TotalStandBy, TotalDespachado, Total, 
+                IdBodega, NombreBodega,
+                IdManifiesto, IdCarrier, NombreCarrier, IdGuia, NroDocumento, IdOrdenVenta, NroOrdenVenta, ConPOD, Enviado, Procesado
+            )
+            SELECT GHD.ShipToId
+                 , VES.nombre   -- Nombre ShipTo
+                 , GH.ConsigneeId
+                 , VEC.nombre   -- Nombre Consignee/BillTo
+                 , PC.fechaDespacho
+                 , MAX(GHD.fechaCambio)
+                 , GHD.idUsuarioLog
+                 , SUM(IIF(GHD.estadoPieza = 'PENDING', 1, 0))
+                 , SUM(IIF(GHD.estadoPieza = 'HOLD', 1, 0))
+                 , SUM(IIF(GHD.estadoPieza = 'SHORT', 1, 0))
+                 , SUM(IIF(GHD.estadoPieza = 'RECEIVED WH', 1, 0))
+                 , SUM(IIF(GHD.estadoPieza = 'STANDBY', 1, 0))
+                 , SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0))
+                 , COUNT(1)
+                 , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
+                 , ISNULL(B_UB.nombre, B_GH.nombre) -- Nombre Bodega
+                 , MD.id
+                 , PC.idCarrier
+                 , TRA.nombre -- Nombre SubCarrier
+                 , GH.idGuia
+                 , GH.nroGuia
+                 , SDV.id
+                 , SDV.nroOrden
+                 , MAX(IIF(DD.nombreArchivo LIKE 'POD%', 1, 0))
+                 , MAX(IIF(DD.mailEnviado = 1, 1, 0))
+                 , MAX(IIF(DD.podProcesado = 1, 1, 0))
 
-            INSERT INTO #TablaAgrupacionGuiasHouse (IdClienteFinal,
-                                                    IdClienteConsignee,
-                                                    FechaPickUpProgramada,
-                                                    FechaPickUpEntrega,
-                                                    idUsuarioLog,
-													TotalPending,
-													TotalHold,
-													TotalShort,
-													TotalReceived,
-													TotalStandBy,
-                                                    TotalDespachado,
-                                                    Total,
-                                                    IdBodega,
-                                                    IdManifiesto,
-                                                    IdCarrier,
-                                                    NombreCarrier,
-                                                    IdGuia,
-                                                    NroDocumento,
-                                                    IdOrdenVenta,
-                                                    NroOrdenVenta,
-                                                    ConPOD,
-                                                    Enviado,
-                                                    Procesado)
-											
-            SELECT       guiaHouseDetalle.idClienteFinal AS IdClienteFinal,
-                         guiaHouse.idCliente AS IdClienteConsignee,
-                         programacionCarrier.fechaDespacho AS FechaPickUpProgramada,
-                         MAX(guiaHouseDetalle.fechaCambio) AS FechaPickUpEntrega,
-                         guiaHouseDetalle.idUsuarioLog,
-						 SUM(IIF(guiaHouseDetalle.estadoPieza = 'PENDING', 1, 0)) AS TotalPending,
-						 SUM(IIF(guiaHouseDetalle.estadoPieza = 'HOLD', 1, 0)) AS TotalHold,
-						 SUM(IIF(guiaHouseDetalle.estadoPieza = 'SHORT', 1, 0)) AS TotalShort,
-						 SUM(IIF(guiaHouseDetalle.estadoPieza = 'RECEIVED WH', 1, 0)) AS TotalReceived,
-						 SUM(IIF(guiaHouseDetalle.estadoPieza = 'STANDBY', 1, 0)) AS TotalStandBy,
-                         SUM(IIF(guiaHouseDetalle.estadoPieza = 'DISPATCHED WH', 1, 0)) AS TotalDespachado,
-                         COUNT(1) AS Total,
-                         CASE
-							WHEN (ubicacionesBodega.idBodega IS NULL OR ubicacionesBodega.idBodega = '')
-							THEN guiaHouse.idBodega ELSE ubicacionesBodega.idBodega
-						 END AS idBodega, 
-                         manifiestoDespacho.id AS IdManifiesto,
-                         programacionCarrier.idCarrier AS IdCarrier,
-                         subCarrier.nombre AS NombreCarrier,
-                         guiaHouse.idGuia AS IdGuia,
-                         guiaHouse.nroGuia AS NroDocumento,
-                         solicitud.id AS IdOrdenVenta,
-                         solicitud.nroOrden AS NroOrdenVenta,
-                         MAX(IIF(documentosDespacho.nombreArchivo LIKE 'POD%', 1, 0)) AS ConPOD,
-                         MAX(IIF(documentosDespacho.mailEnviado = 1, 1, 0)) AS Enviado,
-                         MAX(IIF(documentosDespacho.podProcesado = 1, 1, 0)) AS Procesado
-						
-              FROM       dbo.GuiasHouseDetalles guiaHouseDetalle
-             INNER JOIN  dbo.GuiasHouse guiaHouse
-                ON guiaHouseDetalle.idGuiaHouse = guiaHouse.id
-             INNER JOIN  dbo.Clientes AS clienteConsignatario
-                ON guiaHouse.idCliente = clienteConsignatario.id
-             INNER JOIN  dbo.Exportadores exportador
-                ON guiaHouse.idExportador = exportador.id
-             INNER JOIN  dbo.ProgramacionCarrier programacionCarrier
-                ON programacionCarrier.idGuiaHouseDetalle = guiaHouseDetalle.id
-             INNER JOIN  dbo.Transportes subCarrier
-                ON programacionCarrier.idCarrier = subCarrier.id
-             INNER JOIN  dbo.Transportes carrier
-                ON subCarrier.idTransportePrincipal = carrier.id
-             INNER JOIN  dbo.ParametrosCatalogos parametroCatalogo
-                ON carrier.id = parametroCatalogo.idEntidad
-             INNER JOIN  dbo.ParametrosLista parametroLista
-                ON parametroCatalogo.idParametroLista = parametroLista.id
-               AND parametroLista.codigo = 'EsDelivery'
-               AND parametroLista.idEmpresa = guiaHouse.idEmpresa
-              LEFT JOIN  dbo.ProgramacionManifiesto programacionManifiesto
-                ON programacionManifiesto.idProgramacionCarrier = programacionCarrier.id
-              LEFT JOIN  dbo.DocumentosDespacho documentosDespacho
-                ON programacionManifiesto.idManifiestoDespacho = documentosDespacho.idManifiesto
-               AND documentosDespacho.idDocumento = 'DOC052395'
-              LEFT JOIN  dbo.ManifiestosDespacho manifiestoDespacho
-                ON manifiestoDespacho.id = programacionManifiesto.idManifiestoDespacho
-             OUTER APPLY (   SELECT      TOP (1) solicitud.id,
-                                                 solicitud.nroOrden
-                               FROM      dbo.SolicitudDeVentaDetalles solicitudDetalle
-                               LEFT JOIN dbo.SolicitudDeVenta solicitud
-                                 ON solicitud.id = solicitudDetalle.idSolicitud
-                              WHERE      solicitudDetalle.idGuiaHouseDetalle = guiaHouseDetalle.id
-                              ORDER BY solicitud.fechaSolicitud DESC) AS solicitud
-			LEFT JOIN dbo.PalletsDetalles pld ON guiaHouseDetalle.id = pld.idGuiasHouseDetalle
-		    LEFT JOIN dbo.Pallets pal ON pld.idPallet = pal.id
-			LEFT JOIN UbicacionPiezas AS ubicacionPiezas ON guiaHouseDetalle.id = ubicacionPiezas.idGuiaHouseDetalle
-			LEFT JOIN Ubicaciones AS ubicaciones ON ubicacionPiezas.idUbicacion = ubicaciones.id
-			LEFT JOIN UbicacionesBodega AS ubicacionesBodega ON ubicaciones.idUbicacionBodega = ubicacionesBodega.id
-             WHERE       guiaHouse.idEmpresa = @idEmpresa
-			   AND       programacionCarrier.fechaDespacho BETWEEN @FechaDesde AND @FechaHasta
-			   AND		 parametroCatalogo.valor = 'NO'               
-               AND       (   @NroDocumento IS NULL
-                        OR   guiaHouse.nroGuia LIKE '%' + @NroDocumento + '%')
-               AND       (   @Po IS NULL
-                        OR   guiaHouseDetalle.po LIKE '%' + @Po + '%')
-               AND       (   @NombreClienteConsignee IS NULL
-                        OR   clienteConsignatario.nombre LIKE '%' + @NombreClienteConsignee + '%')
-               AND       (   @NroPOD IS NULL
-                        OR   manifiestoDespacho.nroManifiesto LIKE '%' + @NroPOD + '%')
-               AND       (   @CodigoBarras IS NULL
-                        OR   guiaHouseDetalle.codigoBarra LIKE '%' + @CodigoBarras + '%')
-               AND       (   @NombreComercialExportador IS NULL
-                        OR   exportador.nombreComercial LIKE '%' + @NombreComercialExportador + '%')
-			   AND (@PalletLabel IS NULL OR   pal.pallet LIKE '%' + @PalletLabel + '%')
+            FROM dbo.GuiasHouseDetalles GHD WITH(NOLOCK) 
+            INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.idGuiaHouse = GH.id
+            
+            -- BREAKING CHANGE
+            INNER JOIN v_ClientsEntities VES WITH (NOLOCK) ON VES.id = GHD.ShipToId
+            INNER JOIN v_ClientsEntities VEC WITH (NOLOCK) ON VEC.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            
+            INNER JOIN dbo.Exportadores EXP WITH (NOLOCK) ON GH.idExportador = EXP.id
 
+            INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
+            INNER JOIN dbo.Transportes TRA WITH(NOLOCK) ON PC.idCarrier = TRA.id
+            INNER JOIN dbo.Transportes CARR WITH(NOLOCK) ON TRA.idTransportePrincipal = CARR.id
+            INNER JOIN dbo.ParametrosCatalogos PCAT WITH(NOLOCK) ON CARR.id = PCAT.idEntidad
+            INNER JOIN dbo.ParametrosLista PL WITH(NOLOCK) ON PCAT.idParametroLista = PL.id
+                AND PL.codigo = 'EsDelivery'
+                AND PL.idEmpresa = GH.idEmpresa
 
-             GROUP BY guiaHouseDetalle.idClienteFinal,
-					  guiaHouse.idCliente,
-                      CASE
-						WHEN (ubicacionesBodega.idBodega IS NULL OR ubicacionesBodega.idBodega = '')
-						THEN guiaHouse.idBodega ELSE ubicacionesBodega.idBodega
-					  END, 
-                      programacionCarrier.fechaDespacho,
-                      manifiestoDespacho.id,
-                      programacionCarrier.idCarrier,
-                      subCarrier.nombre,
-                      guiaHouseDetalle.idUsuarioLog,
-                      guiaHouseDetalle.idClienteConsignee,
-                      guiaHouse.idGuia,
-                      guiaHouse.nroGuia,
-                      solicitud.id,
-                      solicitud.nroOrden
-			
-            HAVING       COUNT(1) = SUM(IIF(guiaHouseDetalle.estadoPieza = 'DISPATCHED WH', 1, 0))
+            LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.idProgramacionCarrier = PC.id
+            LEFT JOIN dbo.DocumentosDespacho DD WITH(NOLOCK) ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
+            LEFT JOIN dbo.ManifiestosDespacho MD WITH(NOLOCK) ON MD.id = PM.idManifiestoDespacho
+            OUTER APPLY (
+                SELECT TOP (1) S.id, S.nroOrden
+                FROM dbo.SolicitudDeVentaDetalles SLL WITH(NOLOCK)
+                LEFT JOIN dbo.SolicitudDeVenta S WITH(NOLOCK) ON S.id = SLL.idSolicitud
+                WHERE SLL.idGuiaHouseDetalle = GHD.id
+                ORDER BY S.fechaSolicitud DESC
+            ) AS SDV
 
-        END;
+            -- JOINS AUXILIARES
+            LEFT JOIN dbo.PalletsDetalles PD WITH(NOLOCK) ON GHD.id = PD.idGuiasHouseDetalle
+            LEFT JOIN dbo.Pallets PAL WITH(NOLOCK) ON PD.idPallet = PAL.id
+            LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
+            LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
+            LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
+            LEFT JOIN Bodegas B_GH WITH (NOLOCK) ON GH.idBodega = B_GH.id
+            LEFT JOIN Bodegas B_UB WITH (NOLOCK) ON UB.idBodega = B_UB.id
+
+            WHERE GH.idEmpresa = @idEmpresa
+              AND PC.fechaDespacho BETWEEN @FechaDesde AND @FechaHasta 
+              AND PCAT.valor = 'NO' -- Carrier No Delivery
+              -- FILTROS OPCIONALES
+              AND (@NroDocumento IS NULL OR GH.nroGuia LIKE '%' + @NroDocumento + '%')
+              AND (@Po IS NULL OR GHD.po LIKE '%' + @Po + '%')
+              AND (@NombreClienteConsignee IS NULL OR VEC.nombre LIKE '%' + @NombreClienteConsignee + '%')
+              AND (@NroPOD IS NULL OR MD.nroManifiesto LIKE '%' + @NroPOD + '%')
+              AND (@CodigoBarras IS NULL OR GHD.codigoBarra LIKE '%' + @CodigoBarras + '%')
+              AND (@NombreComercialExportador IS NULL OR EXP.nombreComercial LIKE '%' + @NombreComercialExportador + '%')
+              AND (@PalletLabel IS NULL OR PAL.pallet LIKE '%' + @PalletLabel + '%') 
+              -- FILTRO BILL TO (Aquí sí va)
+              AND (@BillTo IS NULL OR (VEC.BillToId IS NOT NULL AND VEC.BillToName LIKE '%' + @BillTo + '%'))
+
+            GROUP BY GHD.ShipToId
+                   , VES.nombre
+                   , GH.ConsigneeId
+                   , VEC.nombre
+                   , CASE WHEN (UB.idBodega IS NULL OR UB.idBodega = '') THEN GH.idBodega ELSE UB.idBodega END
+                   , ISNULL(B_UB.nombre, B_GH.nombre)
+                   , PC.fechaDespacho
+                   , MD.id
+                   , PC.idCarrier
+                   , TRA.nombre
+                   , GHD.idUsuarioLog
+                   , GH.idGuia
+                   , GH.nroGuia
+                   , SDV.id
+                   , SDV.nroOrden
+            HAVING COUNT(1) = SUM(IIF(GHD.estadoPieza = 'DISPATCHED WH', 1, 0));
+        END;	
 
 
 
