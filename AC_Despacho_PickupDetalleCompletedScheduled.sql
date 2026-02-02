@@ -141,17 +141,17 @@ BEGIN
             INNER JOIN v_ClientsEntities VEC WITH (NOLOCK) ON VEC.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
 
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
-            INNER JOIN dbo.Transportes TRA WITH(NOLOCK) ON PC.idCarrier = TRA.id -- SubCarrier
-            INNER JOIN dbo.Transportes CARR WITH(NOLOCK) ON TRA.idTransportePrincipal = CARR.id -- Carrier Principal
+            INNER JOIN dbo.Transportes TRA ON PC.idCarrier = TRA.id -- SubCarrier
+            INNER JOIN dbo.Transportes CARR ON TRA.idTransportePrincipal = CARR.id -- Carrier Principal
             
-            INNER JOIN dbo.ParametrosCatalogos PCAT WITH(NOLOCK) ON CARR.id = PCAT.idEntidad
-            INNER JOIN dbo.ParametrosLista PL WITH(NOLOCK) ON PCAT.idParametroLista = PL.id
+            INNER JOIN dbo.ParametrosCatalogos PCAT ON CARR.id = PCAT.idEntidad
+            INNER JOIN dbo.ParametrosLista PL ON PCAT.idParametroLista = PL.id
                 AND PL.codigo = 'EsDelivery'
                 AND PL.idEmpresa = GH.idEmpresa
 
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.idProgramacionCarrier = PC.id
-            LEFT JOIN dbo.DocumentosDespacho DD WITH(NOLOCK) ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
-            LEFT JOIN dbo.ManifiestosDespacho MD WITH(NOLOCK) ON MD.id = PM.idManifiestoDespacho
+            LEFT JOIN dbo.DocumentosDespacho DD ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
+            LEFT JOIN dbo.ManifiestosDespacho MD ON MD.id = PM.idManifiestoDespacho
             
             OUTER APPLY (SELECT TOP (1) S.id, S.nroOrden
              FROM      dbo.SolicitudDeVentaDetalles SLL
@@ -162,10 +162,10 @@ BEGIN
             LEFT JOIN dbo.PalletsDetalles PD WITH(NOLOCK) ON GHD.id = PD.idGuiasHouseDetalle
             LEFT JOIN dbo.Pallets PAL WITH(NOLOCK) ON PD.idPallet = PAL.id
             LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
-            LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
-            LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
-            LEFT JOIN Bodegas B_GH WITH (NOLOCK) ON GH.idBodega = B_GH.id
-            LEFT JOIN Bodegas B_UB WITH (NOLOCK) ON UB.idBodega = B_UB.id
+            LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
+            LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
+            LEFT JOIN Bodegas B_GH ON GH.idBodega = B_GH.id
+            LEFT JOIN Bodegas B_UB ON UB.idBodega = B_UB.id
 
             WHERE GH.idEmpresa = @idEmpresa
               AND PC.fechaDespacho BETWEEN @FechaDesde AND @FechaHasta 
@@ -233,23 +233,23 @@ BEGIN
             INNER JOIN v_ClientsEntities VES WITH (NOLOCK) ON VES.id = GHD.ShipToId
             INNER JOIN v_ClientsEntities VEC WITH (NOLOCK) ON VEC.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             
-            INNER JOIN dbo.Exportadores EXP WITH (NOLOCK) ON GH.idExportador = EXP.id
+            INNER JOIN dbo.Exportadores EXP ON GH.idExportador = EXP.id
 
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
-            INNER JOIN dbo.Transportes TRA WITH(NOLOCK) ON PC.idCarrier = TRA.id
-            INNER JOIN dbo.Transportes CARR WITH(NOLOCK) ON TRA.idTransportePrincipal = CARR.id
-            INNER JOIN dbo.ParametrosCatalogos PCAT WITH(NOLOCK) ON CARR.id = PCAT.idEntidad
-            INNER JOIN dbo.ParametrosLista PL WITH(NOLOCK) ON PCAT.idParametroLista = PL.id
+            INNER JOIN dbo.Transportes TRA ON PC.idCarrier = TRA.id
+            INNER JOIN dbo.Transportes CARR ON TRA.idTransportePrincipal = CARR.id
+            INNER JOIN dbo.ParametrosCatalogos PCAT ON CARR.id = PCAT.idEntidad
+            INNER JOIN dbo.ParametrosLista PL ON PCAT.idParametroLista = PL.id
                 AND PL.codigo = 'EsDelivery'
                 AND PL.idEmpresa = GH.idEmpresa
 
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.idProgramacionCarrier = PC.id
-            LEFT JOIN dbo.DocumentosDespacho DD WITH(NOLOCK) ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
-            LEFT JOIN dbo.ManifiestosDespacho MD WITH(NOLOCK) ON MD.id = PM.idManifiestoDespacho
+            LEFT JOIN dbo.DocumentosDespacho DD ON PM.idManifiestoDespacho = DD.idManifiesto AND DD.idDocumento = 'DOC052395'
+            LEFT JOIN dbo.ManifiestosDespacho MD ON MD.id = PM.idManifiestoDespacho
             OUTER APPLY (
                 SELECT TOP (1) S.id, S.nroOrden
-                FROM dbo.SolicitudDeVentaDetalles SLL WITH(NOLOCK)
-                LEFT JOIN dbo.SolicitudDeVenta S WITH(NOLOCK) ON S.id = SLL.idSolicitud
+                FROM dbo.SolicitudDeVentaDetalles SLL
+                LEFT JOIN dbo.SolicitudDeVenta S ON S.id = SLL.idSolicitud
                 WHERE SLL.idGuiaHouseDetalle = GHD.id
                 ORDER BY S.fechaSolicitud DESC
             ) AS SDV
@@ -258,10 +258,10 @@ BEGIN
             LEFT JOIN dbo.PalletsDetalles PD WITH(NOLOCK) ON GHD.id = PD.idGuiasHouseDetalle
             LEFT JOIN dbo.Pallets PAL WITH(NOLOCK) ON PD.idPallet = PAL.id
             LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
-            LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
-            LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
-            LEFT JOIN Bodegas B_GH WITH (NOLOCK) ON GH.idBodega = B_GH.id
-            LEFT JOIN Bodegas B_UB WITH (NOLOCK) ON UB.idBodega = B_UB.id
+            LEFT JOIN Ubicaciones U ON UP.idUbicacion = U.id
+            LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
+            LEFT JOIN Bodegas B_GH ON GH.idBodega = B_GH.id
+            LEFT JOIN Bodegas B_UB ON UB.idBodega = B_UB.id
 
             WHERE GH.idEmpresa = @idEmpresa
               AND PC.fechaDespacho BETWEEN @FechaDesde AND @FechaHasta 
