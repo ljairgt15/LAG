@@ -296,83 +296,61 @@ BEGIN
         END;	
 
 
+								
+        INSERT INTO #TablaAgrupacionGuiasHouseFinal (
+            IdClienteFinal, NombreClienteFinal,
+            IdClienteConsignee, NombreClienteConsignee,
+            FechaPickUpProgramada, FechaPickUpEntrega, idUsuarioLog, 
+            TotalPending, TotalHold, TotalShort, TotalReceived, TotalStandBy, TotalDespachado, Total, 
+            IdBodega, NombreBodega,
+            IdManifiesto, IdCarrier, NombreCarrier, IdGuia, NroDocumento, IdOrdenVenta, NroOrdenVenta, ConPOD, Enviado, Procesado
+        )
+        SELECT tbl.IdClienteFinal
+             , tbl.NombreClienteFinal
+             , tbl.IdClienteConsignee
+             , tbl.NombreClienteConsignee
+             , tbl.FechaPickUpProgramada
+             , MAX(tbl.FechaPickUpEntrega) AS FechaPickUpEntrega
+             
+             , (SELECT TOP (1) sub.idUsuarioLog
+                FROM #TablaAgrupacionGuiasHouse sub
+                WHERE sub.IdGuia = tbl.IdGuia -- 1. Match por Guía (Llave maestra)
+                  AND CONVERT(DATE, sub.FechaPickUpEntrega) = CONVERT(DATE, tbl.FechaPickUpEntrega) -- 2. Match por Fecha Agrupada
+                ORDER BY sub.FechaPickUpEntrega DESC -- 3. El más reciente
+               ) AS IdUsuarioLog
 
-        INSERT INTO #TablaAgrupacionGuiasHouseFinal (IdClienteFinal,
-                                                     IdClienteConsignee,
-                                                     FechaPickUpProgramada,
-                                                     FechaPickUpEntrega,
-                                                     idUsuarioLog,
-													 TotalPending,
-													 TotalHold,
-													 TotalShort,
-													 TotalReceived,
-													 TotalStandBy,
-                                                     TotalDespachado,
-                                                     Total,
-                                                     IdBodega,
-                                                     IdManifiesto,
-                                                     IdCarrier,
-                                                     NombreCarrier,
-                                                     IdGuia,
-                                                     NroDocumento,
-                                                     IdOrdenVenta,
-                                                     NroOrdenVenta,
-                                                     ConPOD,
-                                                     Enviado,
-                                                     Procesado)
-											
-        SELECT tbl.IdClienteFinal,
-               tbl.IdClienteConsignee,
-               tbl.FechaPickUpProgramada,
-               MAX(tbl.FechaPickUpEntrega) AS FechaPickUpEntrega,
-               (   SELECT TOP (1) tblSubQuery.idUsuarioLog
-                     FROM #TablaAgrupacionGuiasHouse AS tblSubQuery
-                    WHERE tblSubQuery.IdClienteFinal                  = tblSubQuery.IdClienteFinal
-                      AND tblSubQuery.IdClienteConsignee              = tblSubQuery.IdClienteConsignee
-                      AND tblSubQuery.FechaPickUpEntrega              = MAX(tbl.FechaPickUpEntrega)
-                      AND tblSubQuery.IdBodega                        = tblSubQuery.IdBodega
-                      AND ISNULL(tblSubQuery.IdManifiesto, @emptyUID) = ISNULL(tblSubQuery.IdManifiesto, @emptyUID)
-                      AND tblSubQuery.IdCarrier                       = tblSubQuery.IdCarrier
-                      AND tblSubQuery.NombreCarrier                   = tblSubQuery.NombreCarrier
-                      AND tblSubQuery.NroDocumento                    = tblSubQuery.NroDocumento
-                      AND tblSubQuery.ConPOD                          = tblSubQuery.ConPOD
-                      AND tblSubQuery.Enviado                         = tblSubQuery.Enviado) AS IdUsuarioLog,
-               SUM(tbl.TotalPending) AS PcsPending,
-			   SUM(tbl.TotalHold) AS PcsHold,
-			   SUM(tbl.TotalShort) AS PcsShort,
-			   SUM(tbl.TotalReceived) AS PcsReceivedWh,
-			   SUM(tbl.TotalStandBy) AS PcsStandby,
-			   SUM(tbl.TotalDespachado) AS TotalDespachado,
-               SUM(tbl.Total) AS Total,
-               tbl.IdBodega,
-               tbl.IdManifiesto,
-               tbl.IdCarrier,
-               tbl.NombreCarrier,
-               tbl.IdGuia,
-               tbl.NroDocumento,
-               tbl.IdOrdenVenta,
-               tbl.NroOrdenVenta,
-               tbl.ConPOD,
-               tbl.Enviado,
-               tbl.Procesado
-			
-          FROM #TablaAgrupacionGuiasHouse tbl
-         GROUP BY tbl.IdClienteFinal,
-                  tbl.IdClienteConsignee,
-                  tbl.FechaPickUpProgramada,
-                  CONVERT(DATE, tbl.FechaPickUpEntrega),
-                  tbl.IdBodega,
-                  tbl.IdManifiesto,
-                  tbl.IdCarrier,
-                  tbl.NombreCarrier,
-                  tbl.ConPOD,
-                  tbl.Enviado,
-                  tbl.Procesado,
-                  tbl.IdGuia,
-                  tbl.NroDocumento,
-                  tbl.IdOrdenVenta,
-                  tbl.NroOrdenVenta
-		
+             , SUM(tbl.TotalPending)
+             , SUM(tbl.TotalHold)
+             , SUM(tbl.TotalShort)
+             , SUM(tbl.TotalReceived)
+             , SUM(tbl.TotalStandBy)
+             , SUM(tbl.TotalDespachado)
+             , SUM(tbl.Total)
+             , tbl.IdBodega
+             , tbl.NombreBodega
+             , tbl.IdManifiesto
+             , tbl.IdCarrier
+             , tbl.NombreCarrier
+             , tbl.IdGuia
+             , tbl.NroDocumento
+             , tbl.IdOrdenVenta
+             , tbl.NroOrdenVenta
+             , tbl.ConPOD
+             , tbl.Enviado
+             , tbl.Procesado
+
+        FROM #TablaAgrupacionGuiasHouse tbl
+        GROUP BY tbl.IdClienteFinal, tbl.NombreClienteFinal
+               , tbl.IdClienteConsignee, tbl.NombreClienteConsignee
+               , tbl.FechaPickUpProgramada
+               , CONVERT(DATE, tbl.FechaPickUpEntrega) -- Agrupación por día
+               , tbl.IdBodega, tbl.NombreBodega
+               , tbl.IdManifiesto
+               , tbl.IdCarrier
+               , tbl.NombreCarrier
+               , tbl.ConPOD, tbl.Enviado, tbl.Procesado
+               , tbl.IdGuia, tbl.NroDocumento
+               , tbl.IdOrdenVenta, tbl.NroOrdenVenta;
 
         IF @IdClienteFinal IS NULL
         BEGIN
