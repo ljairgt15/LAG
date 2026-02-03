@@ -480,7 +480,7 @@ BEGIN
 								FROM DocumentosDespacho DD WITH (NOLOCK)
 								WHERE DD.idManifiesto = MD.id
 								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC
+								ORDER BY DD.EsPod DESC
 							) DD
                             ---usados para traer informacion de usuario, aunque no se use en where
                          LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
