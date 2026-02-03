@@ -1,5 +1,5 @@
 /* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
-1              Jair Gomez       2026-02-03      N/A    Initial Code with v_ClientEntities  - Refactoring based on standards
+1             Jair Gomez        2026-02-03      N/A    Initial Code with v_ClientEntities - Refactoring based on standards
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_GetPendingPickupDetails]
 (
@@ -69,7 +69,7 @@ BEGIN
         );
 
         SELECT @IdParametroDelivery = PL.Id 
-        FROM ParametrosLista PL WITH (NOLOCK) 
+        FROM ParametrosLista PL 
         WHERE PL.Codigo = 'EsDelivery'
           AND PL.IdEmpresa = @IdEmpresa;
 
@@ -115,19 +115,19 @@ BEGIN
                ,TE.IdTE
                ,CI.ValorEsInventario
             FROM ProgramacionCarrier PC WITH (NOLOCK)
-            INNER JOIN Transportes T WITH (NOLOCK) ON PC.IdCarrier = T.Id
-            INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON T.IdTransportePrincipal = PCA.IdEntidad 
-                                                            AND PCA.IdParametroLista = @IdParametroDelivery 
-                                                            AND PCA.Valor = 'NO'
+            INNER JOIN Transportes T ON PC.IdCarrier = T.Id
+            INNER JOIN ParametrosCatalogos PCA ON T.IdTransportePrincipal = PCA.IdEntidad 
+                                              AND PCA.IdParametroLista = @IdParametroDelivery 
+                                              AND PCA.Valor = 'NO'
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id
             INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
-            INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
-            LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON PC.Id = TE.IdProgramacionCarrier  
+            INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
+            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
+            LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
-            LEFT JOIN Usuarios US WITH (NOLOCK) ON EDI.IdUsuarioLog = US.Id
+            LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
             LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id
             LEFT JOIN PoEncabezado PE ON PD.IdPo = PE.Id
             OUTER APPLY (
@@ -210,10 +210,10 @@ BEGIN
                    ,APU.EsInventario
                 FROM #TMP_AgrupacionGuiasPickUp APU
                 LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.IdProgramacionCarrier
-                LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.IdManifiestoDespacho = MD.Id
+                LEFT JOIN ManifiestosDespacho MD ON PM.IdManifiestoDespacho = MD.Id
                 OUTER APPLY (
                     SELECT TOP 1 DD.EsPod, DD.NombreArchivo, DD.MailEnviado
-                    FROM DocumentosDespacho DD WITH (NOLOCK)
+                    FROM DocumentosDespacho DD 
                     WHERE DD.IdManifiesto = MD.Id
                       AND DD.IdDocumento = 'DOC052395'
                     ORDER BY DD.EsPod DESC
@@ -264,10 +264,10 @@ BEGIN
                    ,APU.EsInventario
                 FROM #TMP_AgrupacionGuiasPickUp APU
                 INNER JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.IdProgramacionCarrier
-                INNER JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.IdManifiestoDespacho = MD.Id
+                INNER JOIN ManifiestosDespacho MD ON PM.IdManifiestoDespacho = MD.Id
                 OUTER APPLY (
                     SELECT TOP 1 DD.EsPod, DD.NombreArchivo, DD.MailEnviado
-                    FROM DocumentosDespacho DD WITH (NOLOCK)
+                    FROM DocumentosDespacho DD
                     WHERE DD.IdManifiesto = MD.Id
                       AND DD.IdDocumento = 'DOC052395'
                     ORDER BY DD.EsPod DESC
@@ -318,32 +318,32 @@ BEGIN
                ,SUM(CASE WHEN PC.IdUsuarioLogPicking IS NOT NULL THEN 1 ELSE 0 END)
                ,TE.IdTE
                ,CI.ValorEsInventario
-            FROM ProgramacionCarrier PC WITH (NOLOCK)
+            FROM ProgramacionCarrier PC WITH (NOLOCK) 
             INNER JOIN Transportes T ON PC.IdCarrier = T.Id
-            INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON T.IdTransportePrincipal = PCA.IdEntidad 
-                                                            AND PCA.IdParametroLista = @IdParametroDelivery 
-                                                            AND PCA.Valor = 'NO'
-            INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
-            INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id
+            INNER JOIN ParametrosCatalogos PCA ON T.IdTransportePrincipal = PCA.IdEntidad 
+                                              AND PCA.IdParametroLista = @IdParametroDelivery 
+                                              AND PCA.Valor = 'NO'
+            INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
+            INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
             INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
-            INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
-            LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON PC.Id = TE.IdProgramacionCarrier  
+            INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
+            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
+            LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
             LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
-            LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id
+            LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id -- Transaccional en lista
             LEFT JOIN PoEncabezado PE ON PD.IdPo = PE.Id
             OUTER APPLY (
                 SELECT TOP (1) SV.Id, SV.NroOrden, SVD.Picking, SV.TipoVenta, SVD.TipoPieza
-                FROM SolicitudDeVentaDetalles SVD WITH (NOLOCK)
-                LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SV.Id = SVD.IdSolicitud
+                FROM SolicitudDeVentaDetalles SVD
+                LEFT JOIN SolicitudDeVenta SV ON SV.Id = SVD.IdSolicitud
                 WHERE SVD.IdGuiaHouseDetalle = GHD.Id
                 ORDER BY SV.FechaSolicitud DESC
             ) AS V
-            LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON GHD.Id = PLD.IdGuiasHouseDetalle
-            LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.IdPallet = PAL.Id
-            LEFT JOIN UbicacionPiezas AS UP WITH (NOLOCK) ON GHD.Id = UP.IdGuiaHouseDetalle
+            LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON GHD.Id = PLD.IdGuiasHouseDetalle 
+            LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.IdPallet = PAL.Id 
+            LEFT JOIN UbicacionPiezas AS UP WITH (NOLOCK) ON GHD.Id = UP.IdGuiaHouseDetalle 
             LEFT JOIN Ubicaciones U ON UP.IdUbicacion = U.Id
             LEFT JOIN UbicacionesBodega UB ON U.IdUbicacionBodega = UB.Id
             LEFT JOIN Bodegas B ON GH.IdBodega = B.Id
@@ -365,7 +365,7 @@ BEGIN
               AND (@NroDocument IS NULL OR GH.NroGuia LIKE '%' + @NroDocument + '%')
               AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
               AND (@Barcode IS NULL OR GHD.CodigoBarra LIKE '%' + @Barcode + '%')
-              AND (@Supplier IS NULL OR GH.IdExportador IN (SELECT Id FROM Exportadores WITH (NOLOCK) WHERE Nombre LIKE '%' + @Supplier + '%'))
+              AND (@Supplier IS NULL OR GH.IdExportador IN (SELECT Id FROM Exportadores WHERE Nombre LIKE '%' + @Supplier + '%'))
               AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')
               AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
             GROUP BY 
@@ -416,11 +416,11 @@ BEGIN
                ,APU.IdTEGuid
                ,APU.EsInventario
             FROM #TMP_AgrupacionGuiasPickUp APU
-            LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.IdProgramacionCarrier
-            LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.IdManifiestoDespacho = MD.Id
+            LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.IdProgramacionCarrier 
+            LEFT JOIN ManifiestosDespacho MD ON PM.IdManifiestoDespacho = MD.Id
             OUTER APPLY (
                 SELECT TOP 1 DD.EsPod, DD.NombreArchivo, DD.MailEnviado
-                FROM DocumentosDespacho DD WITH (NOLOCK)
+                FROM DocumentosDespacho DD
                 WHERE DD.IdManifiesto = MD.Id
                   AND DD.IdDocumento = 'DOC052395'
                 ORDER BY DD.EsPod DESC
