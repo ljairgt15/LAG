@@ -1,9 +1,3 @@
-USE [alliance_desa]
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 CREATE OR ALTER     PROCEDURE [dbo].[AC_GetPendingPickupDetails]
 (
 	@nroDocument	VARCHAR(20) = NULL,

@@ -1,11 +1,3 @@
-USE [alliance_desa]
-GO
-/****** Object:  StoredProcedure [dbo].[pro_Despacho_PickUpDetalleCompleteDelivered]    Script Date: 30/01/2026 10:55:21 a. m. ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
 CREATE OR ALTER     PROCEDURE [dbo].[AC_Despacho_PickUpDetalleCompleteDelivered] (
 @FechaDesde DATE,
 @FechaHasta DATE,

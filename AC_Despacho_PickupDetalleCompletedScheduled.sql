@@ -1,11 +1,3 @@
-USE [alliance_desa]
-GO
-/****** Object:  StoredProcedure [dbo].[pro_Despacho_PickUpDetalleCompleteScheduled_BORRAR]    Script Date: 01/02/2026 03:17:46 p. m. ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
 CREATE OR ALTER     PROCEDURE [dbo].[AC_Despacho_PickupDetalleCompletedScheduled] (
 @FechaDesde DATE,
 @FechaHasta DATE,
