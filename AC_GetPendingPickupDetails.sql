@@ -1,4 +1,4 @@
-CREATE OR ALTER     PROCEDURE [dbo].[AC_GetPendingPickupDetails]
+CREATE OR ALTER PROCEDURE [dbo].[AC_GetPendingPickupDetails]
 (
 	@nroDocument	VARCHAR(20) = NULL,
 	@po				VARCHAR(20) = NULL,
@@ -18,7 +18,7 @@ CREATE OR ALTER     PROCEDURE [dbo].[AC_GetPendingPickupDetails]
 	@idEmpresa		VARCHAR(16) = NULL,
 	@idOrdenVenta	UNIQUEIDENTIFIER = NULL,
 	@esInventario   BIT = NULL,
-    @BillTo         VARCHAR(100) = NULL -- NUEVO PARÁMETRO
+    @BillTo         VARCHAR(128) = NULL
 )
 AS
 BEGIN
@@ -27,42 +27,42 @@ BEGIN
 
         CREATE TABLE #TMP_AgrupacionGuiasPickUp
         (
-            id                    UNIQUEIDENTIFIER NOT NULL,
-            idGuiaHouse           UNIQUEIDENTIFIER NOT NULL,
-            estadoPieza           NVARCHAR(64)     NOT NULL,
-            idClienteFinal        VARCHAR(16)      NOT NULL,
-            fechaDespacho         DATETIME         NOT NULL,
-            nombreBodega          NVARCHAR(512)    NULL,
-            idBodega              VARCHAR(16)      NOT NULL,
-            idCarrier             VARCHAR(16)      NOT NULL,
-            idProgramacionCarrier UNIQUEIDENTIFIER NOT NULL,
-            nombreClienteFinal    VARCHAR(256)     NOT NULL,
-            nroGuia               VARCHAR(32)      NOT NULL,
-            nroPo                 VARCHAR(50)      NULL,
-            idPaisCliente         VARCHAR(16)      NULL,
-            truckId               VARCHAR(10)      NULL,
-            nombreConsignee       VARCHAR(512)     NULL,
-            idConsignee           VARCHAR(16)      NOT NULL,
-            idUsuarioLogEdi       VARCHAR(16)      NULL,
-            idUsuarioLogHouse     VARCHAR(16)      NULL,
-            nombreUsuario         NVARCHAR(64)     NULL,
-            totalPiezas           INT,
-            valor                 VARCHAR(1024)    NULL,
-            codigoBarra           VARCHAR(16)      NULL,
-            nroOrden              VARCHAR(16)      NULL,
-            house                 VARCHAR(32)      NULL,
-            fechaCambio           DATETIME         NULL,
-            fechaCambioHouse      DATETIME         NOT NULL,
-            idExportador          VARCHAR(16)      NULL,
-            pallet                VARCHAR(16)      NULL,
-            totalPicking          INT,
-            idOrdenventa          UNIQUEIDENTIFIER,
-            po                    VARCHAR(64),
-            idCliente             VARCHAR(16),
-            despachadoDestino     VARCHAR(16),
-			totalPickingLoading   INT,
-			idTEGuid			  UNIQUEIDENTIFIER NULL,
-			esInventario		  BIT
+            Id                    UNIQUEIDENTIFIER NOT NULL,
+            IdGuiaHouse           UNIQUEIDENTIFIER NOT NULL,
+            EstadoPieza           NVARCHAR(64)     NOT NULL,
+            IdClienteFinal        VARCHAR(16)      NOT NULL,
+            FechaDespacho         DATETIME         NOT NULL,
+            NombreBodega          NVARCHAR(512)    NULL,
+            IdBodega              VARCHAR(16)      NOT NULL,
+            IdCarrier             VARCHAR(16)      NOT NULL,
+            IdProgramacionCarrier UNIQUEIDENTIFIER NOT NULL,
+            NombreClienteFinal    VARCHAR(256)     NOT NULL,
+            NroGuia               VARCHAR(32)      NOT NULL,
+            NroPo                 VARCHAR(50)      NULL,
+            IdPaisCliente         VARCHAR(16)      NULL,
+            TruckId               VARCHAR(10)      NULL,
+            NombreConsignee       VARCHAR(512)     NULL,
+            IdConsignee           VARCHAR(16)      NOT NULL,
+            IdUsuarioLogEdi       VARCHAR(16)      NULL,
+            IdUsuarioLogHouse     VARCHAR(16)      NULL,
+            NombreUsuario         NVARCHAR(64)     NULL,
+            TotalPiezas           INT,
+            Valor                 VARCHAR(1024)    NULL,
+            CodigoBarra           VARCHAR(16)      NULL,
+            NroOrden              VARCHAR(16)      NULL,
+            House                 VARCHAR(32)      NULL,
+            FechaCambio           DATETIME         NULL,
+            FechaCambioHouse      DATETIME         NOT NULL,
+            IdExportador          VARCHAR(16)      NULL,
+            Pallet                VARCHAR(16)      NULL,
+            TotalPicking          INT,
+            IdOrdenventa          UNIQUEIDENTIFIER,
+            Po                    VARCHAR(64),
+            IdCliente             VARCHAR(16),
+            DespachadoDestino     VARCHAR(16),
+			TotalPickingLoading   INT,
+			IdTEGuid			  UNIQUEIDENTIFIER NULL,
+			EsInventario		  BIT
         );
 
 		SELECT @idParametroDelivery = id 
@@ -92,26 +92,26 @@ BEGIN
                      , EDI.idUsuarioLog
                      , GH.idUsuarioLog
                      , US.nombre
-                     , 0 -- TotalPiezas
+                     , 0
                      , PCAT.valor
-                     , NULL -- CodigoBarra (En consulta 1 suele ir nulo según tu original)
+                     , NULL
                      , V.nroOrden
                      , GH.house
                      , EDI.fechaCambio
                      , GH.fechaCambio
                      , GH.idExportador
                      , PAL.pallet
-                     , SUM(IIF(V.picking = 1, 1, 0))
+                     , SUM(CASE WHEN V.picking = 1 THEN 1 ELSE 0 END)
                      , V.id
                      , GHD.po
                      , GH.ConsigneeId
                      , GHD.despachadoDestino
-                     , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0))
+                     , SUM(CASE WHEN PC.idUsuarioLogPicking IS NOT NULL THEN 1 ELSE 0 END)
                      , TE.idTE
-                     , CI.ValorEsInventario -- Usando Cross Apply
+                     , CI.ValorEsInventario
                 FROM  ProgramacionCarrier PC  WITH (NOLOCK)
                      INNER JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id
-                     INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
+                     INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON T.idTransportePrincipal = PCA.idEntidad 
                                                                      AND PCA.idParametroLista = @idParametroDelivery 
                                                                      AND PCA.valor = 'NO'
                      INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
@@ -137,7 +137,6 @@ BEGIN
                      LEFT JOIN UbicacionesBodega UB ON U.idUbicacionBodega = UB.id
                      LEFT JOIN Bodegas B ON GH.idBodega = B.id
                      LEFT JOIN Bodegas B1 ON UB.idBodega = B1.id
-                     -- CROSS APPLY para cálculo de inventario
                      CROSS APPLY (
                         SELECT CASE 
                             WHEN V.tipoVenta < 4 THEN 1 
@@ -148,9 +147,7 @@ BEGIN
                 WHERE PC.fechaDespacho = @fechaDespacho
                   AND GH.idEmpresa = @idEmpresa              
                   AND (@idOrdenVenta IS NULL OR V.id = @idOrdenVenta)
-                  AND GHD.ShipToId = @idClienteFinal -- Filtro Principal de esta consulta
-                  
-                  -- FILTROS OPTIMIZADOS (AGUAS ARRIBA)
+                  AND GHD.ShipToId = @idClienteFinal
                   AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
                   AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
                   AND (@idBodega IS NULL OR ISNULL(UB.idBodega, GH.idBodega) = @idBodega)
@@ -191,110 +188,108 @@ BEGIN
 
                 IF (@nroManifiesto IS NULL)
                     BEGIN
-                        SELECT APU.id
-                             , APU.idGuiaHouse
-                             , MD.id idManifiesto
-                             , DD.mailEnviado
-                             , APU.estadoPieza
-                             , APU.idClienteFinal
-                             , APU.fechaDespacho
-                             , APU.nombreBodega
-                             , APU.idBodega
-                             , ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
+                        SELECT APU.Id
+                             , APU.IdGuiaHouse
+                             , MD.id AS IdManifiesto
+                             , DD.mailEnviado AS MailEnviado
+                             , APU.EstadoPieza
+                             , APU.IdClienteFinal
+                             , APU.FechaDespacho
+                             , APU.NombreBodega
+                             , APU.IdBodega
+                             , ISNULL(ISNULL(APU.IdUsuarioLogEdi, MD.idUsuarioLog), APU.IdUsuarioLogHouse) AS IdUsuarioLog
                              , CASE
-                                   WHEN APU.idUsuarioLogEdi IS NOT NULL THEN APU.nombreUsuario
+                                   WHEN APU.IdUsuarioLogEdi IS NOT NULL THEN APU.NombreUsuario
                                    WHEN MD.idUsuarioLog IS NOT NULL THEN U.nombre
                                    ELSE USH.nombre
-                               END AS nombreUsuario
-                             , APU.nombreClienteFinal
-                             , APU.idCarrier
-                             , APU.nroGuia
-                             , MD.nroManifiesto
-                             , APU.nroPo
-                             , APU.idPaisCliente
-                             , DD.nombreArchivo tipoNubeDocs
-                             , ISNULL(ISNULL(APU.fechaCambio, MD.fechaCambio), APU.fechaCambioHouse) AS usuarioFechaCambio
-                             , APU.truckId
-                             , APU.nombreConsignee
-                             , APU.idConsignee
-                             , APU.totalPiezas
-                             , APU.valor
-                             , APU.codigoBarra
-                             , APU.nroOrden
-                             , APU.house
-                             , APU.totalPicking
-                             , APU.idOrdenventa
-                             , APU.despachadoDestino
-                             , APU.totalPickingLoading TotalPickingLoading
-                             , APU.idTEGuid
-                             , APU.esInventario
+                               END AS NombreUsuario
+                             , APU.NombreClienteFinal
+                             , APU.IdCarrier
+                             , APU.NroGuia
+                             , MD.nroManifiesto AS NroManifiesto
+                             , APU.NroPo
+                             , APU.IdPaisCliente
+                             , DD.nombreArchivo AS TipoNubeDocs
+                             , ISNULL(ISNULL(APU.FechaCambio, MD.fechaCambio), APU.FechaCambioHouse) AS UsuarioFechaCambio
+                             , APU.TruckId
+                             , APU.NombreConsignee
+                             , APU.IdConsignee
+                             , APU.TotalPiezas
+                             , APU.Valor
+                             , APU.CodigoBarra
+                             , APU.NroOrden
+                             , APU.House
+                             , APU.TotalPicking
+                             , APU.IdOrdenventa
+                             , APU.DespachadoDestino
+                             , APU.TotalPickingLoading
+                             , APU.IdTEGuid
+                             , APU.EsInventario
                         FROM #TMP_AgrupacionGuiasPickUp APU
-                             LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
-                             LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
+                             LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.idProgramacionCarrier
+                             LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
                              OUTER APPLY (
                                 SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
                                 FROM DocumentosDespacho DD WITH (NOLOCK)
                                 WHERE DD.idManifiesto = MD.id
                                 AND DD.idDocumento = 'DOC052395'
-                                ORDER BY EsPod DESC
+                                ORDER BY DD.EsPod DESC
                             ) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
-                             LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
+                             LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.id
                         WHERE MD.nroManifiesto IS NULL
                     END;
-                ELSE -- Consulta todos los detalles pickup pendientes de hace 3 meses Cuando @nroManifiesto TIENE VALOR
+                ELSE
                     BEGIN
-                        SELECT APU.id
-                             , APU.idGuiaHouse
-                             , MD.id idManifiesto
-                             , DD.mailEnviado
-                             , APU.estadoPieza
-                             , APU.idClienteFinal
-                             , APU.fechaDespacho
-                             , APU.nombreBodega
-                             , APU.idBodega
-                             , ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
+                        SELECT APU.Id
+                             , APU.IdGuiaHouse
+                             , MD.id AS IdManifiesto
+                             , DD.mailEnviado AS MailEnviado
+                             , APU.EstadoPieza
+                             , APU.IdClienteFinal
+                             , APU.FechaDespacho
+                             , APU.NombreBodega
+                             , APU.IdBodega
+                             , ISNULL(ISNULL(APU.IdUsuarioLogEdi, MD.idUsuarioLog), APU.IdUsuarioLogHouse) AS IdUsuarioLog
                              , CASE
-                                   WHEN APU.idUsuarioLogEdi IS NOT NULL THEN APU.nombreUsuario
+                                   WHEN APU.IdUsuarioLogEdi IS NOT NULL THEN APU.NombreUsuario
                                    WHEN MD.idUsuarioLog IS NOT NULL THEN U.nombre
                                    ELSE USH.nombre
-                               END AS nombreUsuario
-                             , APU.nombreClienteFinal
-                             , APU.idCarrier
-                             , APU.nroGuia
-                             , MD.nroManifiesto
-                             , APU.nroPo
-                             , APU.idPaisCliente
-                             , DD.nombreArchivo tipoNubeDocs
-                             , ISNULL(ISNULL(APU.fechaCambio, MD.fechaCambio), APU.fechaCambioHouse) AS usuarioFechaCambio
-                             , APU.truckId
-                             , APU.nombreConsignee
-                             , APU.idConsignee
-                             , APU.totalPiezas
-                             , APU.valor
-                             , APU.codigoBarra
-                             , APU.nroOrden
-                             , APU.house
-                             , APU.totalPicking
-                             , APU.idOrdenventa
-                             , APU.despachadoDestino
-                             , APU.totalPickingLoading TotalPickingLoading
-                             , APU.idTEGuid
-                             , APU.esInventario
+                               END AS NombreUsuario
+                             , APU.NombreClienteFinal
+                             , APU.IdCarrier
+                             , APU.NroGuia
+                             , MD.nroManifiesto AS NroManifiesto
+                             , APU.NroPo
+                             , APU.IdPaisCliente
+                             , DD.nombreArchivo AS TipoNubeDocs
+                             , ISNULL(ISNULL(APU.FechaCambio, MD.fechaCambio), APU.FechaCambioHouse) AS UsuarioFechaCambio
+                             , APU.TruckId
+                             , APU.NombreConsignee
+                             , APU.IdConsignee
+                             , APU.TotalPiezas
+                             , APU.Valor
+                             , APU.CodigoBarra
+                             , APU.NroOrden
+                             , APU.House
+                             , APU.TotalPicking
+                             , APU.IdOrdenventa
+                             , APU.DespachadoDestino
+                             , APU.TotalPickingLoading
+                             , APU.IdTEGuid
+                             , APU.EsInventario
                         FROM #TMP_AgrupacionGuiasPickUp APU
-                             -- CAMBIO: INNER JOIN para mayor velocidad (Si busco manifiesto, TIENE que haber manifiesto)
-                             INNER JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
+                             INNER JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.idProgramacionCarrier
                              INNER JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
                              OUTER APPLY (
                                 SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
                                 FROM DocumentosDespacho DD WITH (NOLOCK)
                                 WHERE DD.idManifiesto = MD.id
                                 AND DD.idDocumento = 'DOC052395'
-                                ORDER BY EsPod DESC
+                                ORDER BY DD.EsPod DESC
                             ) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
-                             LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
-                        --Un LEFT JOIN con un filtro WHERE obligatorio sobre la tabla derecha se convierte funcionalmente en un INNER JOIN.
+                             LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.id
                         WHERE MD.nroManifiesto = @nroManifiesto
                           AND ISNULL(DD.esPOD, 0) = 0
                     END;
@@ -304,7 +299,7 @@ BEGIN
                 BEGIN
                     INSERT INTO #TMP_AgrupacionGuiasPickUp
                     SELECT GHD.id
-                         , GH.id idGuiaHouse
+                         , GH.id
                          , GHD.estadoPieza
                          , GHD.ShipToId
                          , PC.fechaDespacho
@@ -322,7 +317,7 @@ BEGIN
                          , EDI.idUsuarioLog
                          , GH.idUsuarioLog
                          , US.nombre
-                         , 0 totalPiezas
+                         , 0
                          , PCAT.valor
                          , GHD.codigoBarra
                          , V.nroOrden
@@ -331,27 +326,24 @@ BEGIN
                          , GH.fechaCambio
                          , GH.idExportador
                          , PAL.pallet
-                         , SUM(IIF(V.picking = 1, 1, 0))
+                         , SUM(CASE WHEN V.picking = 1 THEN 1 ELSE 0 END)
                          , V.id
                          , GHD.po
                          , GH.ConsigneeId
                          , GHD.despachadoDestino
-						 , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0))
+						 , SUM(CASE WHEN PC.idUsuarioLogPicking IS NOT NULL THEN 1 ELSE 0 END)
 						 , TE.idTE
 						 , CI.ValorEsInventario
                     FROM ProgramacionCarrier PC  WITH (NOLOCK)
                          INNER JOIN Transportes T ON PC.idCarrier = T.id
-                         INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
+                         INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON T.idTransportePrincipal = PCA.idEntidad 
 																	 AND PCA.idParametroLista = @idParametroDelivery 
 																	 AND PCA.valor = 'NO'
                          INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                          INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
                          INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
-                         -- CAMBIO: Vista ShipTo
                          INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
-                         -- CAMBIO: Vista Header Híbrida
                          INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-                         -- CAMBIO: ParametrosCatalogos con ID Normalizado
                          LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
 						 LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
                          LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
@@ -380,26 +372,16 @@ BEGIN
                     WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE())            
                     AND GH.idEmpresa = @idEmpresa                     
                     AND GHD.esPOD = 0
-                    -- 1. FILTROS NUEVOS (CONSIGNEE / BILLTO)
                     AND (@Consignee IS NULL OR CGN.nombre LIKE '%' + @Consignee + '%')
                     AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.BillToName LIKE '%' + @BillTo + '%'))
-                    -- 2. FILTROS OPTIMIZADOS (MOVIDOS DEL FINAL AL PRINCIPIO) --------------------
                     AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
-                    -- Bodega (Replica la lógica del SELECT: ISNULL(Ubicacion, Header))
                     AND (@idBodega IS NULL OR ISNULL(UB.idBodega, GH.idBodega) = @idBodega)
-                    -- Nro Documento (Guía)
                     AND (@nroDocument IS NULL OR GH.nroGuia LIKE '%' + @nroDocument + '%')
-                    -- PO
                     AND (@po IS NULL OR GHD.po LIKE '%' + @po + '%')
-                    -- Barcode
                     AND (@barcode IS NULL OR GHD.codigoBarra LIKE '%' + @barcode + '%')
-                    -- Supplier (Exportador)
                     AND (@supplier IS NULL OR GH.idExportador IN (SELECT id FROM Exportadores WITH (NOLOCK) WHERE nombre LIKE '%' + @supplier + '%'))
-                    -- Pallet Label
                     AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
-                    -- Es Inventario (Replica la lógica del CASE del SELECT)
                     AND (@esInventario IS NULL OR CI.ValorEsInventario = @esInventario)
-                    ------------------------------------------------------------------------------
                     GROUP BY GHD.id
                            , GH.id
                            , GHD.estadoPieza
@@ -435,46 +417,46 @@ BEGIN
 						   , TE.idTE
 						   , CI.ValorEsInventario
 						   
-                    SELECT APU.id
-                         , APU.idGuiaHouse
-                         , MD.id idManifiesto
-                         , DD.mailEnviado
-                         , APU.estadoPieza
-                         , APU.idClienteFinal
-                         , APU.fechaDespacho
-                         , APU.nombreBodega
-                         , APU.idBodega
-                         , ISNULL(ISNULL(APU.idUsuarioLogEdi, MD.idUsuarioLog), APU.idUsuarioLogHouse) AS idUsuarioLog
+                    SELECT APU.Id
+                         , APU.IdGuiaHouse
+                         , MD.id AS IdManifiesto
+                         , DD.mailEnviado AS MailEnviado
+                         , APU.EstadoPieza
+                         , APU.IdClienteFinal
+                         , APU.FechaDespacho
+                         , APU.NombreBodega
+                         , APU.IdBodega
+                         , ISNULL(ISNULL(APU.IdUsuarioLogEdi, MD.idUsuarioLog), APU.IdUsuarioLogHouse) AS IdUsuarioLog
                          , CASE
-                               WHEN APU.idUsuarioLogEdi IS NOT NULL THEN APU.nombreUsuario
+                               WHEN APU.IdUsuarioLogEdi IS NOT NULL THEN APU.NombreUsuario
                                WHEN MD.idUsuarioLog IS NOT NULL THEN U.nombre
                                ELSE USH.nombre
-                           END nombreUsuario
-                         , APU.nombreClienteFinal
-                         , APU.idCarrier
-                         , APU.nroGuia
-                         , MD.nroManifiesto
-                         , APU.nroPo
-                         , APU.idPaisCliente
-                         , DD.nombreArchivo tipoNubeDocs
-						 ,ISNULL(ISNULL(APU.fechaCambio, MD.fechaCambio), APU.fechaCambioHouse) AS usuarioFechaCambio
-                         , APU.truckId
-                         , APU.nombreConsignee
-                         , APU.idConsignee
-                         , APU.totalPiezas
-                         , APU.valor
-                         , APU.codigoBarra
-                         , APU.nroOrden
-                         , APU.house
-                         , APU.totalPicking
-                         , APU.idOrdenventa
-                         , APU.despachadoDestino
-                         , APU.totalPickingLoading TotalPickingLoading
-						 , APU.idTEGuid
-						 , APU.esInventario
+                           END AS NombreUsuario
+                         , APU.NombreClienteFinal
+                         , APU.IdCarrier
+                         , APU.NroGuia
+                         , MD.nroManifiesto AS NroManifiesto
+                         , APU.NroPo
+                         , APU.IdPaisCliente
+                         , DD.nombreArchivo AS TipoNubeDocs
+						 , ISNULL(ISNULL(APU.FechaCambio, MD.fechaCambio), APU.FechaCambioHouse) AS UsuarioFechaCambio
+                         , APU.TruckId
+                         , APU.NombreConsignee
+                         , APU.IdConsignee
+                         , APU.TotalPiezas
+                         , APU.Valor
+                         , APU.CodigoBarra
+                         , APU.NroOrden
+                         , APU.House
+                         , APU.TotalPicking
+                         , APU.IdOrdenventa
+                         , APU.DespachadoDestino
+                         , APU.TotalPickingLoading
+						 , APU.IdTEGuid
+						 , APU.EsInventario
                     FROM #TMP_AgrupacionGuiasPickUp APU
-                         LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
-                         LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
+                         LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.IdProgramacionCarrier = PM.idProgramacionCarrier
+                         LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
                          OUTER APPLY (
 								SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
 								FROM DocumentosDespacho DD WITH (NOLOCK)
@@ -482,9 +464,8 @@ BEGIN
 								AND DD.idDocumento = 'DOC052395'
 								ORDER BY DD.EsPod DESC
 							) DD
-                            ---usados para traer informacion de usuario, aunque no se use en where
                          LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
-                         LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
+                         LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.id
                     WHERE 
 						(@nroManifiesto IS NULL
                         OR MD.nroManifiesto LIKE '%' + @nroManifiesto + '%')
@@ -492,6 +473,6 @@ BEGIN
                 END;
     END TRY
     BEGIN CATCH
-        EXEC [pro_LogError]
+        EXEC [dbo].[pro_LogError]
     END CATCH;
 END;
