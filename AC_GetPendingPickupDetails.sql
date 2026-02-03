@@ -41,7 +41,7 @@ BEGIN
             nroPo                 VARCHAR(50)      NULL,
             idPaisCliente         VARCHAR(16)      NULL,
             truckId               VARCHAR(10)      NULL,
-            nombreConsignee       NVARCHAR(512)    NULL,
+            nombreConsignee       VARCHAR(512)     NULL,
             idConsignee           VARCHAR(16)      NOT NULL,
             idUsuarioLogEdi       VARCHAR(16)      NULL,
             idUsuarioLogHouse     VARCHAR(16)      NULL,
