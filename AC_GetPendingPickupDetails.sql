@@ -108,7 +108,7 @@ BEGIN
                      , GHD.despachadoDestino
                      , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0))
                      , TE.idTE
-                     , CalcInventario.ValorEsInventario -- Usando Cross Apply
+                     , CI.ValorEsInventario -- Usando Cross Apply
                 FROM  ProgramacionCarrier PC  WITH (NOLOCK)
                      INNER JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id
                      INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
@@ -120,7 +120,7 @@ BEGIN
                      INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.id = GHD.ShipToId
                      INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
                      LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.idParametroLista = PLC.id
-                     LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
+                     LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
                      LEFT JOIN EDI ON PC.idCarrier = EDI.idCarrier AND PC.fechaDespacho = EDI.fechaDespacho
                      LEFT JOIN Usuarios US WITH (NOLOCK) ON EDI.idUsuarioLog = US.id
                      LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.idPoDetalle = PD.id
@@ -144,7 +144,7 @@ BEGIN
                             WHEN V.tipoVenta = 5 AND V.tipoPieza = 1 THEN 1 
                             ELSE 0 
                         END AS ValorEsInventario
-                     ) AS CalcInventario
+                     ) AS CI
                 WHERE PC.fechaDespacho = @fechaDespacho
                   AND GH.idEmpresa = @idEmpresa              
                   AND (@idOrdenVenta IS NULL OR V.id = @idOrdenVenta)
@@ -154,7 +154,7 @@ BEGIN
                   AND (@idCarrier IS NULL OR PC.idCarrier = @idCarrier)
                   AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
                   AND (@idBodega IS NULL OR ISNULL(UB.idBodega, GH.idBodega) = @idBodega)
-                  AND (@esInventario IS NULL OR CalcInventario.ValorEsInventario = @esInventario)
+                  AND (@esInventario IS NULL OR CI.ValorEsInventario = @esInventario)
 
                 GROUP BY GHD.id
                        , GH.id
@@ -187,7 +187,7 @@ BEGIN
                        , GH.ConsigneeId
                        , GHD.despachadoDestino
                        , TE.idTE
-                       , CalcInventario.ValorEsInventario
+                       , CI.ValorEsInventario
 
                 IF (@nroManifiesto IS NULL)
                     BEGIN
@@ -338,7 +338,7 @@ BEGIN
                          , GHD.despachadoDestino
 						 , SUM(IIF(PC.idUsuarioLogPicking IS NOT NULL, 1, 0))
 						 , TE.idTE
-						 , CalcInventario.ValorEsInventario
+						 , CI.ValorEsInventario
                     FROM ProgramacionCarrier PC  WITH (NOLOCK)
                          INNER JOIN Transportes T ON PC.idCarrier = T.id
                          INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
@@ -376,7 +376,7 @@ BEGIN
                                     WHEN V.tipoVenta = 5 AND V.tipoPieza = 1 THEN 1 
                                     ELSE 0 
                                 END AS ValorEsInventario
-                        ) AS CalcInventario
+                        ) AS CI
                     WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE())            
                     AND GH.idEmpresa = @idEmpresa                     
                     AND GHD.esPOD = 0
@@ -398,7 +398,7 @@ BEGIN
                     -- Pallet Label
                     AND (@palletLabel IS NULL OR PAL.pallet LIKE '%' + @palletLabel + '%')
                     -- Es Inventario (Replica la lógica del CASE del SELECT)
-                    AND (@esInventario IS NULL OR CalcInventario.ValorEsInventario = @esInventario)
+                    AND (@esInventario IS NULL OR CI.ValorEsInventario = @esInventario)
                     ------------------------------------------------------------------------------
                     GROUP BY GHD.id
                            , GH.id
@@ -433,7 +433,7 @@ BEGIN
                            , GHD.despachadoDestino
 						   , GHD.codigoBarra 
 						   , TE.idTE
-						   , CalcInventario.ValorEsInventario
+						   , CI.ValorEsInventario
 						   
                     SELECT APU.id
                          , APU.idGuiaHouse
