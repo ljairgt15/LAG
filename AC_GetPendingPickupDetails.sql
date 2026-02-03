@@ -25,7 +25,7 @@ BEGIN
     BEGIN TRY
 		DECLARE @idParametroDelivery VARCHAR(16)
 
-        CREATE TABLE #TablaAgrupacionGuiasPickUp
+        CREATE TABLE #TMP_AgrupacionGuiasPickUp
         (
             id                    UNIQUEIDENTIFIER NOT NULL,
             idGuiaHouse           UNIQUEIDENTIFIER NOT NULL,
@@ -72,7 +72,7 @@ BEGIN
 
         IF (@consulta = 1) -- Consulta un cliente final
             BEGIN
-                INSERT INTO #TablaAgrupacionGuiasPickUp
+                INSERT INTO #TMP_AgrupacionGuiasPickUp
                 SELECT GHD.id
                      , GH.id
                      , GHD.estadoPieza
@@ -228,7 +228,7 @@ BEGIN
                              , APU.totalPickingLoading TotalPickingLoading
                              , APU.idTEGuid
                              , APU.esInventario
-                        FROM #TablaAgrupacionGuiasPickUp APU
+                        FROM #TMP_AgrupacionGuiasPickUp APU
                              LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                              LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
                              OUTER APPLY (
@@ -281,7 +281,7 @@ BEGIN
                              , APU.totalPickingLoading TotalPickingLoading
                              , APU.idTEGuid
                              , APU.esInventario
-                        FROM #TablaAgrupacionGuiasPickUp APU
+                        FROM #TMP_AgrupacionGuiasPickUp APU
                              -- CAMBIO: INNER JOIN para mayor velocidad (Si busco manifiesto, TIENE que haber manifiesto)
                              INNER JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                              INNER JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
@@ -302,7 +302,7 @@ BEGIN
         ELSE
             IF (@consulta = 2)
                 BEGIN
-                    INSERT INTO #TablaAgrupacionGuiasPickUp
+                    INSERT INTO #TMP_AgrupacionGuiasPickUp
                     SELECT GHD.id
                          , GH.id idGuiaHouse
                          , GHD.estadoPieza
@@ -472,7 +472,7 @@ BEGIN
                          , APU.totalPickingLoading TotalPickingLoading
 						 , APU.idTEGuid
 						 , APU.esInventario
-                    FROM #TablaAgrupacionGuiasPickUp APU
+                    FROM #TMP_AgrupacionGuiasPickUp APU
                          LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                          LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
                          OUTER APPLY (
