@@ -286,50 +286,50 @@ BEGIN
             IdManifiesto, IdCarrier, NombreCarrier, IdGuia, NroDocumento, IdOrdenVenta, NroOrdenVenta, ConPod, Enviado, Procesado
         )
         SELECT 
-             T.IdClienteFinal
-            ,T.NombreClienteFinal
-            ,T.IdClienteConsignee
-            ,T.NombreClienteConsignee
-            ,T.FechaPickUpProgramada
-            ,MAX(T.FechaPickUpEntrega) AS FechaPickUpEntrega
+             TMP.IdClienteFinal
+            ,TMP.NombreClienteFinal
+            ,TMP.IdClienteConsignee
+            ,TMP.NombreClienteConsignee
+            ,TMP.FechaPickUpProgramada
+            ,MAX(TMP.FechaPickUpEntrega) AS FechaPickUpEntrega
             ,(SELECT TOP (1) Sub.IdUsuarioLog
               FROM #TMP_HouseGuideGrouping Sub
-              WHERE Sub.IdGuia = T.IdGuia
-                AND CONVERT(DATE, Sub.FechaPickUpEntrega) = CONVERT(DATE, T.FechaPickUpEntrega)
+              WHERE Sub.IdGuia = TMP.IdGuia
+                AND CONVERT(DATE, Sub.FechaPickUpEntrega) = CONVERT(DATE, TMP.FechaPickUpEntrega)
               ORDER BY Sub.FechaPickUpEntrega DESC
              ) AS IdUsuarioLog
-            ,SUM(T.TotalPending)
-            ,SUM(T.TotalHold)
-            ,SUM(T.TotalShort)
-            ,SUM(T.TotalReceived)
-            ,SUM(T.TotalStandBy)
-            ,SUM(T.TotalDespachado)
-            ,SUM(T.Total)
-            ,T.IdBodega
-            ,T.NombreBodega
-            ,T.IdManifiesto
-            ,T.IdCarrier
-            ,T.NombreCarrier
-            ,T.IdGuia
-            ,T.NroDocumento
-            ,T.IdOrdenVenta
-            ,T.NroOrdenVenta
-            ,T.ConPod
-            ,T.Enviado
-            ,T.Procesado
-        FROM #TMP_HouseGuideGrouping T
+            ,SUM(TMP.TotalPending)
+            ,SUM(TMP.TotalHold)
+            ,SUM(TMP.TotalShort)
+            ,SUM(TMP.TotalReceived)
+            ,SUM(TMP.TotalStandBy)
+            ,SUM(TMP.TotalDespachado)
+            ,SUM(TMP.Total)
+            ,TMP.IdBodega
+            ,TMP.NombreBodega
+            ,TMP.IdManifiesto
+            ,TMP.IdCarrier
+            ,TMP.NombreCarrier
+            ,TMP.IdGuia
+            ,TMP.NroDocumento
+            ,TMP.IdOrdenVenta
+            ,TMP.NroOrdenVenta
+            ,TMP.ConPod
+            ,TMP.Enviado
+            ,TMP.Procesado
+        FROM #TMP_HouseGuideGrouping TMP
         GROUP BY 
-             T.IdClienteFinal, T.NombreClienteFinal
-            ,T.IdClienteConsignee, T.NombreClienteConsignee
-            ,T.FechaPickUpProgramada
-            ,CONVERT(DATE, T.FechaPickUpEntrega)
-            ,T.IdBodega, T.NombreBodega
-            ,T.IdManifiesto
-            ,T.IdCarrier
-            ,T.NombreCarrier
-            ,T.ConPod, T.Enviado, T.Procesado
-            ,T.IdGuia, T.NroDocumento
-            ,T.IdOrdenVenta, T.NroOrdenVenta;
+             TMP.IdClienteFinal, TMP.NombreClienteFinal
+            ,TMP.IdClienteConsignee, TMP.NombreClienteConsignee
+            ,TMP.FechaPickUpProgramada
+            ,CONVERT(DATE, TMP.FechaPickUpEntrega)
+            ,TMP.IdBodega, TMP.NombreBodega
+            ,TMP.IdManifiesto
+            ,TMP.IdCarrier
+            ,TMP.NombreCarrier
+            ,TMP.ConPod, TMP.Enviado, TMP.Procesado
+            ,TMP.IdGuia, TMP.NroDocumento
+            ,TMP.IdOrdenVenta, TMP.NroOrdenVenta;
         
         IF @IdClienteFinal IS NULL
         BEGIN
