@@ -1,7 +1,7 @@
 /* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
-1             Jair Gomez        2026-02-03      N/A    Initial Code with v_ClientEntities - Refactoring based on standards
+1             Jair Gomez        2026-02-03       57731    Initial Code,store procedure based on pro_Despacho_DespachoDetallePickUp changed with v_ClientEntities - Refactoring based on standards
 */
-CREATE OR ALTER PROCEDURE [dbo].[AC_GetPendingPickupDetails]
+CREATE OR ALTER PROCEDURE [dbo].[AC_Despacho_DespachoDetallePickUp]
 (
     @NroDocument    VARCHAR(20) = NULL,
     @Po             VARCHAR(20) = NULL,
