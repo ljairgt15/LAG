@@ -421,8 +421,9 @@ BEGIN
     END CATCH;
 END;
 /*
-EXEC [dbo].[pro_GetDispatchPickupDetailCompletedScheduled] 
+EXEC [dbo].[AC_Despacho_PickupDetalleCompletedScheduled] 
     @FechaDesde = '2023-01-01',
     @FechaHasta = '2023-01-31',
-    @IdEmpresa = 'EMP001'
+    @IdEmpresa  = 'EMP014',
+
 */

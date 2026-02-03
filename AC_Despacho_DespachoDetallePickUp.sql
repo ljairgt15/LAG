@@ -437,7 +437,7 @@ BEGIN
     END CATCH;
 END;
 /*
-EXEC [dbo].[AC_GetPendingPickupDetails]
+EXEC [dbo].[AC_Despacho_DespachoDetallePickUp]
     @NroDocument     = NULL,
     @Po              = NULL,
     @Consignee       = NULL,
@@ -453,7 +453,7 @@ EXEC [dbo].[AC_GetPendingPickupDetails]
     @FechaDesde      = 1,
     @PalletLabel     = NULL,
     @IdBodega        = NULL,
-	@IdEmpresa=N'EMP014',
+	@IdEmpresa       ='EMP014',
     @IdOrdenVenta    = NULL,
     @EsInventario    = NULL,
 	@BillTo=NULL;
