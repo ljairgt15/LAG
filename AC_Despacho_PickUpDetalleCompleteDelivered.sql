@@ -15,7 +15,7 @@ CREATE OR ALTER     PROCEDURE [dbo].[AC_Despacho_PickUpDetalleCompleteDelivered]
 @FechaPickUpEntrega DATE = NULL,
 @PalletLabel VARCHAR(20) = NULL,
 @idEmpresa VARCHAR(16) = NULL,
-@BillTo VARCHAR(100) = NULL)
+@BillTo VARCHAR(128) = NULL)
 AS
 BEGIN
     BEGIN TRY
