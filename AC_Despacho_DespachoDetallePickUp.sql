@@ -438,23 +438,29 @@ BEGIN
 END;
 /*
 EXEC [dbo].[AC_Despacho_DespachoDetallePickUp]
+    @Pending         = 0,       
+    @Consulta        = 2,
+    @FechaDesde      = 1,
+	@IdEmpresa       ='EMP014',
+	@BillTo=NULL;
+EXEC [dbo].[AC_Despacho_DespachoDetallePickUp]
     @NroDocument     = NULL,
     @Po              = NULL,
     @Consignee       = NULL,
-    @Status          = NULL,
+    @Status          = 'PENDING',
     @NroManifiesto   = NULL,
     @Barcode         = NULL,
     @Supplier        = NULL,
     @Pending         = 0,       
     @Consulta        = 2,
-    @IdClienteFinal  = NULL,
-    @IdCarrier       = NULL,
-    @FechaDespacho   = NULL,
+    @IdClienteFinal  = 'ETY00053007',
+    @IdCarrier       = 'ybOy4oex7F5E',
+    @FechaDespacho   = '2026-01-10',
     @FechaDesde      = 1,
     @PalletLabel     = NULL,
-    @IdBodega        = NULL,
+    @IdBodega        = 'LXgyot5M',
 	@IdEmpresa       ='EMP014',
     @IdOrdenVenta    = NULL,
-    @EsInventario    = NULL,
+    @EsInventario    = 0,
 	@BillTo=NULL;
 */
