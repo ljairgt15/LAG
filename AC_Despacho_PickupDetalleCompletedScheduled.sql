@@ -436,6 +436,26 @@ END;
 EXEC [dbo].[AC_Despacho_PickupDetalleCompletedScheduled] 
     @FechaDesde = '2023-01-01',
     @FechaHasta = '2023-01-31',
-    @IdEmpresa  = 'EMP014',
+    @IdEmpresa  = 'EMP014';
+
+    EXEC [dbo].[AC_Despacho_PickupDetalleCompletedScheduled]
+    @FechaDesde                 = '2026-01-03',
+    @FechaHasta                 = '2026-01-05',
+    @NroDocumento               = NULL,
+    @Po                          = NULL,
+    @NombreClienteConsignee     = NULL,
+    @NroPod                     = NULL,
+    @CodigoBarras               = NULL,
+    @NombreComercialExportador  = NULL,
+    @IdManifiesto               = 'BFB80C7A-AF03-415A-8517-2A2121F13D7B',
+    @IdCarrier                  = 'ZWYOb294',
+    @IdClienteFinal             = 'ETY000121625',
+    @IdBodega                   = 'QK6s23du',
+    @FechaPickUpProgramada      = '2026-01-03',
+    @FechaPickUpEntrega         = '2026-01-02',
+    @PalletLabel                = NULL,
+    @IdEmpresa                  = 'EMP014',
+    @BillTo                     = NULL;
+
 
 */
