@@ -165,7 +165,7 @@ BEGIN
             LEFT JOIN dbo.ManifiestosDespacho MD ON MD.Id = PM.IdManifiestoDespacho
             OUTER APPLY (
                 SELECT TOP 1 D.EsPod, D.NombreArchivo, D.MailEnviado, D.PodProcesado
-                FROM dbo.DocumentosDespacho D WITH(NOLOCK)
+                FROM dbo.DocumentosDespacho D
                 WHERE D.IdManifiesto = MD.Id 
                   AND D.IdDocumento = 'DOC052395'
                 ORDER BY D.EsPod DESC
@@ -254,7 +254,7 @@ BEGIN
             LEFT JOIN dbo.ManifiestosDespacho MD ON MD.Id = PM.IdManifiestoDespacho
             OUTER APPLY (
                 SELECT TOP 1 D.EsPod, D.NombreArchivo, D.MailEnviado, D.PodProcesado
-                FROM dbo.DocumentosDespacho D WITH(NOLOCK)
+                FROM dbo.DocumentosDespacho D
                 WHERE D.IdManifiesto = MD.Id 
                   AND D.IdDocumento = 'DOC052395'
                 ORDER BY D.EsPod DESC
