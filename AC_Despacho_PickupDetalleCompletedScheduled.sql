@@ -134,7 +134,7 @@ BEGIN
             FROM dbo.GuiasHouseDetalles GHD WITH(NOLOCK) 
             INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
             INNER JOIN v_ClientsEntities ST WITH (NOLOCK) ON ST.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities C WITH (NOLOCK) ON C.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            LEFT JOIN v_ClientsEntities C WITH (NOLOCK) ON C.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
             INNER JOIN dbo.Transportes T ON PC.IdCarrier = T.Id -- SubCarrier
             INNER JOIN dbo.Transportes TP ON T.IdTransportePrincipal = TP.Id -- Carrier Principal
@@ -227,7 +227,7 @@ BEGIN
         FROM dbo.GuiasHouseDetalles GHD WITH(NOLOCK) 
         INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
         INNER JOIN v_ClientsEntities ST WITH (NOLOCK) ON ST.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities C WITH (NOLOCK) ON C.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+        LEFT JOIN v_ClientsEntities C WITH (NOLOCK) ON C.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             INNER JOIN dbo.Exportadores EXP ON GH.IdExportador = EXP.Id
         INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
         INNER JOIN dbo.Transportes T ON PC.IdCarrier = T.Id 
