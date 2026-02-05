@@ -228,7 +228,7 @@ BEGIN
         INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
         INNER JOIN v_ClientsEntities ST WITH (NOLOCK) ON ST.Id = GHD.ShipToId
         LEFT JOIN v_ClientsEntities C WITH (NOLOCK) ON C.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            INNER JOIN dbo.Exportadores EXP ON GH.IdExportador = EXP.Id
+        INNER JOIN dbo.Exportadores EXP ON GH.IdExportador = EXP.Id
         INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
         INNER JOIN dbo.Transportes T ON PC.IdCarrier = T.Id 
         INNER JOIN dbo.Transportes TP ON T.IdTransportePrincipal = TP.Id
@@ -267,7 +267,7 @@ BEGIN
           AND (@NombreClienteConsignee IS NULL OR C.Nombre LIKE '%' + @NombreClienteConsignee + '%')
           AND (@NroPod IS NULL OR MD.NroManifiesto LIKE '%' + @NroPod + '%')
           AND (@CodigoBarras IS NULL OR GHD.CodigoBarra LIKE '%' + @CodigoBarras + '%')
-              AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
+          AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
           AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%') 
           AND (@BillTo IS NULL OR (C.BillToId IS NOT NULL AND C.BillToName LIKE '%' + @BillTo + '%'))
         GROUP BY 
@@ -434,8 +434,8 @@ BEGIN
 END;
 /*
 EXEC [dbo].[AC_Despacho_PickupDetalleCompletedScheduled] 
-    @FechaDesde = '2023-01-01',
-    @FechaHasta = '2023-01-31',
+    @FechaDesde = '2026-01-03',
+    @FechaHasta = '2026-01-35',
     @IdEmpresa  = 'EMP014';
 
     EXEC [dbo].[AC_Despacho_PickupDetalleCompletedScheduled]
