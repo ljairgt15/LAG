@@ -470,4 +470,9 @@ END;
     @IdEmpresa                  = 'EMP014', 
     @BillTo                     = NULL;
 
+    EXEC [dbo].AC_Despacho_PickUpDetalleCompleteDelivered
+    @FechaDesde                 = '2026-01-01',
+    @FechaHasta                 = '2026-01-03',
+    @idEmpresa                  = 'EMP014';
+
 */
