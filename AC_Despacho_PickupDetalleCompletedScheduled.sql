@@ -1,7 +1,7 @@
 /* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1              Jair GOMEZ        2026-02-03      57731    Initial Code,store procedure based on pro_Despacho_PickupDetalleCompletedScheduled changed with v_ClientEntities - Refactoring based on standards
 */
-CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPickupDetailCompleteScheduled] 
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetCompletedScheduledPickupDetail] 
 (
     @FechaDesde                 DATE,
     @FechaHasta                 DATE,
@@ -253,9 +253,9 @@ BEGIN
         AND (@NroDocumento IS NULL OR GH.NroGuia LIKE '%' + @NroDocumento + '%')
         AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
         AND (@NombreClienteConsignee IS NULL OR @NombreClienteConsignee = ''
-            OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@NombreClienteConsignee, 'Consignee')))    
+            OR C.Id IN (SELECT Id FROM dbo.f_SearchEntities(@NombreClienteConsignee, 'Consignee')))    
         AND (@BillTo IS NULL OR @BillTo = '' 
-            OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
+            OR C.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
         AND (@NroPod IS NULL OR MD.NroManifiesto LIKE '%' + @NroPod + '%')
         AND (@CodigoBarras IS NULL OR GHD.CodigoBarra LIKE '%' + @CodigoBarras + '%')
         AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
@@ -423,12 +423,12 @@ BEGIN
     END CATCH;
 END;
 /*
-    EXEC [dbo].[AC_pro_GetPickupDetailCompleteScheduled] 
+    EXEC [dbo].[AC_pro_GetCompletedScheduledPickupDetail] 
     @FechaDesde = '2026-01-03',
-    @FechaHasta = '2026-01-35',
+    @FechaHasta = '2026-01-05',
     @IdEmpresa  = 'EMP014';
 
-    EXEC [dbo].[AC_pro_GetPickupDetailCompleteScheduled]
+    EXEC [dbo].[AC_pro_GetCompletedScheduledPickupDetail]
     @FechaDesde                 = '2026-01-03',
     @FechaHasta                 = '2026-01-05',
     @NroDocumento               = NULL,
