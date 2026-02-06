@@ -195,6 +195,7 @@ BEGIN
                 ,CASE WHEN (UB.IdBodega IS NULL OR UB.IdBodega = '') THEN GH.IdBodega ELSE UB.IdBodega END
                 ,ISNULL(BUB.Nombre, BGH.Nombre)
                 ,PC.FechaDespacho
+                ,CONVERT(DATE, HST.FechaCambio)
                 ,MD.Id
                 ,PC.IdCarrier
                 ,T.Nombre
