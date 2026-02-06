@@ -89,7 +89,7 @@ BEGIN
             Procesado               INT                NOT NULL
         );
 
-        SELECT DISTINCT
+        SELECT
              PL.IdEmpresa
             ,SC.Id
             ,SC.Nombre
@@ -151,25 +151,19 @@ BEGIN
                 ,GH.NroGuia
                 ,SDV.Id
                 ,SDV.NroOrden
-                ,MAX(CASE WHEN ISNULL(DD.EsPod, 0) = 1 THEN 1 ELSE 0 END) -- Validar EsPod
+                ,MAX(CASE WHEN DD.NombreArchivo LIKE 'POD%' THEN 1 ELSE 0 END)
                 ,MAX(CASE WHEN DD.MailEnviado = 1 THEN 1 ELSE 0 END)
                 ,MAX(CASE WHEN DD.PodProcesado = 1 THEN 1 ELSE 0 END)
             FROM #TMP_HouseGuideDetailHistory HST        
             INNER JOIN dbo.GuiasHouseDetalles GHD WITH(NOLOCK) ON HST.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
             INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.Id = GHD.ShipToId
-            LEFT JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN #TMP_Transports T ON PC.IdCarrier = T.Id AND T.IdEmpresa = GH.IdEmpresa
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.IdProgramacionCarrier = PC.Id 
             LEFT JOIN dbo.ManifiestosDespacho MD ON MD.Id = PM.IdManifiestoDespacho
-            OUTER APPLY (
-                SELECT TOP 1 D.EsPod, D.NombreArchivo, D.MailEnviado, D.PodProcesado
-                FROM dbo.DocumentosDespacho D
-                WHERE D.IdManifiesto = MD.Id 
-                  AND D.IdDocumento = 'DOC052395'
-                ORDER BY D.EsPod DESC
-            ) DD
+            LEFT JOIN dbo.DocumentosDespacho DD ON PM.IdManifiestoDespacho = DD.IdManifiesto AND DD.IdDocumento = 'DOC052395'
             OUTER APPLY (   
                 SELECT TOP (1) S.Id, S.NroOrden
                 FROM dbo.SolicitudDeVentaDetalles SD
@@ -186,7 +180,6 @@ BEGIN
             LEFT JOIN Bodegas BUB ON UB.IdBodega = BUB.Id
             WHERE GH.IdEmpresa = @IdEmpresa
               AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%') 
-              AND ISNULL(DD.EsPod, 0) = 1
             GROUP BY 
                  GHD.ShipToId
                 ,CLF.Nombre
@@ -240,27 +233,20 @@ BEGIN
                 ,GH.NroGuia
                 ,SDV.Id
                 ,SDV.NroOrden
-                ,MAX(CASE WHEN ISNULL(DD.EsPod, 0) = 1 THEN 1 ELSE 0 END)
+                ,MAX(CASE WHEN DD.NombreArchivo LIKE 'POD%' THEN 1 ELSE 0 END)
                 ,MAX(CASE WHEN DD.MailEnviado = 1 THEN 1 ELSE 0 END)
                 ,MAX(CASE WHEN DD.PodProcesado = 1 THEN 1 ELSE 0 END)
             FROM #TMP_HouseGuideDetailHistory HST       
             INNER JOIN dbo.GuiasHouseDetalles GHD WITH(NOLOCK) ON HST.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
             INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.Id = GHD.ShipToId
-            LEFT JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             INNER JOIN dbo.Exportadores EXP ON GH.IdExportador = EXP.Id
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN #TMP_Transports T ON PC.IdCarrier = T.Id AND T.IdEmpresa = GH.IdEmpresa
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.IdProgramacionCarrier = PC.Id 
             LEFT JOIN dbo.ManifiestosDespacho MD ON MD.Id = PM.IdManifiestoDespacho
-            OUTER APPLY (
-                SELECT TOP 1 D.EsPod, D.NombreArchivo, D.MailEnviado, D.PodProcesado
-                FROM dbo.DocumentosDespacho D
-                WHERE D.IdManifiesto = MD.Id 
-                  AND D.IdDocumento = 'DOC052395'
-                ORDER BY D.EsPod DESC
-            ) DD
-
+            LEFT JOIN dbo.DocumentosDespacho DD ON PM.IdManifiestoDespacho = DD.IdManifiesto AND DD.IdDocumento = 'DOC052395'
             OUTER APPLY (
                 SELECT TOP (1) S.Id, S.NroOrden
                 FROM dbo.SolicitudDeVentaDetalles SD
@@ -276,7 +262,6 @@ BEGIN
             LEFT JOIN Bodegas BGH ON GH.IdBodega = BGH.Id
             LEFT JOIN Bodegas BUB ON UB.IdBodega = BUB.Id
             WHERE GH.IdEmpresa = @IdEmpresa
-              AND ISNULL(DD.EsPod, 0) = 1
               AND (@NroDocumento IS NULL OR GH.NroGuia LIKE '%' + @NroDocumento + '%')
               AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
               AND (@NombreClienteConsignee IS NULL OR CGN.Nombre LIKE '%' + @NombreClienteConsignee + '%')

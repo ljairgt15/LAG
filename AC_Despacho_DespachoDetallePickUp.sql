@@ -123,7 +123,7 @@ BEGIN
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id
             INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
             INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            LEFT JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             LEFT JOIN ParametrosCatalogos PCAT ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
@@ -327,7 +327,7 @@ BEGIN
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
             INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
             INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            LEFT JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
+            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
             LEFT JOIN ParametrosCatalogos PCAT ON PCAT.EntityTypeId = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
