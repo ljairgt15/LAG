@@ -1,7 +1,7 @@
 /* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1               Jair Gomez       2026-02-03      57731  Initial Code,store procedure based on pro_Despacho_PickUpDetalleCompleteDelivered changed with v_ClientEntities - Refactoring based on standards
 */
-CREATE OR ALTER PROCEDURE [dbo].[AC_Despacho_PickUpDetalleCompleteDelivered] 
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPickupDetailCompleteDelivered] 
 (
     @FechaDesde                 DATE,
     @FechaHasta                 DATE,
@@ -451,7 +451,7 @@ BEGIN
     END CATCH;
 END;
 /*
-	EXEC [dbo].AC_Despacho_PickUpDetalleCompleteDelivered
+EXEC [dbo].AC_pro_GetPickupDetailCompleteDelivered
     @FechaDesde                 = '2026-01-01',
     @FechaHasta                 = '2026-01-03',
     @NroDocumento               = NULL,
@@ -470,7 +470,7 @@ END;
     @IdEmpresa                  = 'EMP014', 
     @BillTo                     = NULL;
 
-    EXEC [dbo].AC_Despacho_PickUpDetalleCompleteDelivered
+    EXEC [dbo].AC_pro_GetPickupDetailCompleteDelivered
     @FechaDesde                 = '2026-01-01',
     @FechaHasta                 = '2026-01-03',
     @idEmpresa                  = 'EMP014';
