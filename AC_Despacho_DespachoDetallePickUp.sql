@@ -355,19 +355,21 @@ BEGIN
                     ELSE 0 
                 END AS ValorEsInventario
             ) AS CI
-            WHERE PC.FechaDespacho > DATEADD(MM, -@FechaDesde, GETDATE())            
-              AND GH.IdEmpresa = @IdEmpresa                     
-              AND GHD.EsPod = 0
-              AND (@Consignee IS NULL OR CGN.Nombre LIKE '%' + @Consignee + '%')
-              AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.BillToName LIKE '%' + @BillTo + '%'))
-              AND (@IdCarrier IS NULL OR PC.IdCarrier = @IdCarrier)
-              AND (@IdBodega IS NULL OR ISNULL(UB.IdBodega, GH.IdBodega) = @IdBodega)
-              AND (@NroDocument IS NULL OR GH.NroGuia LIKE '%' + @NroDocument + '%')
-              AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
-              AND (@Barcode IS NULL OR GHD.CodigoBarra LIKE '%' + @Barcode + '%')
-              AND (@Supplier IS NULL OR GH.IdExportador IN (SELECT Id FROM Exportadores WHERE Nombre LIKE '%' + @Supplier + '%'))
-              AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')
-              AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
+            WHERE PC.FechaDespacho > DATEADD(MM, -@FechaDesde, GETDATE())
+            AND GH.IdEmpresa = @IdEmpresa                     
+            AND GHD.EsPod = 0
+            AND (@Consignee IS NULL OR @Consignee = ''
+                OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@Consignee, 'Consignee')))    
+            AND (@BillTo IS NULL OR @BillTo = '' 
+                OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
+            AND (@IdCarrier IS NULL OR PC.IdCarrier = @IdCarrier)
+            AND (@IdBodega IS NULL OR ISNULL(UB.IdBodega, GH.IdBodega) = @IdBodega)
+            AND (@NroDocument IS NULL OR GH.NroGuia LIKE '%' + @NroDocument + '%')
+            AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
+            AND (@Barcode IS NULL OR GHD.CodigoBarra LIKE '%' + @Barcode + '%')
+            AND (@Supplier IS NULL OR GH.IdExportador IN (SELECT Id FROM Exportadores WHERE Nombre LIKE '%' + @Supplier + '%'))
+            AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')
+            AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
             GROUP BY 
                 GHD.Id, GH.Id, GHD.EstadoPieza, GHD.ShipToId, PC.FechaDespacho,
                 ISNULL(B1.Nombre, B.Nombre), ISNULL(UB.IdBodega, GH.IdBodega),

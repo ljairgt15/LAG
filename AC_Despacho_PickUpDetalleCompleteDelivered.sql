@@ -262,14 +262,16 @@ BEGIN
             LEFT JOIN Bodegas BGH ON GH.IdBodega = BGH.Id
             LEFT JOIN Bodegas BUB ON UB.IdBodega = BUB.Id
             WHERE GH.IdEmpresa = @IdEmpresa
-              AND (@NroDocumento IS NULL OR GH.NroGuia LIKE '%' + @NroDocumento + '%')
-              AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
-              AND (@NombreClienteConsignee IS NULL OR CGN.Nombre LIKE '%' + @NombreClienteConsignee + '%')
-              AND (@BillTo IS NULL OR (CGN.BillToId IS NOT NULL AND CGN.BillToName LIKE '%' + @BillTo + '%'))
-              AND (@NroPod IS NULL OR MD.NroManifiesto LIKE '%' + @NroPod + '%')
-              AND (@CodigoBarras IS NULL OR GHD.CodigoBarra LIKE '%' + @CodigoBarras + '%')
-              AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
-              AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')          
+            AND (@NroDocumento IS NULL OR GH.NroGuia LIKE '%' + @NroDocumento + '%')
+            AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
+            AND (@NombreClienteConsignee IS NULL OR @NombreClienteConsignee = ''
+                OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@NombreClienteConsignee, 'Consignee')))    
+            AND (@BillTo IS NULL OR @BillTo = '' 
+                OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
+            AND (@NroPod IS NULL OR MD.NroManifiesto LIKE '%' + @NroPod + '%')
+            AND (@CodigoBarras IS NULL OR GHD.CodigoBarra LIKE '%' + @CodigoBarras + '%')
+            AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
+            AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')          
             GROUP BY 
                  GHD.ShipToId
                 ,CLF.Nombre
