@@ -33,7 +33,6 @@ BEGIN
         END
 
         -- 3. Tabla Temporal Principal
-        -- Eliminado IdEmpresa (no se usa) y corregida la estrategia de IdPo
         CREATE TABLE #TMP_DispatchAnalytics (
             IdRow               UNIQUEIDENTIFIER DEFAULT NEWID(),
             ShipperName         NVARCHAR(256),
@@ -52,8 +51,8 @@ BEGIN
             FechaDespacho       DATETIME,
             IdGuiaHouse         UNIQUEIDENTIFIER,
             IdGuiaHouseDetalle  UNIQUEIDENTIFIER,
-            IdPo                UNIQUEIDENTIFIER, -- Se llena solo si es Orden Local
-            IdPoDetalle         UNIQUEIDENTIFIER, -- Se llena siempre
+            IdPo                UNIQUEIDENTIFIER, -- Se llena en el paso de Updates
+            IdPoDetalle         UNIQUEIDENTIFIER, -- Pivote para joins
             CarrierName         NVARCHAR(256),
             ShipToName          NVARCHAR(256)
         );
@@ -110,6 +109,8 @@ BEGIN
               OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees)
           );
 
+        -- 5. Eliminar Ordenes Locales Canceladas
+        -- Se mantiene separado porque es una operacion destructiva logica
         DELETE TMP
         FROM #TMP_DispatchAnalytics TMP
         INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
@@ -118,32 +119,35 @@ BEGIN
         INNER JOIN Catalogos    CAT WITH(NOLOCK) ON OLO.IdCatalogoStatus = CAT.Id
         WHERE CAT.CodigoRelacion = 'CANCELADO';
 
-        -- 6. Marcar Ordenes Locales
+        -- 6. Actualizacion Fusionada (Single Pass Update)
+        -- Actualiza Origen para TODOS y marca Ordenes Locales en el mismo barrido
         UPDATE TMP
         SET 
-            TMP.IdPo = POE.Id,
-            TMP.Awb = 'LOCAL'
-        FROM #TMP_DispatchAnalytics TMP
-        INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
-        INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
-        INNER JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id;
-
-        -- 7. Corregir Origen para POs (CORREGIDO: Usando IdPoDetalle)
-        -- Usamos la ruta Legacy: TMP -> PoDetalles -> PoEncabezado -> Empresas -> Ciudades
-        UPDATE TMP
-        SET TMP.Origin = CTY.Nombre
+            -- Logica de Origen (Aplica a todos los que tienen PO)
+            TMP.Origin = CTY.Nombre,
+            
+            -- Logica de Ordenes Locales (Solo si OLO hizo match)
+            TMP.IdPo = CASE 
+                           WHEN OLO.Id IS NOT NULL THEN POE.Id 
+                           ELSE TMP.IdPo 
+                       END,
+            TMP.Awb  = CASE 
+                           WHEN OLO.Id IS NOT NULL THEN 'LOCAL' 
+                           ELSE TMP.Awb 
+                       END
         FROM #TMP_DispatchAnalytics TMP
         INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
         INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
         INNER JOIN Empresas     EMP WITH(NOLOCK) ON POE.IdEmpresa = EMP.Id
-        INNER JOIN Ciudades     CTY WITH(NOLOCK) ON EMP.IdCiudad = CTY.Id;
+        INNER JOIN Ciudades     CTY WITH(NOLOCK) ON EMP.IdCiudad = CTY.Id
+        LEFT JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id;
 
-        -- 8. Limpieza de datos
+        -- 7. Limpieza de datos (Regla de negocio visual)
         UPDATE #TMP_DispatchAnalytics 
         SET PoNumber = NULL 
         WHERE PoNumber = '';
 
-        -- 9. Resultado Final
+        -- 8. Resultado Final
         SELECT
             Id              = CONVERT(VARCHAR(64), NEWID()),
             IdConsignatario = '',
