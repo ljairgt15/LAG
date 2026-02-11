@@ -1,185 +1,184 @@
--------------------------------------------------------------------------
---  [pro_reportes_analiticadespachoconsolidado]
---               
---  Sp para actualizar house sin transaccion para el nuevo sp de coordinacion
---
---  VERSION		AUTOR					FECHA			HU			CAMBIO
---  1			Jesus Yandun			12-10-2020		-       	Codigo Inicial
---  2           Rogger Lindao           27-04-2022      18196       Se agregan los noLock a tbalas concurrentes
---  3			Jorge					22-08-2022		20206		Cambio @clientesSelecciondos a Tabla Temporal. Causaba una gran cantidad de lecturas fisicas. Se realizo en conjunto con DBA. 
---																	Add execute test y se aplico estandares de base de datos
--------------------------------------------------------------------------
-ALTER PROCEDURE [dbo].[pro_reportes_analiticadespachoconsolidado]
+/*
+VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
+1           Jair Gomez          2026-02-11      57732   Initial Code - Migration of pro_reportes_analiticadespachoconsolidado. 
+                                                        Refactoring to use v_ClientsEntities and BillTo/Consignee logic.
+                                                        Fix: Corrected Join logic for Origin Update via PoDetalles.
+*/
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
-	@clientes			VARCHAR(MAX),
-	@fechaDesde			DATETIME,
-	@fechaHasta			DATETIME
+    @ConsigneeIds       VARCHAR(MAX) = NULL,
+    @BillToIds          VARCHAR(MAX) = NULL,
+    @FechaDesde         DATETIME,
+    @FechaHasta         DATETIME
 )
 AS
 BEGIN
-	-- Tabla de Clientes Seleccionados
-	 CREATE TABLE #ClientesSeleccionados(
-		id					VARCHAR(16) PRIMARY KEY,
-		nombre				NVARCHAR(1024),
-		alias				NVARCHAR(1024)
-	)
+    SET NOCOUNT ON;
 
-	-- Tabla de resultados preliminares
-	DECLARE @Preliminar TABLE(
-		idConsignatario		VARCHAR(16),
-		consignatario		NVARCHAR(1024),
-		shipper				NVARCHAR(1024),
-		[status]			VARCHAR(64),
-		awb					VARCHAR(32),
-		origin				NVARCHAR(128),
-		poNumber			VARCHAR(64),
-		[type]				VARCHAR(8),
-		equivalencia		DECIMAL(18,5),
-		alto				DECIMAL(18,3),
-		largo				DECIMAL(18,3),
-		ancho				DECIMAL(18,3),
-		boxes				INT,
-		totalPcsHouse		INT,
-		totalFullHouse		DECIMAL(18,3),
-		fechaDespacho		datetime,
-		idGuiaHouse			uniqueidentifier,
-		idGuiaHouseDetalle	uniqueidentifier,
-		idPo				uniqueidentifier,
-		idPoDetalle			uniqueidentifier,
-		carrier				NVARCHAR(1024),
-		shipTo				NVARCHAR(1024)
-	)
+    BEGIN TRY
+        -- 1. Variables tabla para filtros (Estandar < 2000 registros)
+        DECLARE @TBL_FilterConsignees TABLE (Id VARCHAR(16) PRIMARY KEY);
+        DECLARE @TBL_FilterBillTos TABLE (Id VARCHAR(16) PRIMARY KEY);
 
-	-- Separar la lista de clientes en una tabla
-	INSERT INTO #ClientesSeleccionados (id)
-	SELECT VALUE FROM STRING_SPLIT(@clientes, ',')
+        -- 2. Llenado de filtros
+        IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
+        BEGIN
+            INSERT INTO @TBL_FilterConsignees (Id)
+            SELECT VALUE FROM STRING_SPLIT(@ConsigneeIds, ',');
+        END
 
-	-- Obtener los nombres de los clientes enviados
-	UPDATE	#ClientesSeleccionados
-	SET		nombre	= C.nombre,
-			alias	= C.alias
-	FROM	#ClientesSeleccionados		 CS
-		INNER JOIN	Clientes	C	ON C.id = CS.id
+        IF (@BillToIds IS NOT NULL AND @BillToIds <> '')
+        BEGIN
+            INSERT INTO @TBL_FilterBillTos (Id)
+            SELECT VALUE FROM STRING_SPLIT(@BillToIds, ',');
+        END
 
-	-- Informaci�n preliminar para el reporte (Guias House)
-	INSERT INTO @Preliminar 
-	SELECT
-			idConsignatario		= CS.id,
-			consignatario		= CS.nombre,
-			shipper				= EX.nombre,
-			[status]			= HD.estadoPieza,
-			awb					= HE.nroGuia,
-			origin				= CD.nombre,
-			poNumber			= HD.po,
-			[type]				= TP.tipoPieza,
-			equivalencia		= TP.equivalencia,
-			alto				= HD.altoIn,
-			largo				= HD.largoIn,
-			ancho				= HD.anchoIn,
-			boxes				= 1,
-			totalPcsHouse		= HE.totalPcsHouse,
-			totalFullHouse		= HE.totalFullHouse,
-			fechaDespacho		= PC.fechaDespacho,
-			idGuiaHouse			= HE.id,
-			idGuiaHouseDetalle	= HD.id,
-			idPo				= null,
-			idPoDetalle			= HD.idPoDetalle,
-			carrier				= TS.nombre,
-			--shipTo = CL.nombreClienteFinal,
-			CASE CL.nombreClienteFinal
-			WHEN '' THEN
-				CL.nombreClienteFinal
-			ELSE
-				CL.nombre
-			END
-			
-	FROM	#ClientesSeleccionados		CS
-		inner join GuiasHouse			HE WITH(NOLOCK)	ON	HE.idCliente = CS.id 
-		inner join GuiasHouseDetalles	HD WITH(NOLOCK)	ON	HD.idGuiaHouse = HE.id
-		inner join ProgramacionCarrier	PC WITH(NOLOCK)	ON	PC.idGuiaHouseDetalle = HD.id
-		inner join Exportadores			EX WITH(NOLOCK)	ON	EX.id = HE.idExportador
-		inner join TiposDePieza			TP WITH(NOLOCK)	ON	TP.id = HD.idTipoDePieza
-		inner join Ciudades				CD WITH(NOLOCK)	ON	CD.id = HE.idCiudadPuertoOrigen
-		inner join Transportes			TS WITH(NOLOCK)  ON  PC.idCarrier = TS.id
-		inner join Clientes				CL WITH(NOLOCK)  ON  HD.idClienteFinal = CL.id
-	WHERE
-			PC.fechaDespacho	>=	@fechaDesde
-		and	PC.fechaDespacho	<=	@fechaHasta and HD.estadoPieza in ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
+        -- 3. Tabla Temporal Principal
+        -- Eliminado IdEmpresa (no se usa) y corregida la estrategia de IdPo
+        CREATE TABLE #TMP_DispatchAnalytics (
+            IdRow               UNIQUEIDENTIFIER DEFAULT NEWID(),
+            ShipperName         NVARCHAR(256),
+            StatusPieza         VARCHAR(64),
+            Awb                 VARCHAR(32),
+            Origin              NVARCHAR(128),
+            PoNumber            VARCHAR(64),
+            TypePieza           VARCHAR(8),
+            Equivalencia        DECIMAL(18,5),
+            Alto                DECIMAL(18,3),
+            Largo               DECIMAL(18,3),
+            Ancho               DECIMAL(18,3),
+            Boxes               INT,
+            TotalPcsHouse       INT,
+            TotalFullHouse      DECIMAL(18,3),
+            FechaDespacho       DATETIME,
+            IdGuiaHouse         UNIQUEIDENTIFIER,
+            IdGuiaHouseDetalle  UNIQUEIDENTIFIER,
+            IdPo                UNIQUEIDENTIFIER, -- Se llena solo si es Orden Local
+            IdPoDetalle         UNIQUEIDENTIFIER, -- Se llena siempre
+            CarrierName         NVARCHAR(256),
+            ShipToName          NVARCHAR(256)
+        );
 
+        -- 4. Insercion Masiva
+        INSERT INTO #TMP_DispatchAnalytics
+        (
+            ShipperName, StatusPieza, Awb, Origin,
+            PoNumber, TypePieza, Equivalencia, Alto, Largo, Ancho, Boxes,
+            TotalPcsHouse, TotalFullHouse, FechaDespacho, IdGuiaHouse,
+            IdGuiaHouseDetalle, IdPoDetalle, CarrierName, ShipToName
+        )
+        SELECT
+             EXP.Nombre
+            ,GHD.EstadoPieza
+            ,GHO.NroGuia
+            ,CTY.Nombre
+            ,GHD.Po
+            ,TYP.TipoPieza
+            ,TYP.Equivalencia
+            ,GHD.AltoIn
+            ,GHD.LargoIn
+            ,GHD.AnchoIn
+            ,1 AS Boxes
+            ,GHO.TotalPcsHouse
+            ,GHO.TotalFullHouse
+            ,PCA.FechaDespacho
+            ,GHO.Id
+            ,GHD.Id
+            ,GHD.IdPoDetalle
+            ,TRA.Nombre
+            ,ST.Nombre
+        FROM GuiasHouse GHO WITH(NOLOCK)
+        INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
+        INNER JOIN ProgramacionCarrier  PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id
+        INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
+        INNER JOIN Exportadores         EXP WITH(NOLOCK) ON EXP.Id = GHO.IdExportador
+        INNER JOIN TiposDePieza         TYP WITH(NOLOCK) ON TYP.Id = GHD.IdTipoDePieza
+        INNER JOIN Ciudades             CTY WITH(NOLOCK) ON CTY.Id = GHO.IdCiudadPuertoOrigen
+        INNER JOIN Transportes          TRA WITH(NOLOCK) ON PCA.IdCarrier = TRA.Id
+        WHERE PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
+          AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
+          -- Filtros BillTo / Consignee
+          AND (
+              (@BillToIds IS NULL OR GHO.BillToConsigneeId IN (SELECT Id FROM @TBL_FilterBillTos))
+              AND
+              (@ConsigneeIds IS NULL OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees))
+          );
 
-	-- Excluye las ordenes locales que ya fueron canceladas
-    DELETE PRE FROM @Preliminar PRE 
-		inner join	PoDetalles			PD WITH(NOLOCK) 	ON	PD.id = PRE.idPoDetalle
-		inner join	PoEncabezado		PE WITH(NOLOCK)	ON	PE.id = PD.idPo
-		inner join	OrdenesLocales		OL WITH(NOLOCK)	ON	OL.id = PE.idOrdenLocal
-	    inner join	Catalogos			CA WITH(NOLOCK)	ON	CA.id = OL.idCatalogoStatus
-    WHERE  CA.codigoRelacion ='CANCELADO'
+        -- 5. Eliminar Ordenes Locales Canceladas
+        DELETE TMP
+        FROM #TMP_DispatchAnalytics TMP
+        INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
+        INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
+        INNER JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id
+        INNER JOIN Catalogos    CAT WITH(NOLOCK) ON OLO.IdCatalogoStatus = CAT.Id
+        WHERE CAT.CodigoRelacion = 'CANCELADO';
 
-	
-	-- SET el la variable local  para distinguir que es orden local
-		UPDATE	@Preliminar
-	SET		
-			idPo		= PE.id,
-			awb			= 'LOCAL'
-	FROM	@Preliminar					PRE
-		inner join	PoDetalles			PD WITH(NOLOCK)	ON	PD.id = PRE.idPoDetalle
-		inner join	PoEncabezado		PE WITH(NOLOCK)	ON	PE.id = PD.idPo
-		inner join	OrdenesLocales		OL WITH(NOLOCK)	ON	OL.id = PE.idOrdenLocal
+        -- 6. Marcar Ordenes Locales
+        UPDATE TMP
+        SET 
+            TMP.IdPo = POE.Id, -- AQUI llenamos IdPo solo para las locales
+            TMP.Awb = 'LOCAL'
+        FROM #TMP_DispatchAnalytics TMP
+        INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
+        INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
+        INNER JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id;
 
-	-- Se actualiza la ciudad para las POs en base a la ciudad de la empresa
-	UPDATE	@Preliminar
-	SET		origin		= CD.nombre
-	FROM	@Preliminar					PRE
-		inner join PoDetalles			PD WITH(NOLOCK)	ON	PD.id = PRE.idPoDetalle
-		inner join PoEncabezado			PE WITH(NOLOCK)	ON	PE.id = PD.idPo
-		inner join Empresas				EM WITH(NOLOCK)	ON	EM.id = PE.idEmpresa
-		inner join Ciudades				CD WITH(NOLOCK)	ON	CD.id = EM.idCiudad
+        -- 7. Corregir Origen para POs (CORREGIDO: Usando IdPoDetalle)
+        -- Usamos la ruta Legacy: TMP -> PoDetalles -> PoEncabezado -> Empresas -> Ciudades
+        UPDATE TMP
+        SET TMP.Origin = CTY.Nombre
+        FROM #TMP_DispatchAnalytics TMP
+        INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
+        INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
+        INNER JOIN Empresas     EMP WITH(NOLOCK) ON POE.IdEmpresa = EMP.Id
+        INNER JOIN Ciudades     CTY WITH(NOLOCK) ON EMP.IdCiudad = CTY.Id;
 
+        -- 8. Limpieza de datos
+        UPDATE #TMP_DispatchAnalytics 
+        SET PoNumber = NULL 
+        WHERE PoNumber = '';
 
-	UPDATE	@Preliminar
-	SET		poNumber	= null
-	WHERE	poNumber	= ''
+        -- 9. Resultado Final
+        SELECT
+            Id              = CONVERT(VARCHAR(64), NEWID()),
+            IdConsignatario = '',
+            Consignatario   = '',
+            Shipper         = TMP.ShipperName,
+            Boxes           = SUM(TMP.Boxes),
+            [Type]          = TMP.TypePieza,
+            Fb              = ROUND(SUM(TMP.Equivalencia), 2),
+            Largo           = TMP.Largo,
+            Ancho           = TMP.Ancho,
+            Alto            = TMP.Alto,
+            Cubic           = ROUND(SUM(TMP.Alto * TMP.Largo * TMP.Ancho / 1728), 2),
+            [Status]        = TMP.StatusPieza,
+            Awb             = TMP.Awb,
+            Origin          = TMP.Origin,
+            PoNumber        = TMP.PoNumber,
+            Carrier         = TMP.CarrierName,
+            ShipTo          = TMP.ShipToName,
+            FechaDespacho   = TMP.FechaDespacho
+        FROM #TMP_DispatchAnalytics TMP
+        GROUP BY
+            TMP.ShipperName,
+            TMP.TypePieza,
+            TMP.Largo,
+            TMP.Alto,
+            TMP.Ancho,
+            TMP.StatusPieza,
+            TMP.Awb,
+            TMP.Origin,
+            TMP.PoNumber,
+            TMP.CarrierName,
+            TMP.ShipToName,
+            TMP.FechaDespacho
+        ORDER BY TMP.Awb;
 
-	-- Resultado final
-	SELECT
-			id				= CONVERT(VARCHAR(64), NEWID()),
-			idConsignatario  ='',
-			consignatario   ='',
-			shipper,
-			boxes			= SUM(boxes),
-			[type],
-			fb				= ROUND(SUM(equivalencia), 2),
-			largo,
-			ancho,
-			alto,
-			cubic			= ROUND(SUM(alto * largo * ancho / 1728), 2),
-			[status],
-			awb,
-			origin,
-			poNumber,
-			carrier,
-			shipTo,
-			fechaDespacho
-	FROM	@Preliminar
-	GROUP BY
-			shipper,
-			[type],
-			largo,
-			alto,
-			ancho,
-			[status],
-			awb,
-			origin,
-			poNumber,
-			carrier,
-			shipTo,
-			fechaDespacho
-	ORDER BY awb
-END
+        DROP TABLE #TMP_DispatchAnalytics;
 
-/*
-DECLARE @clientes	VARCHAR(max) = 'CLI012287,CLI011713,CLI0116411,CLI0116413,CLI0515044,CLI0515186,CLI0116414,CLI0420135,CLI012405,CLI0415590,CLI0116957,CLI0416179,CLI0111914,CLI0112086';
-DECLARE @fechaDesde	DATETIME = '2022-08-16T00:00:00';
-DECLARE @fechaHasta	DATETIME = '2022-08-16T00:00:00';
-execute [dbo].[pro_reportes_analiticadespachoconsolidado] @clientes, @fechaDesde, @fechaHasta;
-*/
+    END TRY
+    BEGIN CATCH
+        IF OBJECT_ID('tempdb..#TMP_DispatchAnalytics') IS NOT NULL DROP TABLE #TMP_DispatchAnalytics;
+        EXEC [dbo].[pro_LogError]
+    END CATCH;
+END;
