@@ -1,8 +1,7 @@
 /*
 VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
-1           Jair Gomez          2026-02-11      57732   Initial Code - Migration of pro_reportes_analiticadespachoconsolidado. 
+1           Jair Gomez          2026-02-11      57746   Initial Code - Migration of pro_reportes_analiticadespachoconsolidado. 
                                                         Refactoring to use v_ClientsEntities and BillTo/Consignee logic.
-                                                        Fix: Corrected Join logic for Origin Update via PoDetalles.
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
@@ -90,21 +89,17 @@ BEGIN
         FROM GuiasHouse GHO WITH(NOLOCK)
         INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
         INNER JOIN ProgramacionCarrier  PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id
-        INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
+        INNER JOIN v_ClientsEntities    ST ON GHD.ShipToId = ST.Id
+        LEFT JOIN v_ClientsEntities    BTC ON GHO.BillToConsigneeId = BTC.Id
         INNER JOIN Exportadores         EXP WITH(NOLOCK) ON EXP.Id = GHO.IdExportador
         INNER JOIN TiposDePieza         TYP WITH(NOLOCK) ON TYP.Id = GHD.IdTipoDePieza
         INNER JOIN Ciudades             CTY WITH(NOLOCK) ON CTY.Id = GHO.IdCiudadPuertoOrigen
         INNER JOIN Transportes          TRA WITH(NOLOCK) ON PCA.IdCarrier = TRA.Id
         WHERE PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
           AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
-          -- Filtros BillTo / Consignee
-          AND (
-              (@BillToIds IS NULL OR GHO.BillToConsigneeId IN (SELECT Id FROM @TBL_FilterBillTos))
-              AND
-              (@ConsigneeIds IS NULL OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees))
-          );
+          AND ((@BillToIds IS NULL OR BTC.BillToId IN (SELECT Id FROM @TBL_FilterBillTos)))
+          AND ((@ConsigneeIds IS NULL OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees)));
 
-        -- 5. Eliminar Ordenes Locales Canceladas
         DELETE TMP
         FROM #TMP_DispatchAnalytics TMP
         INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
