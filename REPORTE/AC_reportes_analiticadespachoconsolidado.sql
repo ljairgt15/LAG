@@ -5,8 +5,7 @@ VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
-    @ConsigneeIds       VARCHAR(MAX) = NULL,
-    @BillToIds          VARCHAR(MAX) = NULL,
+    @ConsigneeIds       VARCHAR(MAX),
     @FechaDesde         DATETIME,
     @FechaHasta         DATETIME
 )
@@ -15,23 +14,13 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        -- 1. Variables tabla para filtros (Estandar < 2000 registros)
         DECLARE @TBL_FilterConsignees TABLE (Id VARCHAR(16) PRIMARY KEY);
-        DECLARE @TBL_FilterBillTos TABLE (Id VARCHAR(16) PRIMARY KEY);
-
         -- 2. Llenado de filtros
         IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
         BEGIN
             INSERT INTO @TBL_FilterConsignees (Id)
             SELECT VALUE FROM STRING_SPLIT(@ConsigneeIds, ',');
         END
-
-        IF (@BillToIds IS NOT NULL AND @BillToIds <> '')
-        BEGIN
-            INSERT INTO @TBL_FilterBillTos (Id)
-            SELECT VALUE FROM STRING_SPLIT(@BillToIds, ',');
-        END
-
         -- 3. Tabla Temporal Principal
         CREATE TABLE #TMP_DispatchAnalytics (
             IdRow               UNIQUEIDENTIFIER DEFAULT NEWID(),
@@ -95,15 +84,6 @@ BEGIN
         INNER JOIN Transportes          TRA WITH(NOLOCK) ON PCA.IdCarrier = TRA.Id
         WHERE PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
           AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
-          AND (
-              @BillToIds IS NULL 
-              OR EXISTS (
-                  SELECT 1 
-                  FROM v_ClientsEntities BTC WITH(NOLOCK)
-                  WHERE BTC.Id = GHO.BillToConsigneeId 
-                  AND BTC.BillToId IN (SELECT Id FROM @TBL_FilterBillTos)
-              )
-          )
           AND (
               @ConsigneeIds IS NULL 
               OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees)
