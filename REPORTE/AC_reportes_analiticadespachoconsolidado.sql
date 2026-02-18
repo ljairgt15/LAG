@@ -1,7 +1,6 @@
 /*
 VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
-1           Jair Gomez          2026-02-11      57746   Initial Code - Migration of pro_reportes_analiticadespachoconsolidado. 
-                                                        Refactoring to use v_ClientsEntities and BillTo/Consignee logic.
+1           Jair Gomez          2026-02-11      57746   Initial Code - Based on pro_reportes_analiticadespachoconsolidado. 
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
@@ -11,7 +10,6 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 )
 AS
 BEGIN
-    SET NOCOUNT ON;
 
     BEGIN TRY
         DECLARE @TBL_FilterConsignees TABLE (Id VARCHAR(16) PRIMARY KEY);
@@ -55,7 +53,7 @@ BEGIN
             IdGuiaHouseDetalle, IdPoDetalle, CarrierName, ShipToName
         )
         SELECT
-             EXP.Nombre
+             EXS.Nombre
             ,GHD.EstadoPieza
             ,GHO.NroGuia
             ,CTY.Nombre
@@ -78,7 +76,7 @@ BEGIN
         INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
         INNER JOIN ProgramacionCarrier  PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id
         INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
-        INNER JOIN Exportadores         EXP WITH(NOLOCK) ON EXP.Id = GHO.IdExportador
+        INNER JOIN Exportadores         EXS WITH(NOLOCK) ON EXS.Id = GHO.IdExportador
         INNER JOIN TiposDePieza         TYP WITH(NOLOCK) ON TYP.Id = GHD.IdTipoDePieza
         INNER JOIN Ciudades             CTY WITH(NOLOCK) ON CTY.Id = GHO.IdCiudadPuertoOrigen
         INNER JOIN Transportes          TRA WITH(NOLOCK) ON PCA.IdCarrier = TRA.Id
