@@ -1,5 +1,5 @@
 /* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
-1             Jair Gomez        2026-02-03       57731    Initial Code,store procedure based on pro_Despacho_DespachoDetallePickUp changed with v_ClientEntities - Refactoring based on standards
+   1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_DespachoDetallePickUp
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 (

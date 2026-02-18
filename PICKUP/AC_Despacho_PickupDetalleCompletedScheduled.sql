@@ -1,5 +1,5 @@
 /* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
-1              Jair GOMEZ        2026-02-03      57731    Initial Code,store procedure based on pro_Despacho_PickupDetalleCompletedScheduled changed with v_ClientEntities - Refactoring based on standards
+   1           Jair GOMEZ        2026-02-03      57731  Based on pro_Despacho_PickupDetalleCompletedScheduled
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetCompletedScheduledPickupDetail] 
 (
