@@ -223,7 +223,7 @@ BEGIN
             INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
             INNER JOIN v_ClientsEntities ST WITH (NOLOCK) ON ST.Id = GHD.ShipToId
             INNER JOIN v_ClientsEntities C WITH (NOLOCK) ON C.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            INNER JOIN dbo.Exportadores EXP ON GH.IdExportador = EXP.Id
+            INNER JOIN dbo.Exportadores EXS ON GH.IdExportador = EXS.Id
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
             INNER JOIN dbo.Transportes T ON PC.IdCarrier = T.Id 
             INNER JOIN dbo.Transportes TP ON T.IdTransportePrincipal = TP.Id
@@ -259,7 +259,7 @@ BEGIN
             OR C.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
             AND (@NroPod IS NULL OR MD.NroManifiesto LIKE '%' + @NroPod + '%')
             AND (@CodigoBarras IS NULL OR GHD.CodigoBarra LIKE '%' + @CodigoBarras + '%')
-            AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
+            AND (@NombreComercialExportador IS NULL OR EXS.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
             AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%') 
             GROUP BY 
                  GHD.ShipToId

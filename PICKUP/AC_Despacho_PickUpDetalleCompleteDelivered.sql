@@ -241,7 +241,7 @@ BEGIN
             INNER JOIN dbo.GuiasHouse GH WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
             INNER JOIN v_ClientsEntities CLF WITH (NOLOCK) ON CLF.Id = GHD.ShipToId
             INNER JOIN v_ClientsEntities CGN WITH (NOLOCK) ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            INNER JOIN dbo.Exportadores EXP ON GH.IdExportador = EXP.Id
+            INNER JOIN dbo.Exportadores EXS ON GH.IdExportador = EXS.Id
             INNER JOIN dbo.ProgramacionCarrier PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN #TMP_Transports T ON PC.IdCarrier = T.Id AND T.IdEmpresa = GH.IdEmpresa
             LEFT JOIN dbo.ProgramacionManifiesto PM WITH(NOLOCK) ON PM.IdProgramacionCarrier = PC.Id 
@@ -270,7 +270,7 @@ BEGIN
                 OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
             AND (@NroPod IS NULL OR MD.NroManifiesto LIKE '%' + @NroPod + '%')
             AND (@CodigoBarras IS NULL OR GHD.CodigoBarra LIKE '%' + @CodigoBarras + '%')
-            AND (@NombreComercialExportador IS NULL OR EXP.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
+            AND (@NombreComercialExportador IS NULL OR EXS.NombreComercial LIKE '%' + @NombreComercialExportador + '%')
             AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')          
             GROUP BY 
                  GHD.ShipToId
