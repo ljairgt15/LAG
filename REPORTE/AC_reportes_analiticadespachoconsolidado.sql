@@ -169,3 +169,10 @@ BEGIN
         EXEC [dbo].[pro_LogError]
     END CATCH;
 END;
+/*
+DECLARE @fechaDesde	DATETIME = '2026-01-02T00:00:00';
+DECLARE @fechaHasta	DATETIME = '2026-01-02T00:00:00';
+DECLARE @ConsigneeIds	VARCHAR(max) = 'ETY0000000008162,ETY0000000008707';
+
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @fechaDesde, @fechaHasta;
+*/
