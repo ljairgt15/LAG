@@ -5,8 +5,8 @@ VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
     @ConsigneeIds       VARCHAR(MAX),
-    @FechaDesde         DATETIME,
-    @FechaHasta         DATETIME
+    @StartDate         DATETIME,
+    @EndDate         DATETIME
 )
 AS
 BEGIN
@@ -80,7 +80,7 @@ BEGIN
         INNER JOIN TiposDePieza         TYP WITH(NOLOCK) ON TYP.Id = GHD.IdTipoDePieza
         INNER JOIN Ciudades             CTY WITH(NOLOCK) ON CTY.Id = GHO.IdCiudadPuertoOrigen
         INNER JOIN Transportes          TRA WITH(NOLOCK) ON PCA.IdCarrier = TRA.Id
-        WHERE PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
+        WHERE PCA.FechaDespacho BETWEEN @StartDate AND @EndDate
           AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
           AND (
               @ConsigneeIds IS NULL 
@@ -170,9 +170,9 @@ BEGIN
     END CATCH;
 END;
 /*
-DECLARE @fechaDesde	DATETIME = '2026-01-02T00:00:00';
-DECLARE @fechaHasta	DATETIME = '2026-01-02T00:00:00';
+DECLARE @StartDate	DATETIME = '2026-01-02T00:00:00';
+DECLARE @EndDate	DATETIME = '2026-01-02T00:00:00';
 DECLARE @ConsigneeIds	VARCHAR(max) = 'ETY0000000008162,ETY0000000008707';
 
-execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @fechaDesde, @fechaHasta;
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @StartDate, @EndDate;
 */
