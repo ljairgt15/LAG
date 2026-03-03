@@ -1,0 +1,344 @@
+
+# Contenido
+[[_TOC_]]
+
+## Información del documento
+| Resumen | Alcance | Audiencia |  
+|:---|:---|:---|  
+| Se determinan los estándares para el desarrollo dentro de las bases de datos con SQL Server | Definir las estructuras de archivos SQL, estándar de nomenclatura y organización de scripts dentro del proceso de desarrollo de software | Departamento de Desarrollo, Proveedores Externos de soluciones de software. |  
+
+## Introducción
+
+El objetivo de este documento es proporcionar un conjunto de reglas para el desarrollo dentro de las bases de datos en SQL Server, en cuanto a la nomenclatura, organización de archivos, estandarización del desarrollo y despliegue de cambios a nivel de base de datos.
+
+
+## Estándares Generales
+
+1. El nombre de los objetos y los scripts debe definirse en inglés y en [Pascal Case](https://techterms.com/definition/pascalcase)
+1. La nomenclatura debe ser descriptiva haciendo referencia a la funcionalidad y en lo posible no usar abreviaturas.
+1. En el nombre de los objetos no se debe utilizar caracteres especiales a excepción del guion bajo en aquellos donde es permitido.
+1. Para CREATE o ALTER siempre especificar el esquema [dbo] para la interpretación de la réplica.
+1. Toda tabla debe tener una llave primaria definida y los campos de control CreatedDate, CreatedBy, ModifiedDate, ModifiedBy.
+1. La mayoría de campos en una tabla deben estipularse como Not Nullable.
+1. Evitar en lo posible el uso de tipos de datos Unicode: nchar, nvarchar, ntext, char, varchar(MAX).
+1. Evitar en lo posible el uso del tipo de datos BIT, en su lugar utilizar un INT y agregar un Catalogo o un Diccionario de datos para dicho campo.
+1. Para la lectura de las tablas transaccionales, se debe utilizar el comando WITH(NOLOCK), siempre y cuando no se requiera leer los datos que están siendo modificados en ese instante, entre las tablas a considerar se detallan las siguientes:
+CodigosDeBarra
+Coordinaciones
+CoordinacionesDetalles
+DocumentosEmbarque
+FacturaDetalle
+FacturaEncabezado
+Guias
+GuiasHouse
+GuiasHouseDetalles
+GuiasHouseDetallesHistorico
+Pallets
+PalletsDetalles
+PiezasInventariadas
+PoDetalles
+ProgramacionCarrier
+ProgramacionManifiesto
+UbicacionPiezas
+
+1. Debe existir un archivo por cada objeto o script de manipulación de datos que satisfaga una necesidad funcional sobre un objeto específico.
+1. El nombre del archivo debe seguir la siguiente convención: 
+```<Orden de ejecución con doble dígito>-<Nombre descriptivo del script>.sql```   (No se debe agregar más texto en el nombre del archivo, únicamente la secuencia y el nombre descriptivo.)
+
+    > Por ejemplo: 
+```01-BackupCycleCounts.sql``` será el primero en ejecutarse.
+```02-v_ListAspNetUsers.sql``` será el segundo en ejecutarse.
+```03-pro_GetClientData.sql``` será el tercero en ejecutarse.
+ 
+    > Nombre correcto: ```02-v_ListAspNetUsers.sql```  
+    > Nombre incorrecto: ```2-v_ListAspNetUsers-last.sql```  
+    > Nombre incorrecto: ```v_ListAspNetUsers execute last.sql```
+
+
+1. Dentro de los scripts de manipulación de datos ( [DML](https://en.wikipedia.org/wiki/Data_manipulation_language)) no deben existir comandos DDL
+1. Dentro de los scripts de definición de datos ( [DDL](https://en.wikipedia.org/wiki/Data_definition_language)) no deben existir comandos DML, tampoco  TRUNCATE TABLE para eliminación de datos.
+1. El script debe ser [idempotente](https://es.wikipedia.org/wiki/Idempotencia), es decir, si se ejecuta un mismo script en múltiples ocasiones, el resultado debe ser siempre el deseado a nivel funcional, tanto para DDLs como para DMLs.
+
+   > Por ejemplo:  
+   > Si se genera un script que crea una nueva opción del menú y dicho script se ejecuta 3 veces, la nueva opción del menú debe aparecer una sola vez, no 3 veces.  
+   > 
+   > Código:
+   > 
+   > ```sql
+   > -- Create new option at Analytics Menu
+   > DECLARE
+   > 	@IdMenuAnalytics VARCHAR(32),
+   > 	@IdMenuDashboard VARCHAR(32)
+   > 
+   > SELECT	@IdMenuAnalytics = Id
+   > FROM	Menu 
+   > WHERE	[Name] = 'Analytics' 
+   > 
+   > SELECT @IdMenuDashboard = Id 
+   > FROM Menu 
+   > WHERE [Name] = 'Dashboards' 
+   > AND IdPrincipal = @idMenuAnalytics
+   > 
+   > -- Insert only if the new menu doesnt exist 
+   > IF @IdMenuDashboard IS NULL
+   > BEGIN
+   > 	EXEC dbo.PRO_General_GenerateId @Table = 'Menu', @Id = @IdMenuDashboard OUTPUT
+   >   
+   > 	INSERT INTO Menu(
+   > 	Id, 
+   > 	IdPrincipal, 
+   > 	IdUser, 
+   > 	[Name], 
+   > 	[Url], 
+   >	[Action], 
+   > 	[Order], 
+   > 	IsMenu, 
+   > 	ModifiedDate, 
+   > 	[Status], 
+   >	IsNewTab, 
+   > 	Instruction, 
+   > 	EnglishName)
+   >	VALUES(
+   > 	@IdMenuDashboard, 
+   > 	@IdMenuAnalytics, 
+   > 	'USU0159', 
+   > 	'Dashboards', 
+   > 	'/Analitica/Home',
+   >	'MENU', 
+   > 	0, 
+   > 	1, 
+   > 	GETDATE(), 
+   > 	'ACTIVO', 
+   >	0, 
+   > 	'MENU', 
+   > 	'Dashboards')
+   > END
+   > ```
+
+
+## Consideraciones Generales
+1. Cada desarrollador puede generar uno o más archivos de scripts según sea necesario.
+1. Asegurar la integridad de datos para la ejecución de cada script.
+1. Durante el tiempo de desarrollo, si más de un desarrollador debe hacer operaciones sobre un mismo objeto de programación, se debe mantener un solo archivo.
+1. La creación de índices debe ser analizada y probada en conjunto con el **DBA**.
+1. Los scripts deben ordenarse, primero los DDLs y luego los DMLs. A excepción de ParametrosGenerales y Contadores, los cuales deben ser primeros.
+1. Utilizar el diccionario de datos para colocar comentarios a cualquier objeto (tabla, columna, sp, etc.), con el fin de proporcionar información más específica.
+1. Si se tiene una cantidad mayor o igual a 5 scripts debe empaquetarse en una carpeta comprimida y nombrarla con el número de HU.
+1. En los scripts que se requiera se debe estipular la característica NOT FOR REPLICATION, principalmente en FK, CK y triggers.
+1. Preparar el script del RollBack para cada caso.
+
+
+## Estándares Específicos
+### Tablas
+1. El script debe ser  [idempotente](https://es.wikipedia.org/wiki/Idempotencia). validando si la tabla o columna existe.
+1. El nombre de tabla debe especificarse en plural.
+1. Los atributos de la tabla deben estar en [Pascal Case](https://techterms.com/definition/pascalcase)
+> Por ejemplo: 
+
+> ```sql
+>CREATE TABLE [dbo].[CycleCounts](
+>	[Id] [UNIQUEIDENTIFIER] NOT NULL,
+>	[CycleCountNumber] [INT] NOT NULL CONSTRAINT DF_CycleCounts_cycleCountNumber DEFAULT 0,
+>	[RequestedBy] [VARCHAR](128) NOT NULL,
+>	[IdCycleCountReason] [INT] NOT NULL,
+>	[IdCompany] [VARCHAR](16) NOT NULL,
+>	[IdWarehouse] [VARCHAR](16) NOT NULL,
+>	[IdCycleCountType] [INT] NOT NULL,
+>	[IdChannel] [INT] NOT NULL,
+>	[Observation] [VARCHAR](256) NULL,
+>	[IdStatus] [INT] NOT NULL,
+>	[Quantity] [INT] NOT NULL CONSTRAINT DF_CycleCounts_quantity DEFAULT 0,
+>	[CycleCountDate] [DATETIME] NOT NULL,
+>	[ClosedBy] [VARCHAR](16) NULL,
+>	[CloseDate] [DATETIME] NULL,
+>	[CreatedDate] [DATETIME] NOT NULL,
+>	[CreatedBy] [VARCHAR](16) NOT NULL,
+>	[ModifiedDate] [DATETIME] NOT NULL,
+>	[ModifiedBy] [VARCHAR](16) NOT NULL,
+>CONSTRAINT [PK_CycleCount] PRIMARY KEY NONCLUSTERED ([Id])) 
+> ```
+
+### Tablas Temporales
+1. Por convención de nombres la tabla temporal debe utilizar el siguiente estándar: ```TMP_<NombreTablaTemporal>```
+1. El prefijo ```TMP_``` se coloca en mayúsculas 
+>> Por ejemplo: ```#TMP_GuiasAgrupadas```
+
+### Índices
+1. Por convención de nombres el índice debe utilizar el siguiente estándar: ```idx_<NombreTabla>_<NombreColumnas>```
+1. El prefijo ```idx_``` se coloca en minúsculas 
+>> Por ejemplo: ```idx_CycleCounts_CycleCountNumber```
+
+
+### Vistas
+1. Por convención de nombres la vista debe utilizar el siguiente estándar: ```v_<NombreDescriptivo>```  
+1. El prefijo ```v_``` se coloca en minúsculas
+
+>> Por ejemplo: ```v_ListAspNetUsers```
+
+### Procedimientos Almacenados
+1. Por convención de nombres para procedimientos almacenados se debe utilizar el siguiente estándar:
+```pro_<NombreDescriptivo>```
+
+1. El prefijo ```pro_``` se coloca en minúsculas   
+1. Se debe agregar BEGIN TRY/CATCH, el catch debe contener EXEC [dbo].[pro_LogError] 
+   > 
+   > **Código:**  
+   > 
+   > ```sql
+   >BEGIN TRY
+   >    SELECT TOP 100 *
+   >    FROM CycleCounts WITH (NOLOCK)
+   >END TRY
+   >BEGIN CATCH
+   >    EXEC [dbo].[pro_LogError]
+   >END CATCH;
+   > ```
+>> Por ejemplo: ```pro_InsertCycleCountDetails```
+
+### Funciones
+1. Por convención de nombres para funciones se debe utilizar  el siguiente estándar: ```f_<NombreDescriptivo>```  
+1. El prefijo ```f_``` se coloca en minúsculas
+>> Por ejemplo: ```f_CalculateWeight```
+
+### Desencadenadores (Triggers)
+1. Por convención de nombres para triggers se debe utilizar el siguiente estándar: 
+```trg_<NombreDescriptivo>```  
+1. El prefijo ```trg_``` se coloca en minúsculas
+>> Por ejemplo: ```trg_UpdatePoFromBarCodes```
+ 
+### Tipos definidos por el usuario (User-defined types)
+1. Por convención de nombres para tipos definidos por el usuario se debe utilizar el siguiente estándar:  ```ut_<NombreDescriptivo>```  
+1. El prefijo ```ut_``` se coloca en minúsculas
+>> Por ejemplo: ```ut_ListClientParameters```
+
+## Estándar Restricciones (Constraints)
+
+### Llave Primaria
+1. Por convención de nombres para llaves primarias se debe utilizar el siguiente estándar:  ```PK_<NombreTabla>```
+1. El prefijo ```PK_``` se coloca en mayúsculas
+
+>> Por Ejemplo: 
+Tabla:```CycleCountDetails```
+Llave Primaria:```PK_CycleCountDetails```
+
+### Llave Foránea
+1. Por convención de nombres para llaves foráneas se debe utilizar el siguiente estándar:  ```FK_<NombreTablaHija>_<NombreTablaPadre>```  
+1. El prefijo ```FK_``` se coloca en mayúsculas
+
+>> Por Ejemplo: 
+Tablas:```CycleCountDetails / CycleCounts```
+Llave Foránea:```FK_CycleCountDetails_CycleCounts```
+
+### Llave Única
+1. Por convención de nombres para llaves únicas se debe utilizar el siguiente estándar:  ```UK_<NombreTabla>_<NombreColumna>```  
+1. El prefijo ```UK_``` se coloca en mayúsculas
+>> Por Ejemplo: 
+Tabla:```CycleCounts```
+Campo:```CycleCountNumber```
+Llave Única:```UK_CycleCounts_CycleCountNumber```
+
+### Por Defecto (Default)
+1. Por convención de nombres para constraints por defecto se debe utilizar el siguiente estándar:  ```DF_<NombreTabla>_<NombreColumna>```
+1. El prefijo ```DF_``` se coloca en mayúsculas
+
+>>Por Ejemplo: 
+Tabla:```CycleCounts```
+Campo:```IsInventory```
+Restricción por default:```DF_CycleCounts_IsInventory```
+
+### Check
+1. Por convención de nombres para check constraints se debe utilizar el siguiente estándar:  ```CK_<NombreTabla>_<NombreColumna>```
+1. El prefijo ```CK_``` se coloca en mayúsculas
+
+>>Por Ejemplo: 
+Tabla:```CycleCountDetails```
+Campo:```IsDiscrepancy```
+Restricción por default:```CK_CycleCountDetails_IsDiscrepancy```
+
+## Estándar Encabezado y Comentarios
+
+El siguiente encabezado debe ser utilizado al inicio dentro de cada archivo:
+
+> ```sql
+> /*    
+>VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
+>1		Jonathan Merino			2019-10-16	AC 99557	Initial Code - Sp for updating house 
+>2		Veronica Vicente		2020-09-21	CC 85741	Add parameter @idCoordination 
+>3		Veronica Vicente		2020-09-23	SC 17672	Add update on table ClientTemporalInventory
+>4		Edwin Casa			2024-05-26	SC 55221	Change date format
+> */
+> ```
+
+## Estándares de Programación BDD
+
+Para la programación dentro de las bases de datos (vistas, procedimientos almacenados, funciones, desencadenadores) tomar en cuenta las siguientes indicaciones:
+
+1. Registrar en el encabezado los cambios realizados en cada objeto de programación, con versión, responsable, fecha, HU y descripción de la modificación. 
+1. Todo programa debe empezar por CREATE OR ALTER.
+1. Los parámetros y variables deben tener el mismo tipo de datos y longitud del campo con el que se está comparando o poblando. En caso de ser nuevos, su longitud debe especificarse en octetos.
+1. No utilizar SET para la asignación de un valor a una variable, en su lugar usar SELECT.
+1. No usar cursores, excepto que sean la única solución (en su lugar realizar consultas anidadas).
+1. Utilizar variables tipo tabla "@TBL_COUNTRIES" o Common Table Expression (CTE) "WITH CTE_PORTS", en lugar de tablas temporales "#TMP_GUIAS" (únicamente en casos con cantidades menores a 2.000 registros y que no realicen JOINs con las tablas de mayor tamaño dentro de la BDD), para el resto de casos siempre será mejor usar tablas temporales.
+1. Bajo ninguna circunstancia se debe realizar SELECT * dentro de programación en la base de datos.
+1. Indentar el código (formatear con sangrías) para mantener un orden y facilitar la lectura y comprensión.
+1. Las palabras reservadas del lenguaje SQL deben escribirse en mayúsculas.
+1. Cuando una columna o variable tenga como nombre una palabra reservada se debe especificar entre corchetes, ejemplo: [Status], [EXP].
+1. Los alias de las tablas deben asignarse en siglas referentes a la tabla, con máximo 3 caracteres en mayúsculas, ejemplo: Catalogs C, CycleCounts CC, CycleCountDetails CCD, etc.
+1. Por defecto no utilizar alias para columnas y mostrar el nombre del atributo tal como se encuentra definido en la estructura de la tabla. A excepción de campos calculados,  que tengan alguna validación, seteo personalizado o para evitar columnas con nombres repetidos; cuando esto sea necesario debe escribirse en [Pascal Case](https://techterms.com/definition/pascalcase). Así por ejemplo:
+    > Incorrecto: ```SELECT CCD.StatusPiece AS StatusPiece```  
+    > Incorrecto: ```SELECT COUNT(GHD.id) AS totalPieces```  
+    > Incorrecto: ```SELECT ISNULL(G.Id, GC.Id) AS IDAWB```  
+    > Incorrecto: ```SELECT 1 AS FilterORDER```  
+
+    > Correcto: ```SELECT CCD.StatusPiece ```  
+    > Correcto: ```SELECT COUNT(GHD.Id) AS TotalPieces```  
+    > Correcto: ```SELECT ISNULL(G.Id, GC.Id) AS IdAwb```  
+    > Correcto: ```SELECT 1 AS FilterOrder``` 
+1. Para validar la Nullabilidad de valores no se debe usar IIF o COALESCE, en su lugar utilizar ISNULL.
+1. Evitar el uso de querys dinámicos dentro de la programación.
+1. Colocar comentarios dentro del código para una mejor documentación y descripción del mismo, cuando amerite.
+1. Cuando se realicen UPDATES o INSERTS se deben actualizar los campos ModifiedDate y ModifiedBy.
+1. No realizar ORDER BY en la medida de lo posible.
+1. Evitar aplicar lógica del negocio dentro de los sps, ya que se complica el mantenimiento (uso de sps embebidos).
+1. Los valores referenciales por tipo de consulta son:
+⚬ Consultas granulares: 20,000 lecturas (por Guía, por Pieza, por Po, por HeaderLeabel, etc.)
+⚬ Consultas masivas: 800,000 lecturas (en un rango de fechas, por clientes, etc)
+1. Al final del código ubicar un ejemplo de la ejecución del mismo (incluyendo parámetros en caso de existir), siempre y cuando el programa no realice modificaciones de datos. Deben considerarse casos que tengan mayor cantidad de registros, así por ejemplo: Clientes con mayor cantidad de guías, Guías padre con mayor cantidad de guías hijas, rangos de fechas dentro de la temporada, etc.
+
+
+> ```sql
+>/*
+>VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
+>1		Patricia Chicaiza		2022-06-21	AC 99557	Initial Code- Get data from a specific client
+>2		Patricia Chicaiza		2022-06-21	CC 85741	Add email attribute
+>*/
+>CREATE OR ALTER PROCEDURE [dbo].[pro_RetriveClientInformation] 
+>	@IdClient VARCHAR(16)
+>AS
+>BEGIN  
+>	BEGIN TRY
+>		SELECT 
+>		Id,
+>		[Name],
+>		Adress,
+>		Phone,
+>		Email
+>		FROM [Clients] C
+>		WHERE C.Id = @IdClient
+>	END TRY
+>	BEGIN CATCH
+>		EXEC [dbo].[pro_LogError]
+>	END CATCH	 
+>END
+>/*
+>EXEC [dbo].[pro_RetriveClientInformation] @IdClient = 'CLI012336'
+>*/
+> ```
+# Revisiones
+| Versión | Fecha | Autor | Descripción |
+|:---:|:----:|:---:|---|
+| 1.0 | 3-Jul-2020 |José Arévalo|Versión inicial|
+| 2.0 | 21-Jul-2022 |Patricia Chicaiza, Jairo González, Luis Campos, Paúl Castillo, Maricela Becerra|Actualización considerando procesos que se aplican|
+| 3.0 | 15-Feb-2023 |Patricia Chicaiza, Jairo González, Luis Campos|Actualización general|
+| 4.0 | 11-Mar-2024 |Patricia Chicaiza, Paul Castillo, Jairo González, Luis Campos, Maricela Becerra|Actualización general|
+| 5.0 | 21-Feb-2025 |Patricia Chicaiza|Actualización general para definiciones alliance 2.0|
