@@ -46,7 +46,7 @@ BEGIN
 
         CREATE TABLE #TMP_RelatedClients ( [ClientId] VARCHAR(16) PRIMARY KEY );
         CREATE TABLE #TMP_Exporters ( [ExporterId] VARCHAR(16) PRIMARY KEY );
-        CREATE TABLE #TMP_FinalClients ( [FinalClientId] VARCHAR(16) PRIMARY KEY );
+        CREATE TABLE #TMP_FinalClients ( [ShipToId] VARCHAR(16) PRIMARY KEY );
         CREATE TABLE #TMP_ConsigneeClients ( [ConsigneeClientId] VARCHAR(16) PRIMARY KEY );
 
         CREATE TABLE #TMP_HouseWaybillDetails
@@ -58,7 +58,7 @@ BEGIN
             [HeightIn]              DECIMAL(18, 2),
             [LengthIn]              DECIMAL(18, 2),
             [WidthIn]               DECIMAL(18, 2),
-            [FinalClientId]         VARCHAR(16),
+            [ShipToId]         VARCHAR(16),
             [TruckId]               VARCHAR(16),
             [WarehouseId]           VARCHAR(16) NULL,
             [CarrierScheduleId]     UNIQUEIDENTIFIER,
@@ -117,7 +117,7 @@ BEGIN
 
         IF @NombreClienteFinal IS NOT NULL
         BEGIN
-            INSERT INTO #TMP_FinalClients (FinalClientId)
+            INSERT INTO #TMP_FinalClients (ShipToId)
             SELECT Id FROM dbo.f_SearchEntities(@NombreClienteFinal, 'ShipTo');
         END
 
@@ -232,7 +232,7 @@ BEGIN
                 INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.Id = GHD.IdGuiaHouse
                 WHERE GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @FechaHasta
                     AND (@NombreExportador IS NULL OR GHO.IdExportador IN (SELECT ExporterId FROM #TMP_Exporters))
-                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT FinalClientId FROM #TMP_FinalClients))
+                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT ShipToId FROM #TMP_FinalClients))
                     AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
                     AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
                     AND (@NombreClienteConsignee IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
@@ -264,7 +264,7 @@ BEGIN
                 WHERE GHO.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta AND GHO.House IS NOT NULL 
                     AND (@NroGuia IS NULL OR GHO.NroGuia LIKE '%' + @NroGuia + '%')
                     AND (@NombreExportador IS NULL OR GHO.IdExportador IN (SELECT ExporterId FROM #TMP_Exporters))
-                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT FinalClientId FROM #TMP_FinalClients))
+                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT ShipToId FROM #TMP_FinalClients))
                     AND (@NombreClienteConsignee IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
                     AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
                     AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%');
@@ -297,7 +297,7 @@ BEGIN
                     AND GHX.House IS NULL 
                     AND (@NroGuia IS NULL OR GHO.NroGuia LIKE '%' + @NroGuia + '%')
                     AND (@NombreExportador IS NULL OR GHO.IdExportador IN (SELECT ExporterId FROM #TMP_Exporters))
-                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT FinalClientId FROM #TMP_FinalClients))
+                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT ShipToId FROM #TMP_FinalClients))
                     AND (@NombreClienteConsignee IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
                     AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
                     AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%');
@@ -310,7 +310,7 @@ BEGIN
             MAN.NroManifiesto,
             SUM(GHD.HeightIn * GHD.LengthIn * GHD.WidthIn) AS CapacidadCarga,
             COUNT(1) AS TotalPiezas,
-            GHD.FinalClientId,
+            GHD.ShipToId,
             GHD.TruckId,
             ISNULL(UBO.IdBodega, GHD.WarehouseId) AS WarehouseId,
             GHD.CarrierId,
@@ -336,7 +336,7 @@ BEGIN
                     TMP.HeightIn, 
                     TMP.LengthIn, 
                     TMP.WidthIn, 
-                    TMP.FinalClientId, 
+                    TMP.ShipToId, 
                     TMP.TruckId,
                     TMP.WarehouseId, 
                     TMP.CarrierId, 
@@ -373,7 +373,7 @@ BEGIN
             GHD.PieceStatus, 
             GHD.DispatchDate, 
             MAN.NroManifiesto, 
-            GHD.FinalClientId,
+            GHD.ShipToId,
             GHD.TruckId, 
             GHD.WarehouseId, 
             UBO.IdBodega, 
@@ -407,7 +407,7 @@ BEGIN
             BOD.Nombre AS NombreBodega,
             TMP.NombreDocumentoDespacho,
             TMP.MailEnviado,
-            TMP.FinalClientId AS IdClienteFinal,
+            TMP.ShipToId AS IdClienteFinal,
             TMP.TruckId,
             TMP.WarehouseId AS IdBodega,
             TMP.CarrierId AS IdCarrier,
@@ -420,7 +420,7 @@ BEGIN
         FROM #TMP_Detalle TMP
         INNER JOIN Bodegas BOD ON TMP.WarehouseId = BOD.Id
         INNER JOIN Transportes TRA ON TMP.CarrierId = TRA.Id
-        INNER JOIN v_ClientsEntities VCE ON TMP.FinalClientId = VCE.ConsigneeId
+        INNER JOIN v_ClientsEntities VCE ON TMP.ShipToId = VCE.ConsigneeId
         INNER JOIN Paises PAI ON VCE.IdPais = PAI.Id
         INNER JOIN Estados EST ON VCE.IdEstado = EST.Id
         LEFT JOIN CodigosRelacionSistemas CRS ON TMP.CarrierId = CRS.IdEntidad AND CRS.TipoEntidad = 'CARRIER' AND CRS.IdSistemaEntidad = @SystemId
