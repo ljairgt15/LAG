@@ -64,6 +64,7 @@ BEGIN
             [DispatchDate]          DATETIME,
             [GuideNumber]           VARCHAR(32),
             [ConsigneeClientId]     VARCHAR(16),
+            [BillToConsigneeId]     VARCHAR(16) NULL,
             [Po]                    VARCHAR(64),
             [House]                 VARCHAR(32),
             [GuideId]               VARCHAR(64),
@@ -157,7 +158,8 @@ BEGIN
                     PCA.IdCarrier AS CarrierId, 
                     PCA.FechaDespacho AS DispatchDate,
                     GHO.NroGuia AS GuideNumber, 
-                    GHO.ConsigneeId AS ConsigneeClientId, 
+                    GHO.ConsigneeId AS ConsigneeClientId,
+                    GHO.BillToConsigneeId,
                     GHD.Po, 
                     GHO.House, 
                     GHO.IdGuia AS GuideId, 
@@ -188,7 +190,8 @@ BEGIN
                     PCA.IdCarrier AS CarrierId, 
                     PCA.FechaDespacho AS DispatchDate,
                     GHO.NroGuia AS GuideNumber, 
-                    GHO.ConsigneeId AS ConsigneeClientId, 
+                    GHO.ConsigneeId AS ConsigneeClientId,
+                    GHO.BillToConsigneeId,
                     GHD.Po, 
                     GHO.House, 
                     GHO.IdGuia AS GuideId, 
@@ -219,7 +222,8 @@ BEGIN
                     PCA.IdCarrier AS CarrierId, 
                     PCA.FechaDespacho AS DispatchDate,
                     GHO.NroGuia AS GuideNumber, 
-                    GHO.ConsigneeId AS ConsigneeClientId, 
+                    GHO.ConsigneeId AS ConsigneeClientId,
+                    GHO.BillToConsigneeId,
                     GHD.Po, 
                     GHO.House, 
                     GHO.IdGuia AS GuideId, 
@@ -255,6 +259,7 @@ BEGIN
                     PCA.FechaDespacho AS DispatchDate,
                     GHO.NroGuia AS GuideNumber, 
                     GHO.ConsigneeId AS ConsigneeClientId, 
+                    GHO.BillToConsigneeId,
                     GHD.Po, 
                     GHO.House, 
                     GHO.IdGuia AS GuideId, 
@@ -293,6 +298,7 @@ BEGIN
                     PCA.FechaDespacho AS DispatchDate,
                     GHO.NroGuia AS GuideNumber, 
                     GHO.ConsigneeId AS ConsigneeClientId, 
+                    GHO.BillToConsigneeId,
                     GHD.Po, 
                     GHO.House, 
                     GHO.IdGuia AS GuideId, 
@@ -332,7 +338,8 @@ BEGIN
                     PCA.IdCarrier AS CarrierId, 
                     PCA.FechaDespacho AS DispatchDate,
                     GHO.NroGuia AS GuideNumber, 
-                    GHO.ConsigneeId AS ConsigneeClientId, 
+                    GHO.ConsigneeId AS ConsigneeClientId,
+                    GHO.BillToConsigneeId, 
                     GHD.Po, 
                     GHO.House, 
                     GHO.IdGuia AS GuideId, 
@@ -373,6 +380,7 @@ BEGIN
             MAN.Id AS ManifiestoId,
             GHD.GuideNumber,
             GHD.ConsigneeClientId,
+            GHD.BillToConsigneeId,
             GHD.Po,
             GHD.House,
             GHD.GuideId,
@@ -533,8 +541,7 @@ BEGIN
             INNER JOIN Bodegas BOD ON TMP.WarehouseId = BOD.Id
             INNER JOIN Transportes TRA ON TMP.CarrierId = TRA.Id
             INNER JOIN v_ClientsEntities VCS ON TMP.ShipToId = VCS.Id
-            /* TODO JG AQUI ES LA EDICION PARA TRAER EL CLIENTE CONSIGNEE*/
-            INNER JOIN v_ClientsEntities VCC ON TMP.ConsigneeClientId = VCC.Id
+            INNER JOIN v_ClientsEntities VCC ON ISNULL(TMP.BillToConsigneeId, TMP.ConsigneeId) = VCC.Id
             INNER JOIN Exportadores EXL ON TMP.ExporterId = EXL.Id
             LEFT JOIN Paises PAS ON VCS.IdPais = PAS.Id
             LEFT JOIN Estados ESS ON VCS.IdEstado = ESS.Id
