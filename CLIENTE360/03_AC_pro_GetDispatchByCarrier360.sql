@@ -1,422 +1,321 @@
-/* VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
-   1		    Jair Gomez			2026-03-04	   58765    Initial Code - Based on pro_ListarDespachoPorCarrierXCarrier. 
+/* VERSION      MODIFIEDBY              MODIFIEDDATE    HU              MODIFICATION
+   1            Jair Gomez              2026-03-04      58765           Initial Code - Based on pro_ListarDespachoPorCarrierXCarrier. 
 */
-ALTER   PROCEDURE [dbo].[AC_pro_GetDispatchByCarrier360]
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetDispatchByCarrier360]
 (
-	@fechaDesde DATE,
-	@fechaHasta DATE,
-	@idCliente VARCHAR(16),
-	@isPending BIT,
-	@nombreClienteFinal VARCHAR ( 256 ) = NULL,
-	@nombreClienteConsignee VARCHAR ( 512 ) = NULL,
-	@nombreExportador VARCHAR ( 256 ) = NULL,
-	@idBodega VARCHAR ( 16 ) = NULL,
-	@PO VARCHAR ( 64 ) = NULL,
-	@nroGuia VARCHAR ( 32 ) = NULL,
-	@truckId VARCHAR ( 16 ) = NULL
+    @FechaDesde             DATE,
+    @FechaHasta             DATE,
+    @IdCliente              VARCHAR(16),
+    @IsPending              BIT,
+    @NombreClienteFinal     VARCHAR(256) = NULL,
+    @NombreClienteConsignee VARCHAR(512) = NULL,
+    @NombreExportador       VARCHAR(256) = NULL,
+    @IdBodega               VARCHAR(16) = NULL,
+    @Po                     VARCHAR(64) = NULL,
+    @NroGuia                VARCHAR(32) = NULL,
+    @TruckId                VARCHAR(16) = NULL
 )
 AS
-BEGIN	
-	DECLARE @tipoCliente			VARCHAR(32),
-			@idSistema				INT, 
-			@idDocumentoManifiesto	VARCHAR ( 16 ),
-			@isPendigB				BIT,
-			@fechaDestinoComodin	DATETIME,
-			@final					VARCHAR (16) = NULL,
-			@consignee				VARCHAR (16) = NULL,
-			@consolidador			VARCHAR (16) = NULL,
-			@mailEnviado			BIT = 0
-	SELECT 
-		@isPendigB = IIF(@isPending = 0, 1,0),
-		@fechaDestinoComodin = DATEADD(DAY,-90,@fechaHasta) 
+BEGIN   
+    BEGIN TRY
+                DECLARE @ClientType                 VARCHAR(32),
+                @SystemId                   INT, 
+                @ManifestDocumentId         VARCHAR(16),
+                @IsPendingStatus            BIT,
+                @WildcardDestinationDate    DATETIME,
+                @FinalStatus                VARCHAR(16),
+                @ConsigneeStatus            VARCHAR(16),
+                @ConsolidatorStatus         VARCHAR(16);
 
-	
-	CREATE TABLE #ClientesRelacionados(
-		[idCliente] [VARCHAR](16)
-	)
-	CREATE TABLE #ClientesFinales(
-		[idCliente] [VARCHAR](16)
-	)
-	CREATE TABLE #ClientesConsignee(
-		[idCliente] [VARCHAR](16)
-	)
-	CREATE TABLE #exportadores(
-		[id] [VARCHAR](16)
-	)
-	CREATE TABLE #TmpGuiasHouseDetalles
-	(
-		id [UNIQUEIDENTIFIER],
-		idGuiaHouse [UNIQUEIDENTIFIER],
-		EstadoPieza [VARCHAR] (64),
-		EsPod [BIT],
-		IdBodega [VARCHAR] ( 16 ) NULL,
-		idProgramacionCarrier [UNIQUEIDENTIFIER],
-		IdCarrier [VARCHAR] ( 16 ) NULL,
-		FechaDespacho [DATETIME],
-		IdBroker [VARCHAR] (16)
-	)
+        SELECT 
+            @FinalStatus            = NULL,
+            @ConsigneeStatus        = NULL,
+            @ConsolidatorStatus     = NULL;
 
-	SELECT TOP 1  @idSistema = Id 
-	FROM SistemasEntidades WITH (NOLOCK) 
-	WHERE Codigo = 'UNIFICADO'
+        SELECT 
+            @IsPendingStatus         = CASE WHEN @IsPending = 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END,
+            @WildcardDestinationDate = DATEADD(DAY, -90, @FechaHasta);
 
-	SELECT TOP 1  @idDocumentoManifiesto = Id 
-	FROM Documentos WITH (NOLOCK) 
-	WHERE Codigo = 'MANIFEST'
+        -- Tablas Temporales Optimizadas (Con PK)
+        CREATE TABLE #TMP_RelatedClients ( [ClientId] VARCHAR(16) PRIMARY KEY );
+        CREATE TABLE #TMP_Exporters ( [ExporterId] VARCHAR(16) PRIMARY KEY );
+        CREATE TABLE #TMP_FinalClients ( [ShipToId] VARCHAR(16) PRIMARY KEY );
+        CREATE TABLE #TMP_ConsigneeClients ( [ConsigneeClientId] VARCHAR(16) PRIMARY KEY );
 
-	SELECT  @tipoCliente = cat.identificador 
-	FROM  Clientes CL
-		INNER JOIN dbo.DetalleEntidades DetI ON DetI.idEntidad = CL.id
-		INNER JOIN dbo.Catalogos cat ON cat.id = DetI.idCatalogo
-	WHERE  CL.id = @idCliente
+        CREATE TABLE #TMP_HouseWaybillDetails
+        (
+            [Id]                    UNIQUEIDENTIFIER,
+            [HouseWaybillId]        UNIQUEIDENTIFIER,
+            [PieceStatus]           VARCHAR(64),
+            [IsPod]                 BIT,
+            [WarehouseId]           VARCHAR(16) NULL,
+            [CarrierScheduleId]     UNIQUEIDENTIFIER,
+            [CarrierId]             VARCHAR(16) NULL,
+            [DispatchDate]          DATETIME,
+            [IdBroker]              VARCHAR(16)
+        );
 
-	IF @tipoCliente = 'CLIENTE'
-		BEGIN 
-			INSERT INTO #ClientesRelacionados (idCliente) 
-			VALUES(@idCliente)
-		END
-	ELSE
-		BEGIN 
-			INSERT INTO #ClientesRelacionados (idCliente) 
-			SELECT  idCliente 
-			FROM  dbo.GrupoClientes 
-			WHERE idGrupoCliente = @idCliente
-		END
+        SELECT TOP 1 @SystemId = Id FROM SistemasEntidades WITH(NOLOCK) WHERE Codigo = 'UNIFICADO';
+        SELECT TOP 1 @ManifestDocumentId = Id FROM Documentos WITH(NOLOCK) WHERE Codigo = 'MANIFEST';
 
-	/* validacion  tipo de clientes*/
-	SELECT TOP 1  @consolidador = 'CONSOLIDADOR'
-	FROM  GuiasHouse GH
-		INNER JOIN #ClientesRelacionados CLI ON CLI.idCliente = GH.idCliente
-	WHERE GH.house IS NULL AND fechaDestino BETWEEN @fechaDestinoComodin AND @fechaHasta
+        SELECT @ClientType = CAT.Identificador 
+        FROM Clientes CLI WITH(NOLOCK)
+        INNER JOIN DetalleEntidades DET WITH(NOLOCK) ON DET.IdEntidad = CLI.Id
+        INNER JOIN Catalogos CAT WITH(NOLOCK) ON CAT.Id = DET.IdCatalogo
+        WHERE CLI.Id = @IdCliente;
 
-	SELECT TOP 1  @consignee ='CONSIGNEE'
-	FROM  GuiasHouse GH
-		INNER JOIN #ClientesRelacionados CLI ON CLI.idCliente = GH.idCliente
-	WHERE GH.house IS NOT NULL AND fechaDestino BETWEEN @fechaDestinoComodin AND @fechaHasta
+        IF @ClientType = 'CLIENTE'
+        BEGIN 
+            INSERT INTO #TMP_RelatedClients (ClientId) VALUES (@IdCliente);
+        END
+        ELSE
+        BEGIN 
+            INSERT INTO #TMP_RelatedClients (ClientId) 
+            SELECT IdCliente FROM GrupoClientes WITH(NOLOCK) WHERE IdGrupoCliente = @IdCliente;
+        END
 
-	SELECT TOP 1 @final = 'FINAL'
-	FROM GuiasHouseDetalles GHD
-		INNER JOIN #ClientesRelacionados CLI ON CLI.idCliente = GHD.idClienteFinal
-	WHERE fechaCreacion BETWEEN @fechaDestinoComodin AND @fechaHasta
+        /* Validación Tipo de Clientes Operativos */
+        SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
+        FROM GuiasHouse GHO WITH(NOLOCK)
+        INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHO.ConsigneeId
+        WHERE GHO.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta AND GHO.House IS NULL;
 
-	IF @isPendigB=0
-	BEGIN
-		SELECT @fechaDestinoComodin = DATEADD(DAY,-30,@fechaHasta) 
-	END
-	/* validacion  tipo de clientes*/
-	
+        SELECT TOP 1 @ConsigneeStatus ='CONSIGNEE'
+        FROM GuiasHouse GHO WITH(NOLOCK)
+        INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHO.ConsigneeId
+        WHERE GHO.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta AND GHO.House IS NOT NULL;
 
-	IF @nombreClienteFinal IS  NULL AND @nombreClienteConsignee IS NULL AND @nombreExportador IS NULL AND @PO IS NULL AND @nroGuia IS NULL AND @truckId IS NULL AND @idBodega IS NULL 
-	BEGIN
-		/* CLIENTES FINALES */
-		IF @final IS NOT NULL 
-		BEGIN
-			INSERT INTO  #TmpGuiasHouseDetalles
-			SELECT DISTINCT
-				GHD.id,
-				GHD.idGuiaHouse,
-				GHD.estadoPieza,
-				GHD.esPOD,
-				GH.idBodega,
-				t.id as idProgramacionCarrier,
-				t.idCarrier,
-				t.fechaDespacho,
-				GH.idBroker
-			FROM ProgramacionCarrier AS t  WITH (NOLOCK)
-				INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON 
-													GHD.id = T.idGuiaHouseDetalle 
-													AND GHD.fechaCreacion BETWEEN @fechaDestinoComodin AND @fechaHasta
-				INNER JOIN #ClientesRelacionados CL ON CL.idCliente = GHD.idClienteFinal
-				INNER JOIN dbo.GuiasHouse GH WITH (NOLOCK) ON GH.id =  GHD.idGuiaHouse
-			WHERE 
-				T.fechaDespacho BETWEEN @fechaDesde AND @fechaHasta
-				
-		END
-		 /* CLIENTES CONSIGNEE */
-		IF @consignee IS NOT NULL
-		BEGIN
-			
-			INSERT INTO  #TmpGuiasHouseDetalles
-			SELECT DISTINCT
-				GHD.id,
-				GHD.idGuiaHouse,
-				GHD.estadoPieza,
-				GHD.esPOD,
-				GH.idBodega,
-				t.id as idProgramacionCarrier,
-				t.idCarrier,
-				t.fechaDespacho,
-				GH.idBroker
-			FROM GuiasHouse GH WITH (NOLOCK)
-				INNER JOIN #ClientesRelacionados CLI WITH (NOLOCK) ON CLI.idCliente = GH.idCliente
-				INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON ghd.idGuiaHouse = gh.id
-				INNER JOIN ProgramacionCarrier AS t  WITH (NOLOCK) ON 
-									T.idGuiaHouseDetalle = GHD.id 
-									AND T.fechaDespacho BETWEEN @fechaDesde AND @fechaHasta
-			WHERE  GH.house IS NOT NULL 
-				AND GH.fechaDestino BETWEEN @fechaDestinoComodin AND @fechaHasta
-		END
-		/* CLIENTES CONSOLIDADORES */
-		IF @consolidador IS NOT NULL
-		BEGIN
-			INSERT INTO #TmpGuiasHouseDetalles
-			SELECT DISTINCT
-				GHD.id,
-				GHD.idGuiaHouse,
-				GHD.estadoPieza,
-				GHD.esPOD,
-				GH.idBodega,
-				t.id as idProgramacionCarrier,
-				t.idCarrier,
-				t.fechaDespacho,
-				GH.idBroker
-			FROM GuiasHouse GH1 WITH (NOLOCK)
-				INNER JOIN #ClientesRelacionados CLI WITH (NOLOCK) ON CLI.idCliente = GH1.idCliente
-				INNER JOIN dbo.GuiasHouse GH WITH (NOLOCK) ON GH.idGuia = gh1.idGuia
-				INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON ghd.idGuiaHouse = gh.id
-				INNER JOIN ProgramacionCarrier AS T WITH (NOLOCK) ON 
-								T.idGuiaHouseDetalle = GHD.id
-								AND T.fechaDespacho BETWEEN @fechaDesde AND @fechaHasta
-			WHERE  GH1.house IS NULL 
-				AND GH1.fechaDestino BETWEEN @fechaDestinoComodin AND @fechaHasta
-		END 
-	END
-	ELSE
-	BEGIN 
-		IF @nombreClienteFinal IS NOT NULL
-		BEGIN 
-			SELECT 
-				@nombreClienteFinal = UPPER(@nombreClienteFinal)
+        SELECT TOP 1 @FinalStatus = 'FINAL'
+        FROM GuiasHouseDetalles GHD WITH(NOLOCK)
+        INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHD.ShipToId
+        WHERE GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @FechaHasta;
 
-			INSERT INTO #ClientesFinales
-			SELECT id
-			FROM Clientes
-			WHERE nombreClienteFinal LIKE '%'+@nombreClienteFinal+'%' OR nombre LIKE '%'+@nombreClienteFinal+'%' 
-			
-		END
-		IF @nombreClienteConsignee IS NOT NULL
-		BEGIN 
-			SELECT @nombreClienteConsignee = UPPER(@nombreClienteConsignee)
+        IF @IsPendingStatus = 0
+        BEGIN
+            SELECT @WildcardDestinationDate = DATEADD(DAY, -30, @FechaHasta);
+        END
 
-			INSERT INTO #ClientesConsignee
-			SELECT id
-			FROM Clientes
-			WHERE  nombre LIKE '%'+@nombreClienteConsignee+'%' 
-		END
+        -- =========================================================================
+        -- PRE-CÁLCULO DE FILTROS TVF
+        -- =========================================================================
+        IF @NombreExportador IS NOT NULL
+        BEGIN 
+            SELECT @NombreExportador = UPPER(@NombreExportador);
+            INSERT INTO #TMP_Exporters (ExporterId)
+            SELECT Id FROM Exportadores WITH(NOLOCK)
+            WHERE NombreComercial LIKE '%' + @NombreExportador + '%' OR Nombre LIKE '%' + @NombreExportador + '%';
+        END
 
-		IF @nombreExportador IS NOT NULL
-		BEGIN 
-			SELECT  @nombreExportador = UPPER(@nombreExportador)
+        IF @NombreClienteFinal IS NOT NULL
+        BEGIN
+            INSERT INTO #TMP_FinalClients (ShipToId)
+            SELECT Id FROM dbo.f_SearchEntities(@NombreClienteFinal, 'ShipTo');
+        END
 
-			INSERT INTO #exportadores
-			SELECT id
-			FROM Exportadores
-			WHERE nombreComercial LIKE '%'+@nombreExportador+'%' 
-		END
+        IF @NombreClienteConsignee IS NOT NULL
+        BEGIN
+            INSERT INTO #TMP_ConsigneeClients (ConsigneeClientId)
+            SELECT Id FROM dbo.f_SearchEntities(@NombreClienteConsignee, 'Consignee');
+        END
+        -- =========================================================================
 
-		IF @final IS NOT NULL 
-		BEGIN
-			
-			INSERT INTO  #TmpGuiasHouseDetalles
-			SELECT DISTINCT
-				GHD.id,
-				GHD.idGuiaHouse,
-				GHD.estadoPieza,
-				GHD.esPOD,
-				GH.idBodega,
-				t.id as idProgramacionCarrier,
-				t.idCarrier,
-				t.fechaDespacho,
-				GH.idBroker
-			FROM GuiasHouseDetalles AS GHD WITH (NOLOCK)
-				INNER JOIN #ClientesRelacionados CL WITH (NOLOCK) ON CL.idCliente = GHD.idClienteFinal
-				INNER JOIN ProgramacionCarrier AS t WITH (NOLOCK) ON 
-												GHD.id = T.idGuiaHouseDetalle
-												AND T.fechaDespacho BETWEEN @fechaDesde AND @fechaHasta
-				INNER JOIN dbo.GuiasHouse GH WITH (NOLOCK) ON GH.id =  GHD.idGuiaHouse
-			WHERE  GHD.fechaCreacion BETWEEN @fechaDestinoComodin AND @fechaHasta
-				AND (
-						@nombreExportador IS NULL
-						OR gh.idExportador IN (SELECT id FROM #exportadores)
-					)
-				AND (
-					@nombreClienteFinal IS NULL 
-					OR GHD.idClienteFinal IN (SELECT idCliente FROM #ClientesFinales) 
-				)
-				AND (@truckId IS NULL OR GHD.truckId LIKE '%' + @truckId + '%')
-				AND (@PO IS NULL OR GHD.po LIKE '%' + @PO + '%')
-				AND (
-						@nombreClienteConsignee IS NULL 
-						OR GH.idCliente IN (SELECT idCliente FROM #ClientesConsignee) 
-					)
-				AND (@nroGuia IS NULL OR GH.nroGuia LIKE '%' + @nroGuia + '%')				
-		END
-		 /* CLIENTES CONSIGNEE */
-		IF @consignee IS NOT NULL
-		BEGIN
-			
-			INSERT INTO  #TmpGuiasHouseDetalles
-			SELECT DISTINCT
-				GHD.id,
-				GHD.idGuiaHouse,
-				GHD.estadoPieza,
-				GHD.esPOD,
-				GH.idBodega,
-				t.id as idProgramacionCarrier,
-				t.idCarrier,
-				t.fechaDespacho,
-				GH.idBroker
-			FROM GuiasHouse GH WITH (NOLOCK)
-				INNER JOIN #ClientesRelacionados CLI WITH (NOLOCK) ON CLI.idCliente = GH.idCliente
-				INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON ghd.idGuiaHouse = gh.id
-				INNER JOIN ProgramacionCarrier AS t WITH (NOLOCK) ON 
-												GHD.id = T.idGuiaHouseDetalle
-												AND T.fechaDespacho BETWEEN @fechaDesde AND @fechaHasta 
-			WHERE  GH.house IS NOT NULL 
-				AND GH.fechaDestino BETWEEN @fechaDestinoComodin AND @fechaHasta
-				AND (@nroGuia IS NULL OR GH.nroGuia LIKE '%' + @nroGuia + '%')
-				AND (
-						@nombreExportador IS NULL
-						OR gh.idExportador IN (SELECT id FROM #exportadores)
-					)
-				AND (
-						@nombreClienteConsignee IS NULL 
-						OR GH.idCliente IN (SELECT idCliente FROM #ClientesConsignee) 
-					)
-				
-				AND (
-						@nombreClienteFinal IS NULL 
-						OR GHD.idClienteFinal IN (SELECT idCliente FROM #ClientesFinales) 
-					)
-				AND (@truckId IS NULL OR GHD.truckId LIKE '%' + @truckId + '%')
-				AND (@PO IS NULL OR GHD.po LIKE '%' + @PO + '%')
-		END
-		/* CLIENTES CONSOLIDADORES */
-		IF @consolidador IS NOT NULL
-		BEGIN
-			INSERT INTO #TmpGuiasHouseDetalles
-			SELECT DISTINCT
-				GHD.id,
-				GHD.idGuiaHouse,
-				GHD.estadoPieza,
-				GHD.esPOD,
-				GH.idBodega,
-				t.id as idProgramacionCarrier,
-				t.idCarrier,
-				t.fechaDespacho,
-				GH.idBroker
-			FROM GuiasHouse GH1 WITH (NOLOCK)
-				INNER JOIN #ClientesRelacionados CLI WITH (NOLOCK) ON CLI.idCliente = GH1.idCliente
-				INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GH.idGuia = gh1.idGuia
-				INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON ghd.idGuiaHouse = gh.id
-				INNER JOIN ProgramacionCarrier AS t WITH (NOLOCK) ON 
-												GHD.id = T.idGuiaHouseDetalle
-												AND T.fechaDespacho BETWEEN @fechaDesde AND @fechaHasta
-			WHERE  GH1.house IS NULL 
-				AND GH1.fechaDestino BETWEEN @fechaDestinoComodin AND @fechaHasta
-				AND (@nroGuia IS NULL OR GH.nroGuia LIKE '%' + @nroGuia + '%')
-				AND (
-						@nombreExportador IS NULL
-						OR gh.idExportador IN (SELECT id FROM #exportadores)
-					)
-				AND (
-						@nombreClienteConsignee IS NULL 
-						OR GH.idCliente IN (SELECT idCliente FROM #ClientesConsignee) 
-					)
-				
-				AND (
-						@nombreClienteFinal IS NULL 
-						OR GHD.idClienteFinal IN (SELECT idCliente FROM #ClientesFinales) 
-					)
-				AND (@truckId IS NULL OR GHD.truckId LIKE '%' + @truckId + '%')
-				AND (@PO IS NULL OR GHD.po LIKE '%' + @PO + '%')
-		END 
-	END
-	
-	SELECT
-		GHD.EstadoPieza,
-		GHD.FechaDespacho,
-		SUM(IIF(DOC.esPOD = 1 AND DOC.mailEnviado = 1, 1, 0)) ConPodEnviado,
-		SUM(IIF(MAN.id IS NOT NULL, 1, 0)) PiezasManifiesto,
-		COUNT(1) AS TotalPiezas,
-		ghd.EsPod,
-		ISNULL(ub.idBodega,GHD.IdBodega) idBodega,
-		GHD.IdCarrier,
-		GHD.IdBroker,
-		CAST(CASE 
-			WHEN SV.tipoVenta = 5 AND SVD.tipoPieza = 1 THEN 1
-			WHEN SV.tipoVenta < 4 THEN 1
-			ELSE 0 
-			END AS BIT) esInventario
-	INTO #tmpDetalle
-	FROM (	
-			SELECT DISTINCT
-				ghd.id,
-				ghd.idProgramacionCarrier,
-				GHD.EstadoPieza,
-				GHD.FechaDespacho,
-				ghd.EsPod,
-				GHD.IdBodega,
-				GHD.IdCarrier,
-				GHD.IdBroker
-			FROM #TmpGuiasHouseDetalles ghd
-		)AS GHD
-		LEFT JOIN ProgramacionTe PRO_TE WITH (NOLOCK) ON PRO_TE.IdProgramacionCarrier = ghd.idProgramacionCarrier
-		LEFT JOIN ProgramacionManifiesto PRO_MAN WITH (NOLOCK) ON PRO_MAN.IdProgramacionCarrier = ghd.idProgramacionCarrier
-		LEFT JOIN ManifiestosDespacho MAN WITH (NOLOCK) ON MAN.Id = PRO_MAN.IdManifiestoDespacho
-		OUTER APPLY (
-        	SELECT TOP 1 DD.EsPod, DD.mailEnviado
-        	FROM DocumentosDespacho DD WITH(NOLOCK)
-        	WHERE DD.idManifiesto = MAN.Id
-        	AND DD.idDocumento = @idDocumentoManifiesto
-        	ORDER BY EsPod DESC
-      ) DOC
-		LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON ghd.id = up.idGuiaHouseDetalle 
-		LEFT JOIN Ubicaciones u WITH (NOLOCK) ON up.idUbicacion = u.id 
-		LEFT JOIN UbicacionesBodega ub WITH (NOLOCK) ON u.idUbicacionBodega = ub.id 
-		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.idGuiaHouseDetalle = ghd.id
-		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SV.id = SVD.idSolicitud
-	WHERE 
-		CASE 
-			WHEN @isPendigB = 1 AND (GHD.EsPod = @isPendigB OR DOC.MailEnviado= @isPendigB) THEN 1 
-			WHEN @isPendigB = 0 AND (GHD.EsPod = @isPendigB OR ISNULL(DOC.MailEnviado,@isPendigB)  = @isPendigB) THEN 1 
-			WHEN @isPendigB = 0 AND (GHD.EsPod = 1 OR ISNULL(DOC.MailEnviado,@isPendigB) = 0 )THEN 1 
-			ELSE 0
-		END = 1
+        IF @NombreClienteFinal IS NULL AND @NombreClienteConsignee IS NULL AND @NombreExportador IS NULL 
+           AND @Po IS NULL AND @NroGuia IS NULL AND @TruckId IS NULL AND @IdBodega IS NULL 
+        BEGIN
+            IF @FinalStatus IS NOT NULL 
+            BEGIN
+                INSERT INTO #TMP_HouseWaybillDetails
+                SELECT DISTINCT
+                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                FROM ProgramacionCarrier PCA WITH(NOLOCK)
+                INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.Id = PCA.IdGuiaHouseDetalle 
+                    AND GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @FechaHasta
+                INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHD.ShipToId
+                INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.Id = GHD.IdGuiaHouse
+                WHERE PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta;
+            END
 
-	GROUP BY GHD.EstadoPieza,
-		GHD.FechaDespacho,
-		ghd.EsPod,
-		GHD.IdBodega,
-		ub.idBodega,
-		GHD.IdCarrier,
-		GHD.IdBroker,
-		CASE 
-			WHEN SV.tipoVenta = 5 AND SVD.tipoPieza = 1 THEN 1
-			WHEN SV.tipoVenta < 4 THEN 1 
-			ELSE 0 
-			END
+            IF @ConsigneeStatus IS NOT NULL
+            BEGIN
+                INSERT INTO #TMP_HouseWaybillDetails
+                SELECT DISTINCT
+                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                FROM GuiasHouse GHO WITH(NOLOCK)
+                INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHO.ConsigneeId
+                INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
+                INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id 
+                    AND PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
+                WHERE GHO.House IS NOT NULL AND GHO.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta;
+            END
 
-	SELECT
-		ROW_NUMBER() OVER (ORDER BY TMP.FechaDespacho) Id,
-		TMP.EstadoPieza,
-		TMP.FechaDespacho,
-		TMP.ConPodEnviado,
-		TMP.PiezasManifiesto,
-		TMP.TotalPiezas,
-		TRA.Nombre NombreCarrier,
-		BOD.Nombre NombreBodega,
-		TMP.IdBodega,
-		TMP.IdCarrier,
-		TMP.IdBroker,
-		TMP.EsInventario
-	FROM #tmpDetalle TMP
-	INNER JOIN Bodegas BOD WITH (NOLOCK) ON TMP.IdBodega = BOD.Id
-	INNER JOIN Transportes TRA WITH (NOLOCK) ON TMP.IdCarrier = TRA.Id
-	WHERE  TMP.idBodega = ISNULL(@idBodega, TMP.idBodega )
+            IF @ConsolidatorStatus IS NOT NULL
+            BEGIN
+                INSERT INTO #TMP_HouseWaybillDetails
+                SELECT DISTINCT
+                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                FROM GuiasHouse GHX WITH(NOLOCK)
+                INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHX.ConsigneeId
+                INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.IdGuia = GHX.IdGuia
+                INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
+                INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id 
+                    AND PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
+                WHERE GHX.House IS NULL AND GHX.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta;
+            END 
+        END
+        ELSE
+        BEGIN 
+            IF @FinalStatus IS NOT NULL 
+            BEGIN           
+                INSERT INTO #TMP_HouseWaybillDetails
+                SELECT DISTINCT
+                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                FROM GuiasHouseDetalles GHD WITH(NOLOCK)
+                INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHD.ShipToId
+                INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON GHD.Id = PCA.IdGuiaHouseDetalle 
+                    AND PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
+                INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.Id = GHD.IdGuiaHouse
+                WHERE GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @FechaHasta
+                    AND (@NombreExportador IS NULL OR GHO.IdExportador IN (SELECT ExporterId FROM #TMP_Exporters))
+                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT ShipToId FROM #TMP_FinalClients))
+                    AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
+                    AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
+                    AND (@NombreClienteConsignee IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
+                    AND (@NroGuia IS NULL OR GHO.NroGuia LIKE '%' + @NroGuia + '%');                  
+            END
 
-	DROP TABLE #ClientesRelacionados
-	DROP TABLE #TmpGuiasHouseDetalles
+            IF @ConsigneeStatus IS NOT NULL
+            BEGIN           
+                INSERT INTO #TMP_HouseWaybillDetails
+                SELECT DISTINCT
+                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                FROM GuiasHouse GHO WITH(NOLOCK)
+                INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHO.ConsigneeId
+                INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
+                INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON GHD.Id = PCA.IdGuiaHouseDetalle 
+                    AND PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta 
+                WHERE GHO.House IS NOT NULL AND GHO.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta
+                    AND (@NroGuia IS NULL OR GHO.NroGuia LIKE '%' + @NroGuia + '%')
+                    AND (@NombreExportador IS NULL OR GHO.IdExportador IN (SELECT ExporterId FROM #TMP_Exporters))
+                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT ShipToId FROM #TMP_FinalClients))
+                    AND (@NombreClienteConsignee IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
+                    AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
+                    AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%');
+            END
+
+            IF @ConsolidatorStatus IS NOT NULL
+            BEGIN       
+                INSERT INTO #TMP_HouseWaybillDetails
+                SELECT DISTINCT
+                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                FROM GuiasHouse GHX WITH(NOLOCK)
+                INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHX.ConsigneeId
+                INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.IdGuia = GHX.IdGuia
+                INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
+                INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON GHD.Id = PCA.IdGuiaHouseDetalle 
+                    AND PCA.FechaDespacho BETWEEN @FechaDesde AND @FechaHasta
+                WHERE GHX.House IS NULL AND GHX.FechaDestino BETWEEN @WildcardDestinationDate AND @FechaHasta
+                    AND (@NroGuia IS NULL OR GHO.NroGuia LIKE '%' + @NroGuia + '%')
+                    AND (@NombreExportador IS NULL OR GHO.IdExportador IN (SELECT ExporterId FROM #TMP_Exporters))
+                    AND (@NombreClienteFinal IS NULL OR GHD.ShipToId IN (SELECT ShipToId FROM #TMP_FinalClients))
+                    AND (@NombreClienteConsignee IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
+                    AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
+                    AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%');
+            END 
+        END
+        
+        SELECT
+            GHD.PieceStatus AS EstadoPieza,
+            GHD.DispatchDate AS FechaDespacho,
+            SUM(IIF(DOC.EsPod = 1 AND DOC.MailEnviado = 1, 1, 0)) AS ConPodEnviado,
+            SUM(IIF(MAN.Id IS NOT NULL, 1, 0)) AS PiezasManifiesto,
+            COUNT(1) AS TotalPiezas,
+            GHD.IsPod AS EsPod,
+            ISNULL(UBO.IdBodega, GHD.WarehouseId) AS IdBodega,
+            GHD.CarrierId AS IdCarrier,
+            GHD.IdBroker,
+            CAST(CASE 
+                WHEN SVE.TipoVenta = 5 AND SVD.TipoPieza = 1 THEN 1
+                WHEN SVE.TipoVenta < 4 THEN 1
+                ELSE 0 
+                END AS BIT) AS EsInventario
+        INTO #TMP_Detalle
+        FROM (  
+                SELECT DISTINCT
+                    TMP.Id,
+                    TMP.CarrierScheduleId,
+                    TMP.PieceStatus,
+                    TMP.DispatchDate,
+                    TMP.IsPod,
+                    TMP.WarehouseId,
+                    TMP.CarrierId,
+                    TMP.IdBroker
+                FROM #TMP_HouseWaybillDetails TMP
+            ) AS GHD
+            LEFT JOIN ProgramacionTe PRO_TE WITH(NOLOCK) ON PRO_TE.IdProgramacionCarrier = GHD.CarrierScheduleId
+            LEFT JOIN ProgramacionManifiesto PRO_MAN WITH(NOLOCK) ON PRO_MAN.IdProgramacionCarrier = GHD.CarrierScheduleId
+            LEFT JOIN ManifiestosDespacho MAN WITH(NOLOCK) ON MAN.Id = PRO_MAN.IdManifiestoDespacho
+            OUTER APPLY (
+                SELECT TOP 1 DD.EsPod, DD.MailEnviado
+                FROM DocumentosDespacho DD WITH(NOLOCK)
+                WHERE DD.IdManifiesto = MAN.Id AND DD.IdDocumento = @ManifestDocumentId
+                ORDER BY EsPod DESC
+            ) DOC
+            LEFT JOIN UbicacionPiezas UBP WITH(NOLOCK) ON GHD.Id = UBP.IdGuiaHouseDetalle 
+            LEFT JOIN Ubicaciones UBI WITH(NOLOCK) ON UBP.IdUbicacion = UBI.Id 
+            LEFT JOIN UbicacionesBodega UBO WITH(NOLOCK) ON UBI.IdUbicacionBodega = UBO.Id 
+            LEFT JOIN SolicitudDeVentaDetalles SVD WITH(NOLOCK) ON SVD.IdGuiaHouseDetalle = GHD.Id
+            LEFT JOIN SolicitudDeVenta SVE WITH(NOLOCK) ON SVE.Id = SVD.IdSolicitud
+        WHERE 
+            CASE 
+                WHEN @IsPendingStatus = 1 AND (GHD.IsPod = @IsPendingStatus OR DOC.MailEnviado = @IsPendingStatus) THEN 1 
+                WHEN @IsPendingStatus = 0 AND (GHD.IsPod = @IsPendingStatus OR ISNULL(DOC.MailEnviado, @IsPendingStatus) = @IsPendingStatus) THEN 1 
+                WHEN @IsPendingStatus = 0 AND (GHD.IsPod = 1 OR ISNULL(DOC.MailEnviado, @IsPendingStatus) = 0) THEN 1 
+                ELSE 0
+            END = 1
+        GROUP BY 
+            GHD.PieceStatus,
+            GHD.DispatchDate,
+            GHD.IsPod,
+            GHD.WarehouseId,
+            UBO.IdBodega,
+            GHD.CarrierId,
+            GHD.IdBroker,
+            CASE 
+                WHEN SVE.TipoVenta = 5 AND SVD.TipoPieza = 1 THEN 1
+                WHEN SVE.TipoVenta < 4 THEN 1 
+                ELSE 0 
+            END;
+
+        -- SELECCIÓN FINAL
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY TMP.FechaDespacho) AS Id,
+            TMP.EstadoPieza,
+            TMP.FechaDespacho,
+            TMP.ConPodEnviado,
+            TMP.PiezasManifiesto,
+            TMP.TotalPiezas,
+            TRA.Nombre AS NombreCarrier,
+            BOD.Nombre AS NombreBodega,
+            TMP.IdBodega,
+            TMP.IdCarrier,
+            TMP.IdBroker,
+            TMP.EsInventario
+        FROM #TMP_Detalle TMP
+            INNER JOIN Bodegas BOD WITH(NOLOCK) ON TMP.IdBodega = BOD.Id
+            INNER JOIN Transportes TRA WITH(NOLOCK) ON TMP.IdCarrier = TRA.Id
+        WHERE TMP.IdBodega = ISNULL(@IdBodega, TMP.IdBodega);
+
+        DROP TABLE #TMP_RelatedClients;
+        DROP TABLE #TMP_Exporters;
+        DROP TABLE #TMP_FinalClients;
+        DROP TABLE #TMP_ConsigneeClients;
+        DROP TABLE #TMP_HouseWaybillDetails;
+        DROP TABLE #TMP_Detalle;
+
+    END TRY
+    BEGIN CATCH
+        EXEC [dbo].[pro_LogError];
+    END CATCH
 END
 /*
 EXEC [dbo].[AC_pro_GetDispatchByCarrier360]
