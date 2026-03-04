@@ -436,7 +436,7 @@ BEGIN
     END CATCH
 END
 /*
-EXEC [dbo].[pro_GetDispatchByClient360]
+EXEC [dbo].[AC_pro_GetDispatchByClient360]
     @FechaDesde = '2026-02-24',
     @FechaHasta = '2026-03-05',
     @IdCliente = 'CLI0120247',
