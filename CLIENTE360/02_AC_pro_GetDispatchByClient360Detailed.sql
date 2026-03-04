@@ -533,6 +533,7 @@ BEGIN
             INNER JOIN Bodegas BOD ON TMP.WarehouseId = BOD.Id
             INNER JOIN Transportes TRA ON TMP.CarrierId = TRA.Id
             INNER JOIN v_ClientsEntities VCS ON TMP.ShipToId = VCS.Id
+            /* TODO JG AQUI ES LA EDICION PARA TRAER EL CLIENTE CONSIGNEE*/
             INNER JOIN v_ClientsEntities VCC ON TMP.ConsigneeClientId = VCC.Id
             INNER JOIN Exportadores EXL ON TMP.ExporterId = EXL.Id
             LEFT JOIN Paises PAS ON VCS.IdPais = PAS.Id
