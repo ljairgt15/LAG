@@ -420,7 +420,7 @@ BEGIN
         FROM #TMP_Detalle TMP
         INNER JOIN Bodegas BOD ON TMP.WarehouseId = BOD.Id
         INNER JOIN Transportes TRA ON TMP.CarrierId = TRA.Id
-        INNER JOIN v_ClientsEntities VCE ON TMP.ShipToId = VCE.ConsigneeId
+        INNER JOIN v_ClientsEntities VCE ON TMP.ShipToId = VCE.Id
         INNER JOIN Paises PAI ON VCE.IdPais = PAI.Id
         INNER JOIN Estados EST ON VCE.IdEstado = EST.Id
         LEFT JOIN CodigosRelacionSistemas CRS ON TMP.CarrierId = CRS.IdEntidad AND CRS.TipoEntidad = 'CARRIER' AND CRS.IdSistemaEntidad = @SystemId
