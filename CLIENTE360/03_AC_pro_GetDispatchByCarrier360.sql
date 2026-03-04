@@ -18,7 +18,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetDispatchByCarrier360]
 AS
 BEGIN   
     BEGIN TRY
-                DECLARE @ClientType                 VARCHAR(32),
+        DECLARE @ClientType                 VARCHAR(32),
                 @SystemId                   INT, 
                 @ManifestDocumentId         VARCHAR(16),
                 @IsPendingStatus            BIT,
@@ -52,16 +52,16 @@ BEGIN
             [CarrierScheduleId]     UNIQUEIDENTIFIER,
             [CarrierId]             VARCHAR(16) NULL,
             [DispatchDate]          DATETIME,
-            [IdBroker]              VARCHAR(16)
+            [BrokerId]              VARCHAR(16)
         );
 
-        SELECT TOP 1 @SystemId = Id FROM SistemasEntidades WITH(NOLOCK) WHERE Codigo = 'UNIFICADO';
-        SELECT TOP 1 @ManifestDocumentId = Id FROM Documentos WITH(NOLOCK) WHERE Codigo = 'MANIFEST';
+        SELECT TOP 1 @SystemId = Id FROM SistemasEntidades WHERE Codigo = 'UNIFICADO';
+        SELECT TOP 1 @ManifestDocumentId = Id FROM Documentos WHERE Codigo = 'MANIFEST';
 
         SELECT @ClientType = CAT.Identificador 
-        FROM Clientes CLI WITH(NOLOCK)
-        INNER JOIN DetalleEntidades DET WITH(NOLOCK) ON DET.IdEntidad = CLI.Id
-        INNER JOIN Catalogos CAT WITH(NOLOCK) ON CAT.Id = DET.IdCatalogo
+        FROM Clientes CLI 
+        INNER JOIN DetalleEntidades DET ON DET.IdEntidad = CLI.Id
+        INNER JOIN Catalogos CAT ON CAT.Id = DET.IdCatalogo
         WHERE CLI.Id = @IdCliente;
 
         IF @ClientType = 'CLIENTE'
@@ -71,7 +71,7 @@ BEGIN
         ELSE
         BEGIN 
             INSERT INTO #TMP_RelatedClients (ClientId) 
-            SELECT IdCliente FROM GrupoClientes WITH(NOLOCK) WHERE IdGrupoCliente = @IdCliente;
+            SELECT IdCliente FROM GrupoClientes WHERE IdGrupoCliente = @IdCliente;
         END
 
         /* Validación Tipo de Clientes Operativos */
@@ -102,7 +102,7 @@ BEGIN
         BEGIN 
             SELECT @NombreExportador = UPPER(@NombreExportador);
             INSERT INTO #TMP_Exporters (ExporterId)
-            SELECT Id FROM Exportadores WITH(NOLOCK)
+            SELECT Id FROM Exportadores 
             WHERE NombreComercial LIKE '%' + @NombreExportador + '%' OR Nombre LIKE '%' + @NombreExportador + '%';
         END
 
@@ -126,7 +126,15 @@ BEGIN
             BEGIN
                 INSERT INTO #TMP_HouseWaybillDetails
                 SELECT DISTINCT
-                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                    GHD.Id, 
+                    GHD.IdGuiaHouse AS HouseWaybillId, 
+                    GHD.EstadoPieza AS PieceStatus, 
+                    GHD.EsPod AS IsPod, 
+                    GHO.IdBodega AS WarehouseId, 
+                    PCA.Id AS CarrierScheduleId, 
+                    PCA.IdCarrier AS CarrierId, 
+                    PCA.FechaDespacho AS DispatchDate, 
+                    GHO.IdBroker AS BrokerId
                 FROM ProgramacionCarrier PCA WITH(NOLOCK)
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.Id = PCA.IdGuiaHouseDetalle 
                     AND GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @FechaHasta
@@ -139,7 +147,15 @@ BEGIN
             BEGIN
                 INSERT INTO #TMP_HouseWaybillDetails
                 SELECT DISTINCT
-                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                    GHD.Id, 
+                    GHD.IdGuiaHouse AS HouseWaybillId, 
+                    GHD.EstadoPieza AS PieceStatus, 
+                    GHD.EsPod AS IsPod, 
+                    GHO.IdBodega AS WarehouseId, 
+                    PCA.Id AS CarrierScheduleId, 
+                    PCA.IdCarrier AS CarrierId, 
+                    PCA.FechaDespacho AS DispatchDate, 
+                    GHO.IdBroker AS BrokerId
                 FROM GuiasHouse GHO WITH(NOLOCK)
                 INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHO.ConsigneeId
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
@@ -152,7 +168,15 @@ BEGIN
             BEGIN
                 INSERT INTO #TMP_HouseWaybillDetails
                 SELECT DISTINCT
-                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                    GHD.Id, 
+                    GHD.IdGuiaHouse AS HouseWaybillId, 
+                    GHD.EstadoPieza AS PieceStatus, 
+                    GHD.EsPod AS IsPod, 
+                    GHO.IdBodega AS WarehouseId, 
+                    PCA.Id AS CarrierScheduleId, 
+                    PCA.IdCarrier AS CarrierId, 
+                    PCA.FechaDespacho AS DispatchDate, 
+                    GHO.IdBroker AS BrokerId
                 FROM GuiasHouse GHX WITH(NOLOCK)
                 INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHX.ConsigneeId
                 INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.IdGuia = GHX.IdGuia
@@ -168,7 +192,15 @@ BEGIN
             BEGIN           
                 INSERT INTO #TMP_HouseWaybillDetails
                 SELECT DISTINCT
-                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                    GHD.Id, 
+                    GHD.IdGuiaHouse AS HouseWaybillId, 
+                    GHD.EstadoPieza AS PieceStatus, 
+                    GHD.EsPod AS IsPod, 
+                    GHO.IdBodega AS WarehouseId, 
+                    PCA.Id AS CarrierScheduleId, 
+                    PCA.IdCarrier AS CarrierId, 
+                    PCA.FechaDespacho AS DispatchDate, 
+                    GHO.IdBroker AS BrokerId
                 FROM GuiasHouseDetalles GHD WITH(NOLOCK)
                 INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHD.ShipToId
                 INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON GHD.Id = PCA.IdGuiaHouseDetalle 
@@ -187,7 +219,15 @@ BEGIN
             BEGIN           
                 INSERT INTO #TMP_HouseWaybillDetails
                 SELECT DISTINCT
-                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                    GHD.Id, 
+                    GHD.IdGuiaHouse AS HouseWaybillId, 
+                    GHD.EstadoPieza AS PieceStatus, 
+                    GHD.EsPod AS IsPod, 
+                    GHO.IdBodega AS WarehouseId, 
+                    PCA.Id AS CarrierScheduleId, 
+                    PCA.IdCarrier AS CarrierId, 
+                    PCA.FechaDespacho AS DispatchDate, 
+                    GHO.IdBroker AS BrokerId
                 FROM GuiasHouse GHO WITH(NOLOCK)
                 INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHO.ConsigneeId
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
@@ -206,7 +246,15 @@ BEGIN
             BEGIN       
                 INSERT INTO #TMP_HouseWaybillDetails
                 SELECT DISTINCT
-                    GHD.Id, GHD.IdGuiaHouse, GHD.EstadoPieza, GHD.EsPod, GHO.IdBodega, PCA.Id, PCA.IdCarrier, PCA.FechaDespacho, GHO.IdBroker
+                    GHD.Id, 
+                    GHD.IdGuiaHouse AS HouseWaybillId, 
+                    GHD.EstadoPieza AS PieceStatus, 
+                    GHD.EsPod AS IsPod, 
+                    GHO.IdBodega AS WarehouseId, 
+                    PCA.Id AS CarrierScheduleId, 
+                    PCA.IdCarrier AS CarrierId, 
+                    PCA.FechaDespacho AS DispatchDate, 
+                    GHO.IdBroker AS BrokerId
                 FROM GuiasHouse GHX WITH(NOLOCK)
                 INNER JOIN #TMP_RelatedClients REL ON REL.ClientId = GHX.ConsigneeId
                 INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.IdGuia = GHX.IdGuia
@@ -226,13 +274,13 @@ BEGIN
         SELECT
             GHD.PieceStatus AS EstadoPieza,
             GHD.DispatchDate AS FechaDespacho,
-            SUM(IIF(DOC.EsPod = 1 AND DOC.MailEnviado = 1, 1, 0)) AS ConPodEnviado,
-            SUM(IIF(MAN.Id IS NOT NULL, 1, 0)) AS PiezasManifiesto,
+            SUM(CASE WHEN DOC.EsPod = 1 AND DOC.MailEnviado = 1 THEN 1 ELSE 0 END) AS ConPodEnviado,
+            SUM(CASE WHEN MAN.Id IS NOT NULL THEN 1 ELSE 0 END) AS PiezasManifiesto,
             COUNT(1) AS TotalPiezas,
             GHD.IsPod AS EsPod,
             ISNULL(UBO.IdBodega, GHD.WarehouseId) AS IdBodega,
             GHD.CarrierId AS IdCarrier,
-            GHD.IdBroker,
+            GHD.BrokerId AS IdBroker,
             CAST(CASE 
                 WHEN SVE.TipoVenta = 5 AND SVD.TipoPieza = 1 THEN 1
                 WHEN SVE.TipoVenta < 4 THEN 1
@@ -248,12 +296,12 @@ BEGIN
                     TMP.IsPod,
                     TMP.WarehouseId,
                     TMP.CarrierId,
-                    TMP.IdBroker
+                    TMP.BrokerId
                 FROM #TMP_HouseWaybillDetails TMP
             ) AS GHD
-            LEFT JOIN ProgramacionTe PRO_TE WITH(NOLOCK) ON PRO_TE.IdProgramacionCarrier = GHD.CarrierScheduleId
-            LEFT JOIN ProgramacionManifiesto PRO_MAN WITH(NOLOCK) ON PRO_MAN.IdProgramacionCarrier = GHD.CarrierScheduleId
-            LEFT JOIN ManifiestosDespacho MAN WITH(NOLOCK) ON MAN.Id = PRO_MAN.IdManifiestoDespacho
+            LEFT JOIN ProgramacionTe PTE WITH(NOLOCK) ON PTE.IdProgramacionCarrier = GHD.CarrierScheduleId
+            LEFT JOIN ProgramacionManifiesto PMA WITH(NOLOCK) ON PMA.IdProgramacionCarrier = GHD.CarrierScheduleId
+            LEFT JOIN ManifiestosDespacho MAN WITH(NOLOCK) ON MAN.Id = PMA.IdManifiestoDespacho
             OUTER APPLY (
                 SELECT TOP 1 DD.EsPod, DD.MailEnviado
                 FROM DocumentosDespacho DD WITH(NOLOCK)
@@ -279,7 +327,7 @@ BEGIN
             GHD.WarehouseId,
             UBO.IdBodega,
             GHD.CarrierId,
-            GHD.IdBroker,
+            GHD.BrokerId,
             CASE 
                 WHEN SVE.TipoVenta = 5 AND SVD.TipoPieza = 1 THEN 1
                 WHEN SVE.TipoVenta < 4 THEN 1 
@@ -301,8 +349,8 @@ BEGIN
             TMP.IdBroker,
             TMP.EsInventario
         FROM #TMP_Detalle TMP
-            INNER JOIN Bodegas BOD WITH(NOLOCK) ON TMP.IdBodega = BOD.Id
-            INNER JOIN Transportes TRA WITH(NOLOCK) ON TMP.IdCarrier = TRA.Id
+            INNER JOIN Bodegas BOD ON TMP.IdBodega = BOD.Id
+            INNER JOIN Transportes TRA ON TMP.IdCarrier = TRA.Id
         WHERE TMP.IdBodega = ISNULL(@IdBodega, TMP.IdBodega);
 
         DROP TABLE #TMP_RelatedClients;
