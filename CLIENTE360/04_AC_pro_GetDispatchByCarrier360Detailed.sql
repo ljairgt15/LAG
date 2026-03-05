@@ -543,7 +543,7 @@ END
 /*
 EXEC [dbo].[AC_pro_GetDispatchByCarrier360Detailed]
     @FechaDesde = '2026-02-24',
-    @FechaHasta = '2026-03-05',
+    @FechaHasta = '2026-03-04',
     @IdCliente = 'CLI0120247',
     @IsPending = 1,
     @NombreClienteFinal = NULL,
