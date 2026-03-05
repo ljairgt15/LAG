@@ -432,7 +432,7 @@ BEGIN
 
         SELECT
             NEWID() AS Id,
-            TMP.HouseWaybillId, 
+            TMP.HouseWaybillId AS IdGuiaHouse, 
             TMP.GuideId AS IdGuia, 
             TMP.Id AS IdGuiaHouseDetalle,
             TMP.DispatchDate AS FechaDespacho, 
