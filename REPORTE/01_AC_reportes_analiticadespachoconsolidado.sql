@@ -21,7 +21,6 @@ BEGIN
         END
         -- 3. Tabla Temporal Principal
         CREATE TABLE #TMP_DispatchAnalytics (
-            IdRow               UNIQUEIDENTIFIER DEFAULT NEWID(),
             ShipperName         NVARCHAR(256),
             StatusPieza         VARCHAR(64),
             Awb                 VARCHAR(32),
@@ -127,7 +126,7 @@ BEGIN
 
         -- 8. Resultado Final
         SELECT
-            Id              = CONVERT(VARCHAR(64), NEWID()),
+            Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.ShipperName)),
             IdConsignatario = '',
             Consignatario   = '',
             Shipper         = TMP.ShipperName,
