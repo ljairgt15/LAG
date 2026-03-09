@@ -1,6 +1,6 @@
 /*
 VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
-1           Jair Gomez          2026-02-11      57746   Initial Code - Based on pro_reportes_analiticadespachoconsolidado. 
+1           Jair Gomez          2026-02-11      57746   Based on pro_reportes_analiticadespachoconsolidado. 
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
@@ -13,13 +13,13 @@ BEGIN
 
     BEGIN TRY
         DECLARE @TBL_FilterConsignees TABLE (Id VARCHAR(16) PRIMARY KEY);
-        -- 2. Llenado de filtros
+
         IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
         BEGIN
             INSERT INTO @TBL_FilterConsignees (Id)
             SELECT VALUE FROM STRING_SPLIT(@ConsigneeIds, ',');
         END
-        -- 3. Tabla Temporal Principal
+
         CREATE TABLE #TMP_DispatchAnalytics (
             ShipperName         NVARCHAR(256),
             StatusPieza         VARCHAR(64),
@@ -37,13 +37,12 @@ BEGIN
             FechaDespacho       DATETIME,
             IdGuiaHouse         UNIQUEIDENTIFIER,
             IdGuiaHouseDetalle  UNIQUEIDENTIFIER,
-            IdPo                UNIQUEIDENTIFIER, -- Se llena en el paso de Updates
-            IdPoDetalle         UNIQUEIDENTIFIER, -- Pivote para joins
+            IdPo                UNIQUEIDENTIFIER, 
+            IdPoDetalle         UNIQUEIDENTIFIER, 
             CarrierName         NVARCHAR(256),
             ShipToName          NVARCHAR(256)
         );
 
-        -- 4. Insercion Masiva
         INSERT INTO #TMP_DispatchAnalytics
         (
             ShipperName, StatusPieza, Awb, Origin,
@@ -86,8 +85,6 @@ BEGIN
               OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees)
           );
 
-        -- 5. Eliminar Ordenes Locales Canceladas
-        -- Se mantiene separado porque es una operacion destructiva logica
         DELETE TMP
         FROM #TMP_DispatchAnalytics TMP
         INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
@@ -96,14 +93,10 @@ BEGIN
         INNER JOIN Catalogos    CAT WITH(NOLOCK) ON OLO.IdCatalogoStatus = CAT.Id
         WHERE CAT.CodigoRelacion = 'CANCELADO';
 
-        -- 6. Actualizacion Fusionada (Single Pass Update)
-        -- Actualiza Origen para TODOS y marca Ordenes Locales en el mismo barrido
         UPDATE TMP
         SET 
-            -- Logica de Origen (Aplica a todos los que tienen PO)
             TMP.Origin = CTY.Nombre,
             
-            -- Logica de Ordenes Locales (Solo si OLO hizo match)
             TMP.IdPo = CASE 
                            WHEN OLO.Id IS NOT NULL THEN POE.Id 
                            ELSE TMP.IdPo 
@@ -119,12 +112,10 @@ BEGIN
         INNER JOIN Ciudades     CTY WITH(NOLOCK) ON EMP.IdCiudad = CTY.Id
         LEFT JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id;
 
-        -- 7. Limpieza de datos (Regla de negocio visual)
         UPDATE #TMP_DispatchAnalytics 
         SET PoNumber = NULL 
         WHERE PoNumber = '';
 
-        -- 8. Resultado Final
         SELECT
             Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.ShipperName)),
             IdConsignatario = '',
