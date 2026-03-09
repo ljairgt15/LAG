@@ -1,5 +1,5 @@
 /* VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
-   1		    Jair Gomez			2026-03-03	   58765		Initial Code - Based on pro_ListarDespachoPorCarrierxDetallada. 
+   1		    Jair Gomez			2026-03-03	   58765    Based on pro_ListarDespachoPorCarrierxDetallada 
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetDispatchByCarrier360Detailed]
 (

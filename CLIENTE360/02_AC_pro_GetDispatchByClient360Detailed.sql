@@ -1,5 +1,5 @@
 /* VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
-   1		    Jair Gomez			2026-03-03	   58765		Initial Code - Based on pro_ListarDespachoPorClientexDetallada. 
+   1		    Jair Gomez			2026-03-03	   58765	Based on pro_ListarDespachoPorClientexDetallada
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetDispatchByClient360Detailed]
 (
