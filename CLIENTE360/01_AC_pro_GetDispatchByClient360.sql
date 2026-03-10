@@ -199,7 +199,7 @@ BEGIN
                 INNER JOIN ProgramacionCarrier PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id 
                     AND PCA.FechaDespacho BETWEEN @DateFrom AND @DateTo
                 WHERE GHX.House IS NULL AND GHX.FechaDestino BETWEEN @WildcardDestinationDate AND @DateTo;  
-            END 
+        END
         END
         ELSE
         BEGIN 
@@ -296,7 +296,7 @@ BEGIN
                     AND (@ConsigneeName IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
                     AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
                     AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%');
-            END 
+        END
         END
         
         SELECT
@@ -443,6 +443,18 @@ EXEC [dbo].[AC_pro_GetDispatchByClient360]
     @IsPending = 1,
     @ShipToName = NULL,
     @ConsigneeName = NULL,
+    @ExporterName = NULL,
+    @WarehouseId = NULL,
+    @Po = NULL,
+    @WaybillNumber = NULL,
+    @TruckId = NULL;
+EXEC [dbo].[AC_pro_GetDispatchByClient360]
+    @DateFrom = '2026-02-24',
+    @DateTo = '2026-03-04',
+    @ClientId = 'CLI0120247',
+    @IsPending = 1,
+    @ShipToName = 'NR MARIPOSA BOUQUET',
+    @ConsigneeName = 'NARANJO FARMS LLC IN & OUT',
     @ExporterName = NULL,
     @WarehouseId = NULL,
     @Po = NULL,

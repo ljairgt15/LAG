@@ -167,7 +167,7 @@ BEGIN
                 INNER JOIN GuiasHouse GHO WITH(NOLOCK) ON GHO.Id = GHD.IdGuiaHouse
                 WHERE PCA.FechaDespacho BETWEEN @DateFrom AND @DateTo;
             END
-
+          
             IF @ConsigneeStatus IS NOT NULL
             BEGIN
                 INSERT INTO #TMP_HouseWaybillDetails
@@ -199,7 +199,7 @@ BEGIN
                     AND PCA.FechaDespacho BETWEEN @DateFrom AND @DateTo
                 WHERE GHO.House IS NOT NULL AND GHO.FechaDestino BETWEEN @WildcardDestinationDate AND @DateTo;
             END
-
+            
             IF @ConsolidatorStatus IS NOT NULL
             BEGIN
                 INSERT INTO #TMP_HouseWaybillDetails
@@ -274,7 +274,7 @@ BEGIN
                     AND (@ConsigneeName IS NULL OR GHO.ConsigneeId IN (SELECT ConsigneeClientId FROM #TMP_ConsigneeClients))
                     AND (@WaybillNumber IS NULL OR GHO.NroGuia LIKE '%' + @WaybillNumber + '%');                  
             END
-
+              
             IF @ConsigneeStatus IS NOT NULL
             BEGIN           
                 INSERT INTO #TMP_HouseWaybillDetails
@@ -315,7 +315,7 @@ BEGIN
                     AND (@TruckId IS NULL OR GHD.TruckId LIKE '%' + @TruckId + '%')
                     AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%');
             END
-
+           
             IF @ConsolidatorStatus IS NOT NULL
             BEGIN       
                 INSERT INTO #TMP_HouseWaybillDetails
@@ -572,6 +572,21 @@ EXEC [dbo].[AC_pro_GetDispatchByClient360Detailed]
     @IsPending = 1,
     @ShipToName = NULL,
     @ConsigneeName = NULL,
+    @ExporterName = NULL,
+    @WarehouseId = NULL,
+    @Po = NULL,
+    @WaybillNumber = NULL,
+    @TruckId = NULL,
+    @IsInventory = NULL;
+    
+EXEC [dbo].[AC_pro_GetDispatchByClient360Detailed]
+    @DateFrom = '2026-02-24',
+    @DateTo = '2026-03-04',
+    @ClientId = 'CLI0120247',
+    @ShipToId = 'ETY0000000029728',
+    @IsPending = 1,
+    @ShipToName ='NR MARIPOSA BOUQUET',
+    @ConsigneeName ='NARANJO FARMS LLC IN & OUT',
     @ExporterName = NULL,
     @WarehouseId = NULL,
     @Po = NULL,
