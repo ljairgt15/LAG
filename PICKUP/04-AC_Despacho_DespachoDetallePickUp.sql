@@ -74,7 +74,6 @@ BEGIN
         WHERE PL.Codigo = 'EsDelivery'
           AND PL.IdEmpresa = @IdEmpresa;
 
-        -- Consulta 1: Consulta un cliente final
         IF (@Consulta = 1) 
         BEGIN
             INSERT INTO #TMP_AgrupacionGuiasPickUp
@@ -161,13 +160,38 @@ BEGIN
               AND (@IdBodega IS NULL OR ISNULL(UB.IdBodega, GH.IdBodega) = @IdBodega)
               AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
             GROUP BY 
-                GHD.Id, GH.Id, GHD.EstadoPieza, GHD.ShipToId, PC.FechaDespacho,
-                ISNULL(B1.Nombre, B.Nombre), ISNULL(UB.IdBodega, GH.IdBodega),
-                PC.IdCarrier, PC.Id, CLF.Nombre, GH.NroGuia, PE.NroPo, CLF.IdPais,
-                GHD.TruckId, CGN.Nombre, CGN.Id, EDI.IdUsuarioLog, GH.IdUsuarioLog,
-                US.Nombre, PCAT.Valor, V.NroOrden, V.Id, GH.House, EDI.FechaCambio,
-                GH.FechaCambio, GH.IdExportador, PAL.Pallet, GHD.Po, GH.ConsigneeId,
-                GHD.DespachadoDestino, TE.IdTE, CI.ValorEsInventario;
+                GHD.Id, 
+                GH.Id, 
+                GHD.EstadoPieza, 
+                GHD.ShipToId, 
+                PC.FechaDespacho,
+                ISNULL(B1.Nombre, B.Nombre), 
+                ISNULL(UB.IdBodega, GH.IdBodega),
+                PC.IdCarrier, 
+                PC.Id, 
+                CLF.Nombre, 
+                GH.NroGuia, 
+                PE.NroPo, 
+                CLF.IdPais,
+                GHD.TruckId, 
+                CGN.Nombre, 
+                CGN.Id, 
+                EDI.IdUsuarioLog, 
+                GH.IdUsuarioLog,
+                US.Nombre, 
+                PCAT.Valor, 
+                V.NroOrden, 
+                V.Id, 
+                GH.House, 
+                EDI.FechaCambio,
+                GH.FechaCambio, 
+                GH.IdExportador, 
+                PAL.Pallet, 
+                GHD.Po, 
+                GH.ConsigneeId,
+                GHD.DespachadoDestino, 
+                TE.IdTE, 
+                CI.ValorEsInventario
 
             IF (@NroManifiesto IS NULL)
             BEGIN
@@ -221,7 +245,7 @@ BEGIN
                 ) DD
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
-                WHERE MD.NroManifiesto IS NULL;
+                WHERE MD.NroManifiesto IS NULL
             END;
             ELSE
             BEGIN
@@ -276,9 +300,9 @@ BEGIN
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
                 WHERE MD.NroManifiesto = @NroManifiesto
-                  AND ISNULL(DD.EsPod, 0) = 0;
-            END;
-        END;
+                AND ISNULL(DD.EsPod, 0) = 0
+            END
+        END
         ELSE IF (@Consulta = 2)
         BEGIN
             INSERT INTO #TMP_AgrupacionGuiasPickUp
@@ -372,13 +396,40 @@ BEGIN
             AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')
             AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
             GROUP BY 
-                GHD.Id, GH.Id, GHD.EstadoPieza, GHD.ShipToId, PC.FechaDespacho,
-                ISNULL(B1.Nombre, B.Nombre), ISNULL(UB.IdBodega, GH.IdBodega),
-                PC.IdCarrier, PC.Id, CLF.Nombre, GH.NroGuia, PE.NroPo, CLF.IdPais,
-                GHD.TruckId, CGN.Nombre, CGN.Id, EDI.IdUsuarioLog, GH.IdUsuarioLog,
-                US.Nombre, PCAT.Valor, V.NroOrden, V.Id, GH.House, EDI.FechaCambio,
-                GH.FechaCambio, GH.IdExportador, PAL.Pallet, GHD.Po, GH.ConsigneeId,
-                GH.IdExportador, GHD.DespachadoDestino, GHD.CodigoBarra, TE.IdTE, CI.ValorEsInventario;
+                GHD.Id, 
+                GH.Id, 
+                GHD.EstadoPieza, 
+                GHD.ShipToId, 
+                PC.FechaDespacho,
+                ISNULL(B1.Nombre, B.Nombre), 
+                ISNULL(UB.IdBodega, GH.IdBodega),
+                PC.IdCarrier, 
+                PC.Id, 
+                CLF.Nombre, 
+                GH.NroGuia, 
+                PE.NroPo, 
+                CLF.IdPais,
+                GHD.TruckId, 
+                CGN.Nombre, 
+                CGN.Id, 
+                EDI.IdUsuarioLog, 
+                GH.IdUsuarioLog,
+                US.Nombre, 
+                PCAT.Valor, 
+                V.NroOrden, 
+                V.Id, 
+                GH.House, 
+                EDI.FechaCambio,
+                GH.FechaCambio, 
+                GH.IdExportador, 
+                PAL.Pallet, 
+                GHD.Po, 
+                GH.ConsigneeId,
+                GH.IdExportador, 
+                GHD.DespachadoDestino, 
+                GHD.CodigoBarra, 
+                TE.IdTE, 
+                CI.ValorEsInventario
 
             SELECT 
                 APU.Id
@@ -431,7 +482,7 @@ BEGIN
             LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
             LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
             WHERE (@NroManifiesto IS NULL OR MD.NroManifiesto LIKE '%' + @NroManifiesto + '%')
-              AND ISNULL(DD.EsPod, 0) = 0;
+              AND ISNULL(DD.EsPod, 0) = 0
         END;
 
     END TRY
