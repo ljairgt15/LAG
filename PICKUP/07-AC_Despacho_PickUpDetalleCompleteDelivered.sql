@@ -1,5 +1,6 @@
-/* VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
-   1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_PickUpDetalleCompleteDelivered
+/* 
+VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
+1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_PickUpDetalleCompleteDelivered
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetCompletedDeliveredPickupDetail] 
 (
