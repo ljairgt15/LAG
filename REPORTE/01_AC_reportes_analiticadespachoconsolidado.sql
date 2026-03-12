@@ -4,29 +4,34 @@ VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
-    @ConsigneeIds       VARCHAR(MAX),
-    @StartDate         DATETIME,
-    @EndDate         DATETIME
+    @ConsigneeIds       VARCHAR(MAX) = NULL,
+    @StartDate          DATETIME,
+    @EndDate            DATETIME
 )
 AS
 BEGIN
 
     BEGIN TRY
-        DECLARE @TBL_FilterConsignees TABLE (Id VARCHAR(16) PRIMARY KEY);
+
+        CREATE TABLE #FilterConsignees  (
+            Id VARCHAR(16) PRIMARY KEY
+        );
 
         IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
         BEGIN
-            INSERT INTO @TBL_FilterConsignees (Id)
-            SELECT VALUE FROM STRING_SPLIT(@ConsigneeIds, ',');
+            INSERT INTO #FilterConsignees (Id)
+            SELECT TRIM(VALUE)
+            FROM STRING_SPLIT(@ConsigneeIds, ',')
+            WHERE TRIM(VALUE) <> '';
         END
 
         CREATE TABLE #TMP_DispatchAnalytics (
-            ShipperName         NVARCHAR(256),
-            StatusPieza         VARCHAR(64),
+            Shipper             NVARCHAR(256),
+            [Status]            VARCHAR(64),
             Awb                 VARCHAR(32),
             Origin              NVARCHAR(128),
             PoNumber            VARCHAR(64),
-            TypePieza           VARCHAR(8),
+            [Type]              VARCHAR(8),
             Equivalencia        DECIMAL(18,5),
             Alto                DECIMAL(18,3),
             Largo               DECIMAL(18,3),
@@ -39,119 +44,106 @@ BEGIN
             IdGuiaHouseDetalle  UNIQUEIDENTIFIER,
             IdPo                UNIQUEIDENTIFIER, 
             IdPoDetalle         UNIQUEIDENTIFIER, 
-            CarrierName         NVARCHAR(256),
-            ShipToName          NVARCHAR(256)
+            Carrier             NVARCHAR(256),
+            Shipto              NVARCHAR(256)
         );
 
         INSERT INTO #TMP_DispatchAnalytics
-        (
-            ShipperName, StatusPieza, Awb, Origin,
-            PoNumber, TypePieza, Equivalencia, Alto, Largo, Ancho, Boxes,
-            TotalPcsHouse, TotalFullHouse, FechaDespacho, IdGuiaHouse,
-            IdGuiaHouseDetalle, IdPoDetalle, CarrierName, ShipToName
-        )
         SELECT
-             EXS.Nombre
-            ,GHD.EstadoPieza
-            ,GHO.NroGuia
-            ,CTY.Nombre
-            ,GHD.Po
-            ,TYP.TipoPieza
-            ,TYP.Equivalencia
-            ,GHD.AltoIn
-            ,GHD.LargoIn
-            ,GHD.AnchoIn
-            ,1 AS Boxes
-            ,GHO.TotalPcsHouse
-            ,GHO.TotalFullHouse
-            ,PCA.FechaDespacho
-            ,GHO.Id
-            ,GHD.Id
-            ,GHD.IdPoDetalle
-            ,TRA.Nombre
-            ,ST.Nombre
-        FROM GuiasHouse GHO WITH(NOLOCK)
-        INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GHO.Id
-        INNER JOIN ProgramacionCarrier  PCA WITH(NOLOCK) ON PCA.IdGuiaHouseDetalle = GHD.Id
+            Shipper = EX.Nombre,
+            [Status] = GHD.EstadoPieza,
+            Awb = GH.NroGuia,
+            Origin = CD.Nombre,
+            PoNumber = CASE WHEN GHD.po = '' THEN NULL ELSE GHD.po END,
+            [Type] = TP.TipoPieza,
+            Equivalencia = TP.Equivalencia,
+            Alto = GHD.AltoIn,
+            Largo = GHD.LargoIn,
+            Ancho = GHD.AnchoIn,
+            Boxes = 1,
+            TotalPcsHouse = GH.TotalPcsHouse,
+            TotalFullHouse = GH.TotalFullHouse,
+            FechaDespacho = PC.FechaDespacho,
+            IdGuiaHouse = GH.Id,
+            IdGuiaHouseDetalle = GHD.Id,
+            IdPo = GHD.IdPoDetalle,
+            IdPoDetalle = GHD.IdPoDetalle,
+            Carrier = TS.Nombre,
+            Shipto = ST.Nombre
+        FROM #FilterConsignees CS
+        INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.ConsigneeId = CS.Id
+        INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
+        INNER JOIN ProgramacionCarrier  PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
+        INNER JOIN Exportadores         EX WITH(NOLOCK) ON EX.Id = GH.IdExportador
+        INNER JOIN TiposDePieza         TP WITH(NOLOCK) ON TP.Id = GHD.IdTipoDePieza
+        INNER JOIN Ciudades             CD WITH(NOLOCK) ON CD.Id = GH.IdCiudadPuertoOrigen
+        INNER JOIN Transportes          TS WITH(NOLOCK) ON PC.IdCarrier = TS.Id
         INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
-        INNER JOIN Exportadores         EXS WITH(NOLOCK) ON EXS.Id = GHO.IdExportador
-        INNER JOIN TiposDePieza         TYP WITH(NOLOCK) ON TYP.Id = GHD.IdTipoDePieza
-        INNER JOIN Ciudades             CTY WITH(NOLOCK) ON CTY.Id = GHO.IdCiudadPuertoOrigen
-        INNER JOIN Transportes          TRA WITH(NOLOCK) ON PCA.IdCarrier = TRA.Id
-        WHERE PCA.FechaDespacho BETWEEN @StartDate AND @EndDate
-          AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
-          AND (
-              @ConsigneeIds IS NULL 
-              OR GHO.ConsigneeId IN (SELECT Id FROM @TBL_FilterConsignees)
-          );
+        WHERE PC.FechaDespacho BETWEEN @StartDate AND @EndDate 
+        AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
 
         DELETE TMP
         FROM #TMP_DispatchAnalytics TMP
-        INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
-        INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
-        INNER JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id
-        INNER JOIN Catalogos    CAT WITH(NOLOCK) ON OLO.IdCatalogoStatus = CAT.Id
-        WHERE CAT.CodigoRelacion = 'CANCELADO';
+        INNER JOIN PoDetalles   PD WITH(NOLOCK) ON TMP.IdPoDetalle = PD.Id
+        INNER JOIN PoEncabezado PE WITH(NOLOCK) ON PD.IdPo = PE.Id
+        INNER JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id
+        INNER JOIN Catalogos    CA WITH(NOLOCK) ON OL.IdCatalogoStatus = CA.Id
+        WHERE CA.CodigoRelacion = 'CANCELADO';
 
-        UPDATE TMP
-        SET 
-            TMP.Origin = CTY.Nombre,
-            
-            TMP.IdPo = CASE 
-                           WHEN OLO.Id IS NOT NULL THEN POE.Id 
-                           ELSE TMP.IdPo 
-                       END,
-            TMP.Awb  = CASE 
-                           WHEN OLO.Id IS NOT NULL THEN 'LOCAL' 
-                           ELSE TMP.Awb 
-                       END
-        FROM #TMP_DispatchAnalytics TMP
-        INNER JOIN PoDetalles   POD WITH(NOLOCK) ON TMP.IdPoDetalle = POD.Id
-        INNER JOIN PoEncabezado POE WITH(NOLOCK) ON POD.IdPo = POE.Id
-        INNER JOIN Empresas     EMP WITH(NOLOCK) ON POE.IdEmpresa = EMP.Id
-        INNER JOIN Ciudades     CTY WITH(NOLOCK) ON EMP.IdCiudad = CTY.Id
-        LEFT JOIN OrdenesLocales OLO WITH(NOLOCK) ON POE.IdOrdenLocal = OLO.Id;
+		UPDATE	TMP
+        SET		
+			IdPo		= PE.id,
+			Awb			= 'LOCAL'
+        FROM	#TMP_DispatchAnalytics					TMP
+		INNER JOIN	PoDetalles			PD WITH(NOLOCK)	ON	PD.id = TMP.idPoDetalle
+		INNER JOIN	PoEncabezado		PE WITH(NOLOCK)	ON	PE.id = PD.idPo
+		INNER JOIN	OrdenesLocales		OL WITH(NOLOCK)	ON	OL.id = PE.idOrdenLocal
 
-        UPDATE #TMP_DispatchAnalytics 
-        SET PoNumber = NULL 
-        WHERE PoNumber = '';
+        UPDATE	TMP
+        SET		Origin		= CD.nombre
+        FROM	#TMP_DispatchAnalytics TMP					
+		INNER JOIN PoDetalles			PD WITH(NOLOCK)	ON	PD.id = TMP.idPoDetalle
+		INNER JOIN PoEncabezado			PE WITH(NOLOCK)	ON	PE.id = PD.idPo
+		INNER JOIN Empresas				EM WITH(NOLOCK)	ON	EM.id = PE.idEmpresa
+		INNER JOIN Ciudades				CD WITH(NOLOCK)	ON	CD.id = EM.idCiudad
 
         SELECT
-            Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.ShipperName)),
+            Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.Shipper)),
             IdConsignatario = '',
             Consignatario   = '',
-            Shipper         = TMP.ShipperName,
+            TMP.Shipper,
             Boxes           = SUM(TMP.Boxes),
-            [Type]          = TMP.TypePieza,
+            TMP.[Type],
             Fb              = ROUND(SUM(TMP.Equivalencia), 2),
-            Largo           = TMP.Largo,
-            Ancho           = TMP.Ancho,
-            Alto            = TMP.Alto,
-            Cubic           = ROUND(SUM(TMP.Alto * TMP.Largo * TMP.Ancho / 1728), 2),
-            [Status]        = TMP.StatusPieza,
-            Awb             = TMP.Awb,
-            Origin          = TMP.Origin,
-            PoNumber        = TMP.PoNumber,
-            Carrier         = TMP.CarrierName,
-            ShipTo          = TMP.ShipToName,
-            FechaDespacho   = TMP.FechaDespacho
-        FROM #TMP_DispatchAnalytics TMP
-        GROUP BY
-            TMP.ShipperName,
-            TMP.TypePieza,
             TMP.Largo,
-            TMP.Alto,
             TMP.Ancho,
-            TMP.StatusPieza,
+            TMP.Alto,
+            Cubic           = ROUND(SUM(TMP.Alto * TMP.Largo * TMP.Ancho / 1728), 2),
+            TMP.[Status],
             TMP.Awb,
             TMP.Origin,
             TMP.PoNumber,
-            TMP.CarrierName,
-            TMP.ShipToName,
+            TMP.Carrier,
+            TMP.Shipto,
+            TMP.FechaDespacho
+        FROM #TMP_DispatchAnalytics TMP
+        GROUP BY
+            TMP.Shipper,
+            TMP.[Type],
+            TMP.Largo,
+            TMP.Alto,
+            TMP.Ancho,
+            TMP.[Status],
+            TMP.Awb,
+            TMP.Origin,
+            TMP.PoNumber,
+            TMP.Carrier,
+            TMP.Shipto,
             TMP.FechaDespacho
         ORDER BY TMP.Awb;
 
         DROP TABLE #TMP_DispatchAnalytics;
+        DROP TABLE #FilterConsignees;
 
     END TRY
     BEGIN CATCH
