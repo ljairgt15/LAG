@@ -91,7 +91,7 @@ BEGIN
         );
 
         SELECT
-             PL.IdEmpresa
+            PL.IdEmpresa
             ,SC.Id
             ,SC.Nombre
         INTO #TMP_Transports
@@ -99,7 +99,7 @@ BEGIN
         INNER JOIN dbo.Transportes C ON SC.IdTransportePrincipal = C.Id
         INNER JOIN dbo.ParametrosCatalogos PCAT ON C.Id = PCAT.IdEntidad
         INNER JOIN dbo.ParametrosLista PL ON PCAT.IdParametroLista = PL.Id
-                                         AND PL.Codigo = 'EsDelivery'
+        AND PL.Codigo = 'EsDelivery'
         WHERE PCAT.Valor = 'NO';
 
         SELECT 
@@ -108,7 +108,7 @@ BEGIN
         INTO #TMP_HouseGuideDetailHistory
         FROM GuiasHouseDetallesHistorico HST WITH (NOLOCK)
         WHERE HST.FechaCambio BETWEEN @FechaDesde AND @FechaHasta
-          AND HST.Valor = 'DISPATCHED WH'
+        AND HST.Valor = 'DISPATCHED WH'
         GROUP BY HST.IdGuiaHouseDetalle;
 
         IF (@NroDocumento IS NULL
@@ -120,13 +120,32 @@ BEGIN
             AND @NombreComercialExportador IS NULL)
         BEGIN
             INSERT INTO #TMP_HouseGuideGrouping (
-                IdClienteFinal, NombreClienteFinal,
-                IdClienteConsignee, NombreClienteConsignee,
-                FechaPickUpProgramada, FechaPickUpEntrega, IdUsuarioLog, 
-                TotalPending, TotalHold, TotalShort, TotalReceived, TotalStandBy, TotalDespachado, Total, 
-                IdBodega, NombreBodega,
-                IdManifiesto, IdCarrier, NombreCarrier, 
-                IdGuia, NroDocumento, IdOrdenVenta, NroOrdenVenta, ConPod, Enviado, Procesado
+                IdClienteFinal, 
+                NombreClienteFinal,
+                IdClienteConsignee, 
+                NombreClienteConsignee,
+                FechaPickUpProgramada, 
+                FechaPickUpEntrega, 
+                IdUsuarioLog, 
+                TotalPending, 
+                TotalHold, 
+                TotalShort, 
+                TotalReceived, 
+                TotalStandBy, 
+                TotalDespachado, 
+                Total, 
+                IdBodega, 
+                NombreBodega,
+                IdManifiesto, 
+                IdCarrier, 
+                NombreCarrier, 
+                IdGuia, 
+                NroDocumento, 
+                IdOrdenVenta, 
+                NroOrdenVenta, 
+                ConPod, 
+                Enviado, 
+                Procesado
             )
             SELECT 
                  GHD.ShipToId
@@ -203,12 +222,32 @@ BEGIN
         ELSE
         BEGIN
             INSERT INTO #TMP_HouseGuideGrouping (
-                IdClienteFinal, NombreClienteFinal,
-                IdClienteConsignee, NombreClienteConsignee,
-                FechaPickUpProgramada, FechaPickUpEntrega, IdUsuarioLog, 
-                TotalPending, TotalHold, TotalShort, TotalReceived, TotalStandBy, TotalDespachado, Total, 
-                IdBodega, NombreBodega,
-                IdManifiesto, IdCarrier, NombreCarrier, IdGuia, NroDocumento, IdOrdenVenta, NroOrdenVenta, ConPod, Enviado, Procesado
+                IdClienteFinal, 
+                NombreClienteFinal,
+                IdClienteConsignee, 
+                NombreClienteConsignee,
+                FechaPickUpProgramada, 
+                FechaPickUpEntrega, 
+                IdUsuarioLog, 
+                TotalPending, 
+                TotalHold, 
+                TotalShort, 
+                TotalReceived, 
+                TotalStandBy, 
+                TotalDespachado, 
+                Total, 
+                IdBodega, 
+                NombreBodega,
+                IdManifiesto, 
+                IdCarrier, 
+                NombreCarrier, 
+                IdGuia, 
+                NroDocumento, 
+                IdOrdenVenta, 
+                NroOrdenVenta, 
+                ConPod, 
+                Enviado, 
+                Procesado
             )
             SELECT 
                  GHD.ShipToId
@@ -293,12 +332,32 @@ BEGIN
         END;
 
         INSERT INTO #TMP_HouseGuideGroupingFinal (
-            IdClienteFinal, NombreClienteFinal,
-            IdClienteConsignee, NombreClienteConsignee,
-            FechaPickUpProgramada, FechaPickUpEntrega, IdUsuarioLog, 
-            TotalPending, TotalHold, TotalShort, TotalReceived, TotalStandBy, TotalDespachado, Total, 
-            IdBodega, NombreBodega,
-            IdManifiesto, IdCarrier, NombreCarrier, IdGuia, NroDocumento, IdOrdenVenta, NroOrdenVenta, ConPod, Enviado, Procesado
+            IdClienteFinal, 
+            NombreClienteFinal,
+            IdClienteConsignee, 
+            NombreClienteConsignee,
+            FechaPickUpProgramada, 
+            FechaPickUpEntrega, 
+            IdUsuarioLog, 
+            TotalPending, 
+            TotalHold, 
+            TotalShort, 
+            TotalReceived, 
+            TotalStandBy, 
+            TotalDespachado, 
+            Total, 
+            IdBodega, 
+            NombreBodega,
+            IdManifiesto, 
+            IdCarrier, 
+            NombreCarrier, 
+            IdGuia, 
+            NroDocumento, 
+            IdOrdenVenta, 
+            NroOrdenVenta, 
+            ConPod, 
+            Enviado, 
+            Procesado
         )
         SELECT 
              TMP.IdClienteFinal
@@ -334,91 +393,95 @@ BEGIN
             ,TMP.Procesado
         FROM #TMP_HouseGuideGrouping TMP
         GROUP BY 
-             TMP.IdClienteFinal, TMP.NombreClienteFinal
-            ,TMP.IdClienteConsignee, TMP.NombreClienteConsignee
-            ,TMP.FechaPickUpProgramada
-            ,CONVERT(DATE, TMP.FechaPickUpEntrega)
-            ,TMP.IdBodega, TMP.NombreBodega
-            ,TMP.IdManifiesto
-            ,TMP.IdCarrier
-            ,TMP.NombreCarrier
-            ,TMP.ConPod, TMP.Enviado, TMP.Procesado
-            ,TMP.IdGuia, TMP.NroDocumento
-            ,TMP.IdOrdenVenta, TMP.NroOrdenVenta;      
+             TMP.IdClienteFinal, 
+             TMP.NombreClienteFinal,
+             TMP.IdClienteConsignee, 
+             TMP.NombreClienteConsignee,
+             TMP.FechaPickUpProgramada,
+             CONVERT(DATE, TMP.FechaPickUpEntrega),
+             TMP.IdBodega, TMP.NombreBodega,
+             TMP.IdManifiesto,
+             TMP.IdCarrier,
+             TMP.NombreCarrier,
+             TMP.ConPod, 
+             TMP.Enviado, 
+             TMP.Procesado,
+             TMP.IdGuia, 
+             TMP.NroDocumento,
+             TMP.IdOrdenVenta, 
+             TMP.NroOrdenVenta;      
 
-        -- CASO 1: SIN FILTROS
         IF @IdClienteFinal IS NULL
         BEGIN
             SELECT 
-                 TMP.Id
-                ,'Entregada' AS Estatus
-                ,'dispatch-pick-up-delivered' AS ClaseCssEstatus       
-                ,TMP.IdGuia
-                ,TMP.NroDocumento
-                ,TMP.IdOrdenVenta
-                ,TMP.NroOrdenVenta                  
-                ,TMP.IdClienteFinal
-                ,TMP.NombreClienteFinal
-                ,TMP.IdClienteConsignee
-                ,TMP.NombreClienteConsignee
-                ,TMP.FechaPickUpProgramada
-                ,'' AS FechaPickUpProgramadaString
-                ,TMP.FechaPickUpEntrega
-                ,'' AS FechaPickUpEntregaString
-                ,CONVERT(TIME, TMP.FechaPickUpEntrega) AS HoraEntrega
-                ,TMP.TotalPending AS PcsPending
-                ,TMP.TotalHold AS PcsHold
-                ,TMP.TotalShort AS PcsShort
-                ,TMP.TotalReceived AS PcsReceivedWh
-                ,TMP.TotalStandBy AS PcsStandby
-                ,TMP.TotalDespachado AS TotalDespachado
-                ,TMP.Total
-                ,TMP.IdBodega
-                ,TMP.NombreBodega
-                ,TMP.IdManifiesto
-                ,TMP.IdCarrier
-                ,TMP.NombreCarrier
-                ,ISNULL(U.Nombre, '') + ' ' AS UsuarioFechaCambio
-                ,CONVERT(BIT, TMP.Enviado) AS Enviado
-                ,CONVERT(BIT, TMP.Procesado) AS Procesado
+                TMP.Id,
+                'Entregada' AS Estatus,
+                'dispatch-pick-up-delivered' AS ClaseCssEstatus,       
+                TMP.IdGuia,
+                TMP.NroDocumento,
+                TMP.IdOrdenVenta,
+                TMP.NroOrdenVenta,                  
+                TMP.IdClienteFinal,
+                TMP.NombreClienteFinal,
+                TMP.IdClienteConsignee,
+                TMP.NombreClienteConsignee,
+                TMP.FechaPickUpProgramada,
+                '' AS FechaPickUpProgramadaString,
+                TMP.FechaPickUpEntrega,
+                '' AS FechaPickUpEntregaString,
+                CONVERT(TIME, TMP.FechaPickUpEntrega) AS HoraEntrega,
+                TMP.TotalPending AS PcsPending,
+                TMP.TotalHold AS PcsHold,
+                TMP.TotalShort AS PcsShort,
+                TMP.TotalReceived AS PcsReceivedWh,
+                TMP.TotalStandBy AS PcsStandby,
+                TMP.TotalDespachado AS TotalDespachado,
+                TMP.Total,
+                TMP.IdBodega,
+                TMP.NombreBodega,
+                TMP.IdManifiesto,
+                TMP.IdCarrier,
+                TMP.NombreCarrier,
+                ISNULL(U.Nombre, '') + ' ' AS UsuarioFechaCambio,
+                CONVERT(BIT, TMP.Enviado) AS Enviado,
+                CONVERT(BIT, TMP.Procesado) AS Procesado
             FROM #TMP_HouseGuideGroupingFinal AS TMP
-            INNER JOIN dbo.Usuarios U ON U.Id = TMP.IdUsuarioLog;
+            INNER JOIN dbo.Usuarios U ON U.Id = TMP.IdUsuarioLog
         END;
-        -- CASO 2: CON FILTROS
         ELSE
         BEGIN
             SELECT 
-                 TMP.Id
-                ,'Entregada' AS Estatus
-                ,'dispatch-pick-up-delivered' AS ClaseCssEstatus       
-                ,TMP.IdGuia
-                ,TMP.NroDocumento
-                ,TMP.IdOrdenVenta
-                ,TMP.NroOrdenVenta                  
-                ,TMP.IdClienteFinal
-                ,TMP.NombreClienteFinal
-                ,TMP.IdClienteConsignee
-                ,TMP.NombreClienteConsignee
-                ,TMP.FechaPickUpProgramada
-                ,'' AS FechaPickUpProgramadaString
-                ,TMP.FechaPickUpEntrega
-                ,'' AS FechaPickUpEntregaString
-                ,CONVERT(TIME, TMP.FechaPickUpEntrega) AS HoraEntrega
-                ,TMP.TotalPending AS PcsPending
-                ,TMP.TotalHold AS PcsHold
-                ,TMP.TotalShort AS PcsShort
-                ,TMP.TotalReceived AS PcsReceivedWh
-                ,TMP.TotalStandBy AS PcsStandby
-                ,TMP.TotalDespachado AS TotalDespachado
-                ,TMP.Total
-                ,TMP.IdBodega
-                ,TMP.NombreBodega
-                ,TMP.IdManifiesto
-                ,TMP.IdCarrier
-                ,TMP.NombreCarrier
-                ,ISNULL(U.Nombre, '') + ' ' AS UsuarioFechaCambio
-                ,CONVERT(BIT, TMP.Enviado) AS Enviado
-                ,CONVERT(BIT, TMP.Procesado) AS Procesado
+                 TMP.Id,
+                 'Entregada' AS Estatus,
+                 'dispatch-pick-up-delivered' AS ClaseCssEstatus,      
+                 TMP.IdGuia,
+                 TMP.NroDocumento,
+                 TMP.IdOrdenVenta,
+                 TMP.NroOrdenVenta,                  
+                 TMP.IdClienteFinal,
+                 TMP.NombreClienteFinal,
+                 TMP.IdClienteConsignee,
+                 TMP.NombreClienteConsignee,
+                 TMP.FechaPickUpProgramada,
+                 '' AS FechaPickUpProgramadaString,
+                 TMP.FechaPickUpEntrega,
+                 '' AS FechaPickUpEntregaString,
+                 CONVERT(TIME, TMP.FechaPickUpEntrega) AS HoraEntrega,
+                 TMP.TotalPending AS PcsPending,
+                 TMP.TotalHold AS PcsHold,
+                 TMP.TotalShort AS PcsShort,
+                 TMP.TotalReceived AS PcsReceivedWh,
+                 TMP.TotalStandBy AS PcsStandby,
+                 TMP.TotalDespachado AS TotalDespachado,
+                 TMP.Total,
+                 TMP.IdBodega,
+                 TMP.NombreBodega,
+                 TMP.IdManifiesto,
+                 TMP.IdCarrier,
+                 TMP.NombreCarrier,
+                 ISNULL(U.Nombre, '') + ' ' AS UsuarioFechaCambio,
+                 CONVERT(BIT, TMP.Enviado) AS Enviado,
+                 CONVERT(BIT, TMP.Procesado) AS Procesado
             FROM #TMP_HouseGuideGroupingFinal AS TMP
             INNER JOIN dbo.Usuarios U ON U.Id = TMP.IdUsuarioLog
             WHERE ISNULL(TMP.IdManifiesto, @EmptyUid) = ISNULL(@IdManifiesto, @EmptyUid)
