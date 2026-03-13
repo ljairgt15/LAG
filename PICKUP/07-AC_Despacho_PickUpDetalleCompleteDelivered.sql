@@ -356,17 +356,17 @@ BEGIN
             ,TMP.FechaPickUpProgramada
             ,MAX(TMP.FechaPickUpEntrega) 
             ,(SELECT TOP (1) Sub.idUsuarioLog
-            FROM #TMP_HouseGuideGrouping AS Sub
-            WHERE Sub.IdClienteFinal                  = Sub.IdClienteFinal
-            AND Sub.IdClienteConsignee              = Sub.IdClienteConsignee
-            AND Sub.FechaPickUpEntrega              = MAX(tbl.FechaPickUpEntrega)
-            AND Sub.IdBodega                        = Sub.IdBodega
-            AND ISNULL(Sub.IdManifiesto, @emptyUID) = ISNULL(Sub.IdManifiesto, @emptyUID)
-            AND Sub.IdCarrier                       = Sub.IdCarrier
-            AND Sub.NombreCarrier                   = Sub.NombreCarrier
-            AND Sub.NroDocumento                    = Sub.NroDocumento
-            AND Sub.ConPOD                          = Sub.ConPOD
-            AND Sub.Enviado                         = TMP.Enviado) AS IdUsuarioLog
+                FROM #TMP_HouseGuideGrouping AS Sub
+                WHERE Sub.IdClienteFinal                  = Sub.IdClienteFinal
+                AND Sub.IdClienteConsignee              = Sub.IdClienteConsignee
+                AND Sub.FechaPickUpEntrega              = MAX(tbl.FechaPickUpEntrega)
+                AND Sub.IdBodega                        = Sub.IdBodega
+                AND ISNULL(Sub.IdManifiesto, @emptyUID) = ISNULL(Sub.IdManifiesto, @emptyUID)
+                AND Sub.IdCarrier                       = Sub.IdCarrier
+                AND Sub.NombreCarrier                   = Sub.NombreCarrier
+                AND Sub.NroDocumento                    = Sub.NroDocumento
+                AND Sub.ConPOD                          = Sub.ConPOD
+                AND Sub.Enviado                         = TMP.Enviado) AS IdUsuarioLog
             ,SUM(TMP.TotalPending)
             ,SUM(TMP.TotalHold)
             ,SUM(TMP.TotalShort)
