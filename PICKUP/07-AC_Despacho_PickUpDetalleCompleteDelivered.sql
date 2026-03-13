@@ -442,7 +442,7 @@ BEGIN
                 TMP.IdManifiesto,
                 TMP.IdCarrier,
                 TMP.NombreCarrier,
-                ISNULL(U.Nombre, '') + ' ' AS UsuarioFechaCambio,
+                U.Nombre + ' ' AS UsuarioFechaCambio,
                 CONVERT(BIT, TMP.Enviado) AS Enviado,
                 CONVERT(BIT, TMP.Procesado) AS Procesado
             FROM #TMP_HouseGuideGroupingFinal AS TMP
@@ -479,7 +479,7 @@ BEGIN
                  TMP.IdManifiesto,
                  TMP.IdCarrier,
                  TMP.NombreCarrier,
-                 ISNULL(U.Nombre, '') + ' ' AS UsuarioFechaCambio,
+                 U.Nombre + ' ' AS UsuarioFechaCambio,
                  CONVERT(BIT, TMP.Enviado) AS Enviado,
                  CONVERT(BIT, TMP.Procesado) AS Procesado
             FROM #TMP_HouseGuideGroupingFinal AS TMP
