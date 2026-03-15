@@ -348,56 +348,86 @@ BEGIN
             Enviado, 
             Procesado
         )
+        WITH CTE_Ranked AS
+        (
+            SELECT 
+                TMP.IdClienteFinal
+                ,TMP.NombreClienteFinal
+                ,TMP.IdClienteConsignee
+                ,TMP.NombreClienteConsignee
+                ,TMP.FechaPickUpProgramada
+                ,TMP.FechaPickUpEntrega
+                ,TMP.IdUsuarioLog
+                ,TMP.TotalPending
+                ,TMP.TotalHold
+                ,TMP.TotalShort
+                ,TMP.TotalReceived
+                ,TMP.TotalStandBy
+                ,TMP.TotalDespachado
+                ,TMP.Total
+                ,TMP.IdBodega
+                ,TMP.IdManifiesto
+                ,TMP.IdCarrier
+                ,TMP.NombreCarrier
+                ,TMP.IdGuia
+                ,TMP.NroDocumento
+                ,TMP.IdOrdenVenta
+                ,TMP.NroOrdenVenta
+                ,TMP.ConPod
+                ,TMP.Enviado
+                ,TMP.Procesado
+                ,FIRST_VALUE(TMP.IdUsuarioLog) OVER (
+                    PARTITION BY TMP.IdGuia, CONVERT(DATE, TMP.FechaPickUpEntrega)
+                    ORDER BY TMP.FechaPickUpEntrega DESC
+                ) AS IdUsuarioLogFinal
+            FROM #TMP_HouseGuideGrouping TMP
+        )
         SELECT 
-             TMP.IdClienteFinal
-            ,TMP.NombreClienteFinal
-            ,TMP.IdClienteConsignee
-            ,TMP.NombreClienteConsignee
-            ,TMP.FechaPickUpProgramada
-            ,MAX(TMP.FechaPickUpEntrega) 
-            ,(SELECT TOP (1) Sub.IdUsuarioLog 
-                FROM #TMP_HouseGuideGrouping Sub 
-                WHERE Sub.IdGuia = TMP.IdGuia 
-                AND CONVERT(DATE, Sub.FechaPickUpEntrega) = CONVERT(DATE, TMP.FechaPickUpEntrega) 
-                ORDER BY Sub.FechaPickUpEntrega DESC ) AS IdUsuarioLog
-            ,SUM(TMP.TotalPending)
-            ,SUM(TMP.TotalHold)
-            ,SUM(TMP.TotalShort)
-            ,SUM(TMP.TotalReceived)
-            ,SUM(TMP.TotalStandBy)
-            ,SUM(TMP.TotalDespachado)
-            ,SUM(TMP.Total)
-            ,TMP.IdBodega
-            ,TMP.IdManifiesto
-            ,TMP.IdCarrier
-            ,TMP.NombreCarrier
-            ,TMP.IdGuia
-            ,TMP.NroDocumento
-            ,TMP.IdOrdenVenta
-            ,TMP.NroOrdenVenta
-            ,TMP.ConPod
-            ,TMP.Enviado
-            ,TMP.Procesado
-        FROM #TMP_HouseGuideGrouping TMP
+            CTE.IdClienteFinal
+            ,CTE.NombreClienteFinal
+            ,CTE.IdClienteConsignee
+            ,CTE.NombreClienteConsignee
+            ,CTE.FechaPickUpProgramada
+            ,MAX(CTE.FechaPickUpEntrega)
+            ,MAX(CTE.IdUsuarioLogFinal)  
+            ,SUM(CTE.TotalPending)
+            ,SUM(CTE.TotalHold)
+            ,SUM(CTE.TotalShort)
+            ,SUM(CTE.TotalReceived)
+            ,SUM(CTE.TotalStandBy)
+            ,SUM(CTE.TotalDespachado)
+            ,SUM(CTE.Total)
+            ,CTE.IdBodega
+            ,CTE.IdManifiesto
+            ,CTE.IdCarrier
+            ,CTE.NombreCarrier
+            ,CTE.IdGuia
+            ,CTE.NroDocumento
+            ,CTE.IdOrdenVenta
+            ,CTE.NroOrdenVenta
+            ,CTE.ConPod
+            ,CTE.Enviado
+            ,CTE.Procesado
+        FROM CTE_Ranked CTE
         GROUP BY 
-             TMP.IdClienteFinal, 
-             TMP.NombreClienteFinal,
-             TMP.IdClienteConsignee, 
-             TMP.NombreClienteConsignee,
-             TMP.FechaPickUpProgramada,
-             CONVERT(DATE, TMP.FechaPickUpEntrega),
-             TMP.IdBodega, 
-             TMP.IdManifiesto,
-             TMP.IdCarrier,
-             TMP.NombreCarrier,
-             TMP.ConPod, 
-             TMP.Enviado, 
-             TMP.Procesado,
-             TMP.IdGuia, 
-             TMP.NroDocumento,
-             TMP.IdOrdenVenta, 
-             TMP.NroOrdenVenta;      
-
+            CTE.IdClienteFinal
+            ,CTE.NombreClienteFinal
+            ,CTE.IdClienteConsignee
+            ,CTE.NombreClienteConsignee
+            ,CTE.FechaPickUpProgramada
+            ,CONVERT(DATE, CTE.FechaPickUpEntrega)
+            ,CTE.IdBodega
+            ,CTE.IdManifiesto
+            ,CTE.IdCarrier
+            ,CTE.NombreCarrier
+            ,CTE.ConPod
+            ,CTE.Enviado
+            ,CTE.Procesado
+            ,CTE.IdGuia
+            ,CTE.NroDocumento
+            ,CTE.IdOrdenVenta
+            ,CTE.NroOrdenVenta;
+            
         IF @IdClienteFinal IS NULL
         BEGIN
             SELECT 
