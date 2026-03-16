@@ -426,7 +426,7 @@ BEGIN
             ,CTE.IdGuia
             ,CTE.NroDocumento
             ,CTE.IdOrdenVenta
-            ,CTE.NroOrdenVenta;
+            ,CTE.NroOrdenVenta
             
         IF @IdClienteFinal IS NULL
         BEGIN

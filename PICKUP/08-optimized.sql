@@ -386,7 +386,7 @@ BEGIN
             ,CTE.NombreClienteConsignee
             ,CTE.FechaPickUpProgramada
             ,MAX(CTE.FechaPickUpEntrega)
-            ,CTE.IdUsuarioLogFinal
+            ,MAX(CTE.IdUsuarioLogFinal)
             ,SUM(CTE.TotalPending)
             ,SUM(CTE.TotalHold)
             ,SUM(CTE.TotalShort)
@@ -424,7 +424,6 @@ BEGIN
             ,CTE.NroDocumento
             ,CTE.IdOrdenVenta
             ,CTE.NroOrdenVenta
-            ,CTE.IdUsuarioLogFinal;
 
         IF @IdClienteFinal IS NULL
         BEGIN
