@@ -77,7 +77,8 @@ BEGIN
         WHERE Codigo = 'UNIFICADO'
 
         SELECT TOP 1 @ManifestDocumentId = Id 
-        FROM Documentos WHERE Codigo = 'MANIFEST'
+        FROM Documentos 
+        WHERE Codigo = 'MANIFEST'
 
         INSERT INTO #TMP_RelatedClients (EntityId, IdCliente,BilltoId,ConsigneeId, EntityType)
         EXEC [dbo].[AC_pro_GetClientsEntities] 
@@ -85,17 +86,17 @@ BEGIN
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)
-        INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GH.ConsigneeId
+        INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GH.ConsigneeId
         WHERE GH.FechaDestino BETWEEN @WildcardDestinationDate AND @DateTo AND GH.House IS NULL
 
         SELECT TOP 1 @ConsigneeStatus ='CONSIGNEE'
         FROM GuiasHouse GH WITH(NOLOCK)
-        INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GH.ConsigneeId
+        INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GH.ConsigneeId
         WHERE GH.FechaDestino BETWEEN @WildcardDestinationDate AND @DateTo AND GH.House IS NOT NULL
 
         SELECT TOP 1 @FinalStatus = 'FINAL'
         FROM GuiasHouseDetalles GHD WITH(NOLOCK)
-        INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHD.ShipToId
+        INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHD.ShipToId
         WHERE GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @DateTo
 
         IF @IsPendingStatus = 0
@@ -103,13 +104,13 @@ BEGIN
             SELECT @WildcardDestinationDate = DATEADD(DAY, -30, @DateTo)
         END
 
-        IF @ShipToName IS NULL 
-        AND @ConsigneeName IS NULL 
-        AND @ExporterName IS NULL 
-           AND @Po IS NULL 
-           AND @WaybillNumber IS NULL 
-           AND @TruckId IS NULL 
-           AND @WarehouseId IS NULL 
+        IF @ShipToName IS NULL
+            AND @ConsigneeName IS NULL 
+            AND @ExporterName IS NULL 
+            AND @Po IS NULL 
+            AND @WaybillNumber IS NULL 
+            AND @TruckId IS NULL 
+            AND @WarehouseId IS NULL 
         BEGIN
             IF @FinalStatus IS NOT NULL 
             BEGIN
