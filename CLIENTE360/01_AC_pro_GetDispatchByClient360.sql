@@ -72,7 +72,6 @@ BEGIN
 
         INSERT INTO #TMP_RelatedClients (EntityId, IdCliente, TipoCliente)
         EXEC [dbo].[AC_pro_GetClientsEntities] 
-            @EntityId = @ClientId, 
             @IdUsuario = @UserId;
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
@@ -433,7 +432,6 @@ END
 EXEC [dbo].[AC_pro_GetDispatchByClient360]
     @DateFrom = '2026-02-24',
     @DateTo = '2026-03-04',
-    @ClientId = 'CLI0120247',
     @IsPending = 1,
     @ShipToName = NULL,
     @ConsigneeName = NULL,
@@ -445,7 +443,6 @@ EXEC [dbo].[AC_pro_GetDispatchByClient360]
 EXEC [dbo].[AC_pro_GetDispatchByClient360]
     @DateFrom = '2026-02-24',
     @DateTo = '2026-03-04',
-    @ClientId = 'CLI0120247',
     @IsPending = 1,
     @ShipToName = 'NR MARIPOSA BOUQUET',
     @ConsigneeName = 'NARANJO FARMS LLC IN & OUT',
