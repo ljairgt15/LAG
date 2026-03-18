@@ -40,7 +40,7 @@ BEGIN
         [EntityId]      VARCHAR(16),
         [IdCliente]     VARCHAR(16),
         [BilltoId]     VARCHAR(16),
-        [ConsigneeeId]     VARCHAR(16),
+        [ConsigneeId]     VARCHAR(16),
         [EntityType]   VARCHAR(32)
         )
         
@@ -78,7 +78,7 @@ BEGIN
         SELECT TOP 1 @ManifestDocumentId = Id 
         FROM Documentos WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (EntityId, IdCliente,BilltoId,ConsigneeeId, EntityType)
+        INSERT INTO #TMP_RelatedClients (EntityId, IdCliente,BilltoId,ConsigneeId, EntityType)
         EXEC [dbo].[AC_pro_GetClientsEntities] 
             @IdUsuario = @UserId
 
@@ -228,7 +228,7 @@ BEGIN
                     T.IdCarrier, 
                     T.FechaDespacho
                 FROM GuiasHouseDetalles GHD WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHD.ShipToId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHD.ShipToId
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 
                     AND T.FechaDespacho BETWEEN @DateFrom AND @DateTo
                 INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.Id = GHD.IdGuiaHouse
@@ -259,7 +259,7 @@ BEGIN
                     T.IdCarrier, 
                     T.FechaDespacho
                 FROM GuiasHouse GH WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GH.ConsigneeId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GH.ConsigneeId
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 
                     AND T.FechaDespacho BETWEEN @DateFrom AND @DateTo 
@@ -290,7 +290,7 @@ BEGIN
                     T.IdCarrier, 
                     T.FechaDespacho 
                 FROM GuiasHouse GHO WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHO.ConsigneeId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHO.ConsigneeId
                 INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.IdGuia = GHO.IdGuia
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 
