@@ -39,15 +39,15 @@ BEGIN
         [ConsigneeId]     VARCHAR(16),
         [EntityType]   VARCHAR(32)
         )
-        
-        CREATE TABLE #TMP_Exporters ( 
-            [ExporterId] VARCHAR(16) 
-        )
+
         CREATE TABLE #TMP_FinalClients ( 
             [ShipToId] VARCHAR(16) 
         )
         CREATE TABLE #TMP_ConsigneeClients ( 
             [ConsigneeClientId] VARCHAR(16) 
+        )        
+        CREATE TABLE #TMP_Exporters ( 
+            [ExporterId] VARCHAR(16) 
         )
 
         CREATE TABLE #TMP_HouseWaybillDetails
