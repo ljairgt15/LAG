@@ -5,6 +5,7 @@ VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
 (
     @ConsigneeIds       VARCHAR(MAX) = NULL,
+    @BillToIds          VARCHAR(MAX) = NULL,
     @StartDate          DATETIME,
     @EndDate            DATETIME
 )
@@ -12,10 +13,14 @@ AS
 BEGIN
 
     BEGIN TRY
-
+     /* TABLAS TEMPORALES PARA FILTROS OPCIONALES */
         CREATE TABLE #FilterConsignees  (
             Id VARCHAR(16) PRIMARY KEY
         );
+        CREATE TABLE #FilterBillTos     (
+            Id VARCHAR(16) PRIMARY KEY
+        );
+
 
         IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
         BEGIN
@@ -23,6 +28,13 @@ BEGIN
             SELECT TRIM(VALUE)
             FROM STRING_SPLIT(@ConsigneeIds, ',')
             WHERE TRIM(VALUE) <> '';
+        END
+
+        IF (@BillToIds IS NOT NULL AND @BillToIds <> '')
+        BEGIN
+            INSERT INTO #FilterBillTos (Id)
+            SELECT Id
+            FROM dbo.f_SearchEntities(@BillToIds, 'IdBillTo');
         END
 
         CREATE TABLE #TMP_DispatchAnalytics (
@@ -70,17 +82,23 @@ BEGIN
             IdPoDetalle = GHD.IdPoDetalle,
             Carrier = TS.Nombre,
             Shipto = ST.Nombre
-        FROM #FilterConsignees CS
-        INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.ConsigneeId = CS.Id
+        FROM GuiasHouse GH WITH(NOLOCK)
         INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
         INNER JOIN ProgramacionCarrier  PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
+        INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
         INNER JOIN Exportadores         EX WITH(NOLOCK) ON EX.Id = GH.IdExportador
         INNER JOIN TiposDePieza         TP WITH(NOLOCK) ON TP.Id = GHD.IdTipoDePieza
         INNER JOIN Ciudades             CD WITH(NOLOCK) ON CD.Id = GH.IdCiudadPuertoOrigen
         INNER JOIN Transportes          TS WITH(NOLOCK) ON PC.IdCarrier = TS.Id
-        INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
-        WHERE PC.FechaDespacho BETWEEN @StartDate AND @EndDate 
-        AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
+        WHERE PC.FechaDespacho BETWEEN @StartDate AND @EndDate AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
+          AND (
+              @BillToIds IS NULL 
+              OR GH.BilltoConsigneeId IN (SELECT Id FROM #FilterBillTos)
+          )
+          AND (
+              @ConsigneeIds IS NULL 
+              OR GH.ConsigneeId IN (SELECT Id FROM #FilterConsignees)
+          );
 
         DELETE TMP
         FROM #TMP_DispatchAnalytics TMP
@@ -90,22 +108,24 @@ BEGIN
         INNER JOIN Catalogos    CA WITH(NOLOCK) ON OL.IdCatalogoStatus = CA.Id
         WHERE CA.CodigoRelacion = 'CANCELADO';
 
-		UPDATE	TMP
-        SET		
-			IdPo		= PE.id,
-			Awb			= 'LOCAL'
-        FROM	#TMP_DispatchAnalytics					TMP
-		INNER JOIN	PoDetalles			PD WITH(NOLOCK)	ON	PD.id = TMP.idPoDetalle
-		INNER JOIN	PoEncabezado		PE WITH(NOLOCK)	ON	PE.id = PD.idPo
-		INNER JOIN	OrdenesLocales		OL WITH(NOLOCK)	ON	OL.id = PE.idOrdenLocal
-
-        UPDATE	TMP
-        SET		Origin		= CD.nombre
-        FROM	#TMP_DispatchAnalytics TMP					
-		INNER JOIN PoDetalles			PD WITH(NOLOCK)	ON	PD.id = TMP.idPoDetalle
-		INNER JOIN PoEncabezado			PE WITH(NOLOCK)	ON	PE.id = PD.idPo
-		INNER JOIN Empresas				EM WITH(NOLOCK)	ON	EM.id = PE.idEmpresa
-		INNER JOIN Ciudades				CD WITH(NOLOCK)	ON	CD.id = EM.idCiudad
+        UPDATE TMP
+        SET 
+            TMP.Origin = CD.Nombre,
+            
+            TMP.IdPo = CASE 
+                           WHEN OL.Id IS NOT NULL THEN PE.Id 
+                           ELSE TMP.IdPo 
+                       END,
+            TMP.Awb  = CASE 
+                           WHEN OL.Id IS NOT NULL THEN 'LOCAL' 
+                           ELSE TMP.Awb 
+                       END
+        FROM #TMP_DispatchAnalytics TMP
+        INNER JOIN PoDetalles   PD WITH(NOLOCK) ON TMP.IdPoDetalle = PD.Id
+        INNER JOIN PoEncabezado PE WITH(NOLOCK) ON PD.IdPo = PE.Id
+        INNER JOIN Empresas     EMP WITH(NOLOCK) ON PE.IdEmpresa = EMP.Id
+        INNER JOIN Ciudades     CD WITH(NOLOCK) ON EMP.IdCiudad = CD.Id
+        LEFT JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id;
 
         SELECT
             Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.Shipper)),
@@ -143,7 +163,6 @@ BEGIN
         ORDER BY TMP.Awb;
 
         DROP TABLE #TMP_DispatchAnalytics;
-        DROP TABLE #FilterConsignees;
 
     END TRY
     BEGIN CATCH
@@ -155,6 +174,8 @@ END;
 DECLARE @StartDate	DATETIME = '2026-01-02T00:00:00';
 DECLARE @EndDate	DATETIME = '2026-01-02T00:00:00';
 DECLARE @ConsigneeIds	VARCHAR(max) = 'ETY0000000008162,ETY0000000008707';
+DECLARE @BillToIds	VARCHAR(max) = 'ETY0000000008162,ETY0000000008707';
 
-execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @StartDate, @EndDate;
+
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @BillToIds, @StartDate, @EndDate;
 */
