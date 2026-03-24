@@ -16,10 +16,10 @@ BEGIN
      /* TABLAS TEMPORALES PARA FILTROS OPCIONALES */
         CREATE TABLE #FilterConsignees  (
             Id VARCHAR(16) PRIMARY KEY
-        );
+        )
         CREATE TABLE #FilterBillTos     (
             Id VARCHAR(16) PRIMARY KEY
-        );
+        )
 
 
         IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
@@ -27,14 +27,14 @@ BEGIN
             INSERT INTO #FilterConsignees (Id)
             SELECT TRIM(VALUE)
             FROM STRING_SPLIT(@ConsigneeIds, ',')
-            WHERE TRIM(VALUE) <> '';
+            WHERE TRIM(VALUE) <> ''
         END
 
         IF (@BillToIds IS NOT NULL AND @BillToIds <> '')
         BEGIN
             INSERT INTO #FilterBillTos (Id)
             SELECT Id
-            FROM dbo.f_SearchEntities(@BillToIds, 'IdBillTo');
+            FROM dbo.f_SearchEntities(@BillToIds, 'IdBillTo')
         END
 
         CREATE TABLE #TMP_DispatchAnalytics (
@@ -58,7 +58,7 @@ BEGIN
             IdPoDetalle         UNIQUEIDENTIFIER, 
             Carrier             NVARCHAR(256),
             Shipto              NVARCHAR(256)
-        );
+        )
 
         INSERT INTO #TMP_DispatchAnalytics
         SELECT
@@ -98,7 +98,7 @@ BEGIN
           AND (
               @ConsigneeIds IS NULL 
               OR GH.ConsigneeId IN (SELECT Id FROM #FilterConsignees)
-          );
+          )
 
         DELETE TMP
         FROM #TMP_DispatchAnalytics TMP
@@ -106,7 +106,7 @@ BEGIN
         INNER JOIN PoEncabezado PE WITH(NOLOCK) ON PD.IdPo = PE.Id
         INNER JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id
         INNER JOIN Catalogos    CA WITH(NOLOCK) ON OL.IdCatalogoStatus = CA.Id
-        WHERE CA.CodigoRelacion = 'CANCELADO';
+        WHERE CA.CodigoRelacion = 'CANCELADO'
 
         UPDATE TMP
         SET 
@@ -125,7 +125,7 @@ BEGIN
         INNER JOIN PoEncabezado PE WITH(NOLOCK) ON PD.IdPo = PE.Id
         INNER JOIN Empresas     EMP WITH(NOLOCK) ON PE.IdEmpresa = EMP.Id
         INNER JOIN Ciudades     CD WITH(NOLOCK) ON EMP.IdCiudad = CD.Id
-        LEFT JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id;
+        LEFT JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id
 
         SELECT
             Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.Shipper)),
@@ -160,15 +160,14 @@ BEGIN
             TMP.Carrier,
             TMP.Shipto,
             TMP.FechaDespacho
-        ORDER BY TMP.Awb;
+        ORDER BY TMP.Awb
 
-        DROP TABLE #TMP_DispatchAnalytics;
+        DROP TABLE #TMP_DispatchAnalytics
 
     END TRY
     BEGIN CATCH
-        IF OBJECT_ID('tempdb..#TMP_DispatchAnalytics') IS NOT NULL DROP TABLE #TMP_DispatchAnalytics;
         EXEC [dbo].[pro_LogError]
-    END CATCH;
+    END CATCH
 END;
 /*
 DECLARE @StartDate	DATETIME = '2026-01-02T00:00:00';
