@@ -170,25 +170,11 @@ BEGIN
     END CATCH
 END;
 /*
-DECLARE @StartDate	DATETIME = '2026-01-02T00:00:00';
-DECLARE @EndDate	DATETIME = '2026-01-02T00:00:00';
-DECLARE @ConsigneeIds	VARCHAR(max) = 'ETY0000000008683';
-DECLARE @BillToIds	VARCHAR(max) = 'ETY0000000008684';
 
 
-execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @BillToIds, @StartDate, @EndDate;
-
-DECLARE @StartDate	DATETIME = '2026-01-02T00:00:00';
-DECLARE @EndDate	DATETIME = '2026-01-02T00:00:00';
-DECLARE @ConsigneeIds	VARCHAR(max) = null;
-DECLARE @BillToIds	VARCHAR(max) = 'ETY0000000008684,ETY0000000020555';
-execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @BillToIds, @StartDate, @EndDate;
-
-DECLARE @StartDate	DATETIME = '2026-01-02T00:00:00';
-DECLARE @EndDate	DATETIME = '2026-01-02T00:00:00';
-DECLARE @ConsigneeIds	VARCHAR(max) = null;
-DECLARE @BillToIds	VARCHAR(max) = 'ETY0000000033327,ETY0000000026251';
-execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds, @BillToIds, @StartDate, @EndDate;
-
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds='ETY0000000008683', @BillToIds='ETY0000000008684', @StartDate='2026-01-02T00:00:00', @EndDate='2026-01-02T00:00:00';
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds=null, @BillToIds= 'ETY0000000008684,ETY0000000020555', @StartDate= '2026-01-02T00:00:00', @EndDate='2026-01-02T00:00:00';
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds='ETY0000000008683,ETY0000000008142', @BillToIds= null, @StartDate= '2026-01-02T00:00:00', @EndDate='2026-01-02T00:00:00';
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds='ETY0000000033327,ETY0000000026251', @BillToIds= null, @StartDate= '2026-01-02T00:00:00', @EndDate='2026-01-02T00:00:00';
 
 */
