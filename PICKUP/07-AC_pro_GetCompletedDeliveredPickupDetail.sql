@@ -499,23 +499,23 @@ BEGIN
     END CATCH;
 END;
 /*
-EXEC [dbo].AC_pro_GetCompletedDeliveredPickupDetail
+	EXEC [dbo].AC_pro_GetCompletedDeliveredPickupDetail
     @FechaDesde                 = '2026-01-01',
     @FechaHasta                 = '2026-01-03',
     @NroDocumento               = NULL,
-    @Po                          = NULL,
-    @NombreClienteConsignee     = 'TBC ON TIME FRESH C/O BRAD',
+    @Po                         = NULL,
+    @NombreClienteConsignee     = NULL,
     @NroPod                     = NULL,
     @CodigoBarras               = NULL,
     @NombreComercialExportador  = NULL,
-    @IdManifiesto               = '9EF6C047-C987-4D1C-9D7F-8588819A33FC',
-    @IdCarrier                  = 'WnsFdSgV',
-    @IdClienteFinal             = 'ETY00075977',
-    @IdBodega                   = 'LXgyot5M',
+    @IdManifiesto               = '8c03f16f-17bb-4606-b24a-49f1a1ec531d',
+    @IdCarrier                  = 'ybOy4oex7F5E',
+    @IdClienteFinal             = 'ETY0000000032873',
+    @IdBodega                   = 'QK6s23du',
     @FechaPickUpProgramada      = '2026-01-02',
     @FechaPickUpEntrega         = '2026-01-02',
     @PalletLabel                = NULL,
-    @IdEmpresa                  = 'EMP014', 
+    @IdEmpresa                  = 'EMP014',
     @BillTo                     = NULL;
 
     EXEC [dbo].AC_pro_GetCompletedDeliveredPickupDetail
