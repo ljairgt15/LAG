@@ -17,7 +17,7 @@ SET NOCOUNT ON;
 DECLARE @IdEmpresa      VARCHAR(16) = 'EMP014'
 DECLARE @BatchSize      INT         = 500
 DECLARE @WaitTime       VARCHAR(10) = '00:00:02'
-DECLARE @FechaCorte     DATETIME    = DATEADD(MONTH, -3, GETDATE()) -- ajustar a -3 si prefieres
+DECLARE @FechaCorte     DATETIME    = DATEADD(MONTH, -3, GETDATE())
 DECLARE @RowsAffected   INT         = 0
 DECLARE @TotalShipTo    INT         = 0
 DECLARE @TotalConsignee INT         = 0
@@ -30,11 +30,12 @@ DECLARE @BatchNumber    INT         = 0
 IF OBJECT_ID('tempdb..#TMP_PickupPendingHomologacion') IS NOT NULL
     DROP TABLE #TMP_PickupPendingHomologacion;
 
-SELECT DISTINCT GHD.Id                  AS IdGuiaHouseDetalle
-               ,GHD.IdClienteFinal      AS OldShipToId
-               ,GHD.IdClienteConsignee  AS OldConsigneeId
-               ,GHD.ShipToId            AS CurrentShipToId
-               ,GHD.ConsigneeId         AS CurrentConsigneeId
+SELECT DISTINCT 
+     GHD.Id                 AS IdGuiaHouseDetalle
+    ,GHD.IdClienteFinal     AS OldShipToId
+    ,GHD.IdClienteConsignee AS OldConsigneeId
+    ,GHD.ShipToId           AS CurrentShipToId
+    ,GHD.ConsigneeId        AS CurrentConsigneeId
 INTO #TMP_PickupPendingHomologacion
 FROM dbo.GuiasHouseDetalles GHD WITH (NOLOCK)
 INNER JOIN dbo.GuiasHouse GH WITH (NOLOCK) 
@@ -53,13 +54,27 @@ INNER JOIN dbo.ParametrosLista PL WITH (NOLOCK)
     AND PL.IdEmpresa = @IdEmpresa
 WHERE PCAT.Valor = 'NO'
   AND GH.IdEmpresa = @IdEmpresa
-  AND PC.FechaDespacho >= @FechaCorte        -- solo ultimos 4 meses
+  AND PC.FechaDespacho >= @FechaCorte
   AND (
-        GHD.ShipToId   IS NULL
-        OR GHD.ConsigneeId IS NULL
+        -- ShipToId pendiente o incorrecto
+        GHD.ShipToId IS NULL
+        OR EXISTS (
+            SELECT 1 FROM dbo.EntityTypes ET 
+            WHERE ET.ReferenceId = GHD.IdClienteFinal 
+              AND ET.Id <> GHD.ShipToId
+        )
+        OR
+        -- ConsigneeId pendiente o incorrecto
+        GHD.ConsigneeId IS NULL
+        OR EXISTS (
+            SELECT 1 FROM dbo.EntityTypes ET 
+            WHERE ET.ReferenceId = GHD.IdClienteConsignee 
+              AND ET.Id <> GHD.ConsigneeId
+        )
       );
 
 PRINT '>> Registros identificados para homologar: ' + CAST(@@ROWCOUNT AS VARCHAR);
+PRINT '>> Fecha corte: ' + CAST(@FechaCorte AS VARCHAR);
 PRINT '>> Iniciando homologacion...';
 PRINT '';
 
@@ -68,7 +83,8 @@ PRINT '';
 --------------------------------------------------------------------------------
 PRINT '-- PASO 1: Actualizando ShipToId --';
 
-SET @BatchNumber = 0;
+SET @BatchNumber  = 0;
+SET @RowsAffected = 0;
 
 WHILE 1 = 1
 BEGIN
@@ -85,9 +101,12 @@ BEGIN
             ON GHD.Id = TMP.IdGuiaHouseDetalle
         INNER JOIN dbo.EntityTypes ET WITH (NOLOCK) 
             ON ET.ReferenceId = GHD.IdClienteFinal
-        WHERE GHD.ShipToId      IS NULL
-          AND GHD.IdClienteFinal IS NOT NULL
-          AND ET.ReferenceId     IS NOT NULL;
+        WHERE GHD.IdClienteFinal IS NOT NULL
+          AND ET.ReferenceId     IS NOT NULL
+          AND (
+                GHD.ShipToId IS NULL
+                OR GHD.ShipToId <> ET.Id
+              );
 
         SET @RowsAffected = @@ROWCOUNT;
         SET @TotalShipTo  = @TotalShipTo + @RowsAffected;
@@ -95,19 +114,18 @@ BEGIN
 
         COMMIT TRANSACTION;
 
-        PRINT '  Batch ' + CAST(@BatchNumber AS VARCHAR) 
+        PRINT '  Batch ' + CAST(@BatchNumber AS VARCHAR)
             + ' | Filas actualizadas: ' + CAST(@RowsAffected AS VARCHAR)
             + ' | Total acumulado: '    + CAST(@TotalShipTo AS VARCHAR);
 
         IF @RowsAffected = 0 BREAK;
 
-        -- Pausa entre batches para liberar bloqueos
         WAITFOR DELAY @WaitTime;
 
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;
-        PRINT '!! ERROR en batch ' + CAST(@BatchNumber AS VARCHAR) 
+        PRINT '!! ERROR en batch ' + CAST(@BatchNumber AS VARCHAR)
             + ': ' + ERROR_MESSAGE();
         BREAK;
     END CATCH;
@@ -122,8 +140,8 @@ PRINT '';
 --------------------------------------------------------------------------------
 PRINT '-- PASO 2: Actualizando ConsigneeId --';
 
-SET @BatchNumber    = 0;
-SET @RowsAffected   = 0;
+SET @BatchNumber  = 0;
+SET @RowsAffected = 0;
 
 WHILE 1 = 1
 BEGIN
@@ -140,9 +158,12 @@ BEGIN
             ON GHD.Id = TMP.IdGuiaHouseDetalle
         INNER JOIN dbo.EntityTypes ET WITH (NOLOCK) 
             ON ET.ReferenceId = GHD.IdClienteConsignee
-        WHERE GHD.ConsigneeId       IS NULL
-          AND GHD.IdClienteConsignee IS NOT NULL
-          AND ET.ReferenceId         IS NOT NULL;
+        WHERE GHD.IdClienteConsignee IS NOT NULL
+          AND ET.ReferenceId         IS NOT NULL
+          AND (
+                GHD.ConsigneeId IS NULL
+                OR GHD.ConsigneeId <> ET.Id
+              );
 
         SET @RowsAffected   = @@ROWCOUNT;
         SET @TotalConsignee = @TotalConsignee + @RowsAffected;
@@ -150,7 +171,7 @@ BEGIN
 
         COMMIT TRANSACTION;
 
-        PRINT '  Batch ' + CAST(@BatchNumber AS VARCHAR) 
+        PRINT '  Batch ' + CAST(@BatchNumber AS VARCHAR)
             + ' | Filas actualizadas: ' + CAST(@RowsAffected AS VARCHAR)
             + ' | Total acumulado: '    + CAST(@TotalConsignee AS VARCHAR);
 
@@ -161,7 +182,7 @@ BEGIN
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;
-        PRINT '!! ERROR en batch ' + CAST(@BatchNumber AS VARCHAR) 
+        PRINT '!! ERROR en batch ' + CAST(@BatchNumber AS VARCHAR)
             + ': ' + ERROR_MESSAGE();
         BREAK;
     END CATCH;
@@ -177,11 +198,12 @@ PRINT '';
 PRINT '-- VERIFICACION FINAL --';
 
 SELECT 
-     COUNT(*)                                           AS TotalRegistros
-    ,SUM(CASE WHEN GHD.ShipToId   IS NULL THEN 1 ELSE 0 END) AS PendientesShipTo
-    ,SUM(CASE WHEN GHD.ConsigneeId IS NULL THEN 1 ELSE 0 END) AS PendientesConsigneeId
-    ,SUM(CASE WHEN GHD.ShipToId   IS NOT NULL 
-              AND GHD.ConsigneeId IS NOT NULL THEN 1 ELSE 0 END) AS Homologados
+     COUNT(*)                                                         AS TotalRegistros
+    ,SUM(CASE WHEN GHD.ShipToId    IS NULL THEN 1 ELSE 0 END)        AS PendientesShipTo
+    ,SUM(CASE WHEN GHD.ConsigneeId IS NULL THEN 1 ELSE 0 END)        AS PendientesConsigneeId
+    ,SUM(CASE WHEN GHD.ShipToId    IS NOT NULL 
+              AND GHD.ConsigneeId  IS NOT NULL THEN 1 ELSE 0 END)    AS Homologados
+    ,SUM(CASE WHEN GHD.Nota = 'homologacion' THEN 1 ELSE 0 END)      AS ActualizadosEnEstaEjecucion
 FROM dbo.GuiasHouseDetalles GHD
 INNER JOIN #TMP_PickupPendingHomologacion TMP 
     ON GHD.Id = TMP.IdGuiaHouseDetalle;
@@ -189,3 +211,6 @@ INNER JOIN #TMP_PickupPendingHomologacion TMP
 DROP TABLE #TMP_PickupPendingHomologacion;
 
 PRINT '>> Homologacion finalizada.';
+PRINT '>> ShipToId   actualizados: ' + CAST(@TotalShipTo    AS VARCHAR);
+PRINT '>> ConsigneeId actualizados: ' + CAST(@TotalConsignee AS VARCHAR);
+PRINT '>> Total general:            ' + CAST(@TotalShipTo + @TotalConsignee AS VARCHAR);
