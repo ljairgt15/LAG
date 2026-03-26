@@ -355,18 +355,11 @@ BEGIN
             ,TMP.NombreClienteConsignee
             ,TMP.FechaPickUpProgramada
             ,MAX(TMP.FechaPickUpEntrega) 
-            ,(SELECT TOP (1) Sub.idUsuarioLog
-                FROM #TMP_HouseGuideGrouping AS Sub
-                WHERE Sub.IdClienteFinal                  = Sub.IdClienteFinal
-                AND Sub.IdClienteConsignee              = Sub.IdClienteConsignee
-                AND Sub.FechaPickUpEntrega              = MAX(tbl.FechaPickUpEntrega)
-                AND Sub.IdBodega                        = Sub.IdBodega
-                AND ISNULL(Sub.IdManifiesto, @emptyUID) = ISNULL(Sub.IdManifiesto, @emptyUID)
-                AND Sub.IdCarrier                       = Sub.IdCarrier
-                AND Sub.NombreCarrier                   = Sub.NombreCarrier
-                AND Sub.NroDocumento                    = Sub.NroDocumento
-                AND Sub.ConPOD                          = Sub.ConPOD
-                AND Sub.Enviado                         = TMP.Enviado) AS IdUsuarioLog
+            ,(SELECT TOP (1) Sub.IdUsuarioLog 
+                FROM #TMP_HouseGuideGrouping Sub 
+                WHERE Sub.IdGuia = TMP.IdGuia 
+                AND CONVERT(DATE, Sub.FechaPickUpEntrega) = CONVERT(DATE, TMP.FechaPickUpEntrega) 
+                ORDER BY Sub.FechaPickUpEntrega DESC ) AS IdUsuarioLog
             ,SUM(TMP.TotalPending)
             ,SUM(TMP.TotalHold)
             ,SUM(TMP.TotalShort)
@@ -499,7 +492,7 @@ BEGIN
     END CATCH;
 END;
 /*
-	EXEC [dbo].AC_pro_GetCompletedDeliveredPickupDetail
+EXEC [dbo].AC_pro_GetCompletedDeliveredPickupDetail
     @FechaDesde                 = '2026-01-01',
     @FechaHasta                 = '2026-01-03',
     @NroDocumento               = NULL,
@@ -515,7 +508,7 @@ END;
     @FechaPickUpProgramada      = '2026-01-02',
     @FechaPickUpEntrega         = '2026-01-02',
     @PalletLabel                = NULL,
-    @IdEmpresa                  = 'EMP014',
+    @IdEmpresa                  = 'EMP014', 
     @BillTo                     = NULL;
 
     EXEC [dbo].AC_pro_GetCompletedDeliveredPickupDetail
