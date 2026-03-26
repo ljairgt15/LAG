@@ -1,3 +1,4 @@
 PICKUP/*.txt
 PICKUP/faltantes.txt
 PICKUP/guids.txt
+PICKUP/**/*.xel
