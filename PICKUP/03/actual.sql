@@ -91,7 +91,6 @@ BEGIN
 			GHD.codigoBarra,
 			GHD.estadoPieza,
 			GHD.ShipToId,
-			GHD.ConsigneeId,
 			GHD.truckId,
 			GHD.despachadoDestino,
 			PC.idUsuarioLogPicking,
@@ -135,7 +134,7 @@ BEGIN
 			SELECT
 				MAD.id,
 				MAD.nroManifiesto,
-				ISNULL(VCE.nombre, VCE.BillToName) ShipToName,
+				VCE.nombre as ShipToName,
 				PRO.ShipToId,
 				ISNULL(ub.idBodega, H.idBodega) idBodega,
 				ISNULL(BP.nombre, BG.nombre) nombreBodega,
@@ -172,11 +171,11 @@ BEGIN
 				INNER JOIN dbo.Paises P ON VCE.idPais = P.id
 				CROSS APPLY
 				(
-					SELECT G.ConsigneeId, G.BillToConsigneeId, idBodega
+					SELECT G.ConsigneeId, idBodega
 					FROM GuiasHouse G WITH (NOLOCK)
 					WHERE PRO.idGuiaHouse = G.id
 				) H
-				LEFT JOIN ParametrosCatalogos PRC WITH (NOLOCK) ON PRC.idEntidad = VCE.EntityId 
+				LEFT JOIN ParametrosCatalogos PRC WITH (NOLOCK) ON PRC.idEntidad = H.ConsigneeId 
 					AND PRC.idParametroLista = @IdParametroTipo
 				LEFT JOIN ProgramacionManifiesto PRM WITH (NOLOCK) ON PRO.id = PRM.idProgramacionCarrier
 				LEFT JOIN ManifiestosDespacho MAD WITH (NOLOCK) ON PRM.idManifiestoDespacho = MAD.id
@@ -212,7 +211,7 @@ BEGIN
 			GROUP BY
 				MAD.id,
 				MAD.nroManifiesto,
-				ISNULL(VCE.nombre, VCE.BillToName),
+				VCE.nombre,
 				PRO.ShipToId,
 				ISNULL(UB.idBodega, H.idBodega),
 				ISNULL(BP.nombre, BG.nombre),
@@ -242,7 +241,7 @@ BEGIN
 			SELECT
 				MAD.id,
 				MAD.nroManifiesto,
-				ISNULL(VCE.nombre, VCE.BillToName) ShipToName,
+				VCE.nombre AS ShipToName,
 				PRO.ShipToId ShipToId,
 				ISNULL(UB.idBodega, H.idBodega) idBodega,
 				ISNULL(BP.nombre, BG.nombre) nombreBodega,
@@ -285,7 +284,7 @@ BEGIN
 				) H
 				LEFT JOIN dbo.PalletsDetalles PLD WITH (NOLOCK) ON PRO.idGuiaHouseDetalle = PLD.idGuiasHouseDetalle
 				LEFT JOIN dbo.Pallets PAL WITH (NOLOCK) ON PLD.idPallet = PAL.id
-				LEFT JOIN ParametrosCatalogos PRC WITH (NOLOCK) ON PRC.idEntidad = VCE.EntityId AND PRC.idParametroLista = @IdParametroTipo
+				LEFT JOIN ParametrosCatalogos PRC WITH (NOLOCK) ON PRC.idEntidad = H.ConsigneeId AND PRC.idParametroLista = @IdParametroTipo
 				LEFT JOIN ProgramacionManifiesto PRM WITH (NOLOCK) ON PRO.id = PRM.idProgramacionCarrier
 				LEFT JOIN manifiestosDespacho MAD WITH (NOLOCK) ON PRM.idManifiestoDespacho = MAD.id
 				OUTER APPLY (
@@ -327,7 +326,7 @@ BEGIN
 			GROUP BY
 				MAD.id,
 				MAD.nroManifiesto,
-				ISNULL(VCE.nombre, VCE.BillToName),
+				VCE.nombre,
 				PRO.ShipToId,
 				ISNULL(UB.idBodega, H.idBodega),
 				ISNULL(BP.nombre, BG.nombre),
