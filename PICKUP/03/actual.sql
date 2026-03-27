@@ -109,7 +109,6 @@ BEGIN
 
 		CREATE TABLE #TMP_BillToByName (
 			id VARCHAR(16),
-			BillToId VARCHAR(16)
 		);
 
 		CREATE TABLE #TMP_ConsigneeByName (
@@ -119,17 +118,15 @@ BEGIN
 		IF @BillTo IS NOT NULL
 		BEGIN
 			INSERT INTO #TMP_BillToByName
-			SELECT VCE.id, VCE.BillToId
-			FROM f_SearchEntities(@billTo, 'BillTo') F
-			INNER JOIN v_ClientsEntities VCE ON VCE.id = F.id;
+			SELECT Id
+			FROM f_SearchEntities(@billTo, 'BillTo') 
 		END
 
 		IF @Consignee IS NOT NULL
 		BEGIN
 			INSERT INTO #TMP_ConsigneeByName
-			SELECT VCE.id
-			FROM f_SearchEntities(@Consignee, 'Consignee') F
-			INNER JOIN v_ClientsEntities VCE ON VCE.id = F.id;
+			SELECT Id
+			FROM f_SearchEntities(@Consignee, 'Consignee') 
 		END
 
 		IF (@NroDocument IS NULL AND @Po IS NULL AND @Consignee IS NULL AND @NroManifiesto IS NULL AND @Supplier IS NULL AND @Barcode IS NULL AND @PalletLabel IS NULL)
@@ -323,7 +320,7 @@ BEGIN
 				AND (@Barcode IS NULL OR PRO.codigoBarra LIKE '%' + @Barcode + '%')
 				AND (@NroDocument IS NULL OR H.nroGuia LIKE '%' + @NroDocument + '%')
 				AND (@Consignee IS NULL OR (EXISTS(SELECT 1 FROM #TMP_ConsigneeByName) AND H.ConsigneeId IN (SELECT id FROM #TMP_ConsigneeByName)))
-				AND (@BillTo IS NULL OR (EXISTS(SELECT 1 FROM #TMP_BillToByName) AND H.BillToConsigneeId IN (SELECT BillToId FROM #TMP_BillToByName)))
+				AND (@BillTo IS NULL OR (EXISTS(SELECT 1 FROM #TMP_BillToByName) AND H.BillToConsigneeId IN (SELECT id FROM #TMP_BillToByName)))
 				AND (@Supplier IS NULL OR H.idExportador IN (SELECT id FROM Exportadores WITH (NOLOCK) WHERE nombre LIKE '%' + @Supplier + '%'))
 				AND (@PalletLabel IS NULL OR PAL.pallet LIKE '%' + @PalletLabel + '%')
 				AND (@NroManifiesto IS NULL OR MAD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
