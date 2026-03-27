@@ -1,10 +1,3 @@
-USE [alliance_desa]
-GO
-/****** Object:  StoredProcedure [dbo].[AC_pro_GetPendingPickup]    Script Date: 27/03/2026 09:19:59 a. m. ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 /*
 VERSION     MODIFIEDBY			MODIFIEDDATE    HU      MODIFICATION
 1           Ian Carlos Ortega	2026-01-26      57731   Based on dbo.pro_modulo_DespachoPickup
