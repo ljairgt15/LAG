@@ -384,9 +384,9 @@ BEGIN
             AND GH.IdEmpresa = @IdEmpresa                     
             AND GHD.EsPod = 0
             AND (@Consignee IS NULL OR @Consignee = ''
-                OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@Consignee, 'Consignee')))    
+                OR GH.ConsigneeId IN (SELECT Id FROM dbo.f_SearchEntities(@Consignee, 'Consignee')))    
             AND (@BillTo IS NULL OR @BillTo = '' 
-                OR CGN.Id IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
+                OR GH.BilltoConsigneeId IN (SELECT Id FROM dbo.f_SearchEntities(@BillTo, 'BillTo')))
             AND (@IdCarrier IS NULL OR PC.IdCarrier = @IdCarrier)
             AND (@IdBodega IS NULL OR ISNULL(UB.IdBodega, GH.IdBodega) = @IdBodega)
             AND (@NroDocument IS NULL OR GH.NroGuia LIKE '%' + @NroDocument + '%')
