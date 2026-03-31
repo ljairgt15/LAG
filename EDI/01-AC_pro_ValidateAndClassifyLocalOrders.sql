@@ -100,20 +100,20 @@ BEGIN
                 WHEN CodigoBarraBase IS NULL 
                 AND ConsigneeBase IS NULL 
                 AND ShipperBase IS NULL 
-                AND ShipDateBase IS NULL THEN 'I'
+                AND ShipDateBase IS NULL THEN 'i'
                 ELSE 
                     CASE 
                         WHEN ConsigneeBase = ConsigneeEntrada 
                         AND ShipperBase = ShipperEntrada 
                         AND ShipDateEntrada = ShipDateBase 
-                        AND EstadoPieza = 'PENDING' THEN 'U'
+                        AND EstadoPieza = 'PENDING' THEN 'u'
                         ELSE 
                             CASE 
                                 WHEN ConsigneeBase = ConsigneeEntrada 
                                 AND ShipperBase = ShipperEntrada 
                                 AND ShipDateEntrada = ShipDateBase 
-                                AND EstadoPieza <> 'PENDING' THEN 'ES'
-                                ELSE 'E'
+                                AND EstadoPieza <> 'PENDING' THEN 'es'
+                                ELSE 'e'
                             END
                     END
             END
