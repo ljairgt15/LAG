@@ -78,7 +78,7 @@ BEGIN
             TMP.Shipper,
             OL.IdExportador,
             TMP.Consignee,
-            OL.IdCliente,
+            OL.ConsigneeId,
             TMP.ShipDate,
             OL.FechaEntrega,
             OL.Id,
