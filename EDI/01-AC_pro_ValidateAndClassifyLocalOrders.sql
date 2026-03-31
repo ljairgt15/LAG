@@ -2,95 +2,143 @@
 VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
 1		    Jair Gomez			2026-03-30	   58719	Based on pro_OrdenesLocales_ValIdacionDatos
 */
- ALTER   Procedure [dbo].[pro_OrdenesLocales_ValidacionDatos](
- 	@listaOrdenLocal VARCHAR(MAX))
- as
- 
- DECLARE @DatosEntradaOrdenLocal table (id int, unitId varchar(16),  shipDate DateTime, shipper varchar(16), 
-  Consignee varchar(32), accion varchar(12)  )
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_ValidateAndClassifyLocalOrders] (
+    @ListaOrdenLocal VARCHAR(MAX)
+)
+AS
+BEGIN
+    BEGIN TRY
+        DECLARE @DatosEntradaOrdenLocal TABLE (
+            Id INT,
+            UnitId VARCHAR(16),
+            ShipDate DATETIME,
+            Shipper VARCHAR(16),
+            Consignee VARCHAR(32),
+            Accion VARCHAR(12)
+        )
 
-  DECLARE @tableTemp table 
-( 
-	id int  IDENTITY(1,1),
-	codigoBarraEntrada varchar(16),
-	codigoBarraBase varchar(16) ,
-	shipperEntrada varchar(16),
-	shipperBase varchar(16),
-	consigneeEntrada varchar(32),
-	consigneeBase varchar(32),
-	shipdateEntrada DateTime,
-	shipdateBase DateTime , 
-	idOrdenLocal uniqueidentifier,
-	idGHDetalle uniqueidentifier,
-	idGuiaHouse uniqueidentifier,
-	idPoDetalle uniqueidentifier,
-	idPoEncabezado uniqueidentifier,
-	estadoPieza varchar(16),
-	accion varchar(12)  
-   )
- begin 
+        DECLARE @TableTemp TABLE (
+            Id INT IDENTITY(1,1),
+            CodigoBarraEntrada VARCHAR(16),
+            CodigoBarraBase VARCHAR(16),
+            ShipperEntrada VARCHAR(16),
+            ShipperBase VARCHAR(16),
+            ConsigneeEntrada VARCHAR(32),
+            ConsigneeBase VARCHAR(32),
+            ShipDateEntrada DATETIME,
+            ShipDateBase DATETIME,
+            IdOrdenLocal UNIQUEIDENTIFIER,
+            IdGHDetalle UNIQUEIDENTIFIER,
+            IdGuiaHouse UNIQUEIDENTIFIER,
+            IdPoDetalle UNIQUEIDENTIFIER,
+            IdPoEncabezado UNIQUEIDENTIFIER,
+            EstadoPieza VARCHAR(16),
+            Accion VARCHAR(12)
+        )
 
-INSERT INTO @DatosEntradaOrdenLocal
-  (unitId , Shipper, Shipdate, Consignee)
+        INSERT INTO @DatosEntradaOrdenLocal (
+            UnitId,
+            Shipper,
+            ShipDate,
+            Consignee
+        )
+        SELECT 
+            UnitId,
+            Shipper,
+            ShipDate,
+            Consignee
+        FROM OPENJSON(@ListaOrdenLocal)
+        WITH (
+            UnitId VARCHAR(16) '$.UnitID',
+            Shipper VARCHAR(16) '$.Shipper',
+            ShipDate DATETIME '$.Shipdate',
+            Consignee VARCHAR(32) '$.Consignee'
+        )
 
-	SELECT unitId , Shipper ,Shipdate , Consignee
-	FROM OPENJSON(@listaOrdenLocal)
-	WITH (unitId varchar(16)'$.UnitID', 
-	Shipper varchar(16)'$.Shipper',
-	Shipdate Datetime'$.Shipdate',
-	Consignee varchar(32)'$.Consignee')
+        INSERT INTO @TableTemp (
+            CodigoBarraEntrada,
+            CodigoBarraBase,
+            ShipperEntrada,
+            ShipperBase,
+            ConsigneeEntrada,
+            ConsigneeBase,
+            ShipDateEntrada,
+            ShipDateBase,
+            IdOrdenLocal,
+            IdGHDetalle,
+            IdGuiaHouse,
+            IdPoDetalle,
+            IdPoEncabezado,
+            EstadoPieza,
+            Accion
+        )
+        SELECT 
+            TMP.UnitId,
+            PD.CodigoBarra,
+            TMP.Shipper,
+            OL.IdExportador,
+            TMP.Consignee,
+            OL.IdCliente,
+            TMP.ShipDate,
+            OL.FechaEntrega,
+            OL.Id,
+            GHD.Id,
+            GHD.IdGuiaHouse,
+            PD.Id,
+            POE.Id,
+            GHD.EstadoPieza,
+            TMP.Accion
+        FROM @DatosEntradaOrdenLocal TMP
+        LEFT JOIN PoDetalles PD ON TMP.UnitId = PD.CodigoBarra
+        LEFT JOIN PoEncabezado POE ON PD.IdPo = POE.Id
+        LEFT JOIN OrdenesLocales OL ON POE.IdOrdenLocal = OL.Id
+        LEFT JOIN GuiasHouseDetalles GHD ON TMP.UnitId = GHD.CodigoBarra
 
-insert into @tableTemp 
-	(
-	codigoBarraEntrada,
-	codigoBarraBase, 
-	shipperEntrada,
-	shipperBase, 
-	consigneeEntrada,
-	consigneeBase, 
-	shipdateEntrada,
-	shipdateBase, 
-	idOrdenLocal,
-	idGHDetalle,
-	idGuiaHouse,
-	idPoDetalle,
-	idPoEncabezado,
-	estadoPieza,
-	accion
-	)
- select 
-	temp.unitId,
-	pd.codigoBarra,  
-	temp.shipper ,
-	ol.idExportador,
-	temp.Consignee,
-	ol.idCliente ,
-	temp.shipDate,
-	ol.fechaEntrega, 
-	ol.Id,
-	ghd.id,
-	ghd.idGuiaHouse, 
-	pd.id,
-	poe.id,
-	ghd.estadoPieza,
-    temp.accion 
-	from @DatosEntradaOrdenLocal temp 
- left join PoDetalles pd on temp.unitId = pd.codigoBarra
- left join PoEncabezado poe on pd.idPo =  poe.id
- left join OrdenesLocales ol on poe.idOrdenLocal = ol.id
- left join GuiasHouseDetalles ghd on  temp.unitId = ghd.codigoBarra
+        UPDATE TMP
+        SET TMP.Accion =  
+            CASE 
+                WHEN CodigoBarraBase IS NULL 
+                AND ConsigneeBase IS NULL 
+                AND ShipperBase IS NULL 
+                AND ShipDateBase IS NULL THEN 'I'
+                ELSE 
+                    CASE 
+                        WHEN ConsigneeBase = ConsigneeEntrada 
+                        AND ShipperBase = ShipperEntrada 
+                        AND ShipDateEntrada = ShipDateBase 
+                        AND EstadoPieza = 'PENDING' THEN 'U'
+                        ELSE 
+                            CASE 
+                                WHEN ConsigneeBase = ConsigneeEntrada 
+                                AND ShipperBase = ShipperEntrada 
+                                AND ShipDateEntrada = ShipDateBase 
+                                AND EstadoPieza <> 'PENDING' THEN 'ES'
+                                ELSE 'E'
+                            END
+                    END
+            END
+        FROM @TableTemp TMP
 
-update temp set temp.accion=  
-CASE when  codigoBarraBase is  null and consigneeBase  is null and shipperBase is null and shipdateBase is null then  'i'
-else CASE when consigneeBase = consigneeEntrada and shipperBase = shipperEntrada and shipdateEntrada = shipdateBase and estadoPieza = 'PENDING'  then 'u'
-else CASE when consigneeBase = consigneeEntrada and shipperBase = shipperEntrada and shipdateEntrada = shipdateBase and estadoPieza <> 'PENDING' then  'es'
-else 'e' end end end
- 
-from @tableTemp temp
-
-select id, codigoBarraEntrada,codigoBarraBase,shipperEntrada,shipperBase, consigneeEntrada,
-	 consigneeBase, shipdateEntrada, shipdateBase, idOrdenLocal, idGHDetalle,
-	 idGuiaHouse,	idPoDetalle, idPoEncabezado, estadoPieza, accion 
-	 from @tableTemp	
-
- end
+        SELECT 
+            Id,
+            CodigoBarraEntrada,
+            CodigoBarraBase,
+            ShipperEntrada,
+            ShipperBase,
+            ConsigneeEntrada,
+            ConsigneeBase,
+            ShipDateEntrada,
+            ShipDateBase,
+            IdOrdenLocal,
+            IdGHDetalle,
+            IdGuiaHouse,
+            IdPoDetalle,
+            IdPoEncabezado,
+            EstadoPieza,
+            Accion
+        FROM @TableTemp
+    END TRY
+    BEGIN CATCH
+            EXEC [dbo].[pro_LogError]
+    END CATCH
+END
