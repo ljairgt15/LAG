@@ -1,0 +1,12 @@
+{
+  "OrderHeader": {
+    "Shipdate": "2024-05-15",
+    "Shipper": "EXPO-FLORA-SA",
+    "BarcodeAccount": "BOD-MIA-01"
+  },
+  "OrderDetail": [
+    { "UnitID": "111", "Consignee": "CUST-A", "PO": "PO-99", "Command": "I", "Measure": "CM" },
+    { "UnitID": "222", "Consignee": "CUST-A", "PO": "PO-99", "Command": "I", "Measure": "CM" },
+    { "UnitID": "333", "Consignee": "CUST-B", "PO": "PO-88", "Command": "I", "Measure": "CM" }
+  ]
+}
