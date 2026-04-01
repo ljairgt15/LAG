@@ -30,12 +30,7 @@ BEGIN TRY
 					select NEWID(),
 						detalle.id, 
 						detalle.idClienteFinal as idCliente,
-						case 
-							when cli.nombreClienteFinal is not null then
-								cli.nombreClienteFinal
-							else
-								cli.nombre
-						end as nombreCliente,
+                        cli.nombre as nombreCliente,
 						progra.idCarrier,
 						carrier.nombre as nombreCarrier,
 						progra.fechaDespacho,
@@ -46,7 +41,7 @@ BEGIN TRY
 						'pro_OrdenesLocales_EliminacionCompleta'
 					from GuiasHouseDetalles detalle					
 					INNER JOIN ProgramacionCarrier progra ON detalle.id = progra.idGuiaHouseDetalle
-					INNER JOIN Clientes cli ON detalle.idClienteFinal = cli.id
+					INNER JOIN v_ClientsEntities cli ON detalle.ShiptoId = cli.Id
 					INNER JOIN Transportes carrier ON progra.idCarrier = carrier.id
 					WHERE detalle.idGuiaHouse = @idGuiaHouse;
 	DELETE FROM ProgramacionCarrier WHERE idGuiaHouseDetalle IN (SELECT id FROM GuiasHouseDetalles WHERE idGuiaHouse = @idGuiaHouse	)
