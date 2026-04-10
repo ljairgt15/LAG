@@ -6,7 +6,8 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetDispatchByClient360]
 (
     @DateFrom               DATE,
     @DateTo                 DATE,
-    @UserId                 VARCHAR(16) = NULL,
+    @EntityId               VARCHAR(16) = NULL,
+    @UserType               VARCHAR(32) = NULL,
     @IsPending              BIT,
     @ShipToName             VARCHAR(256) = NULL,
     @ConsigneeName          VARCHAR(512) = NULL,
@@ -37,11 +38,11 @@ BEGIN
             @WildcardDestinationDate = DATEADD(DAY, -90, @DateTo)
 
         CREATE TABLE #TMP_RelatedClients (
-        [EntityId]      VARCHAR(16),
+        [Id]      VARCHAR(16),
         [IdCliente]     VARCHAR(16),
+        [BillToConsigneeId] VARCHAR(16),
         [BilltoId]     VARCHAR(16),
-        [ConsigneeId]     VARCHAR(16),
-        [EntityType]   VARCHAR(32)
+        [ConsigneeId]     VARCHAR(16)
         )
         
 
@@ -80,9 +81,10 @@ BEGIN
         FROM Documentos 
         WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (EntityId, IdCliente,BilltoId,ConsigneeId, EntityType)
-        EXEC [dbo].[AC_pro_GetClientsEntities] 
-            @IdUsuario = @UserId
+        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId)
+        EXEC [dbo].[AC_pro_GetClientsEntities]
+             @EntityId = @EntityId,
+             @UserType = @UserType 
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)
