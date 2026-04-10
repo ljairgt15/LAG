@@ -1,0 +1,123 @@
+@using Kendo.Mvc.UI;
+@using Microsoft.Extensions.Localization;
+@using System.Collections;
+
+@inject IStringLocalizer Localizer
+
+@{
+    Layout = null;
+}
+<style>
+    .k-dropdown-wrap .k-readonly, .k-multiselect-wrap .k-readonly {
+        opacity: .95 !important;
+    }
+</style>
+
+<div id="ContenedorCajaEncabezadoBuscador" class="position-relative">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="flecha_encabezado" class="flecha_encabezado pt-3" onclick="MostrarOcultarEncabezado()">
+                <div class="row">
+                    <i class="fas fa-lg fa-chevron-down pt-2" data-orientacion="true" style="cursor:pointer;"></i>
+                </div>
+            </div>
+
+            <div id="ContenedorEncabezado" class="ContenedorEncabezado col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="row">
+                    <div class="col-md-11">
+                        <div class="row">
+                            
+                            <div class="col-md-3">
+                                <div class="row">
+                                    @Html.Label(@Localizer[TextResources.ETADesde].ToString(), null, htmlAttributes: new { @class = "control-label col-md-4 LabelBuscador" })
+                                    <div class="col-md-8 CajaBuscador">
+                                        @(Html.Kendo().DatePicker()
+                                            .Enable(true)
+                                            .Format("ddd, dd MMM yyyy")
+                                            .Name("BuscadorFechaInicio")
+                                            .Value(DateTime.Now)
+                                            .HtmlAttributes(new { style = "width:100%" })
+                                        )
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="row">
+                                    @Html.Label(@Localizer[TextResources.BillTo].ToString(), null, htmlAttributes: new { @class = "control-label col-md-4 LabelBuscador" })
+                                    <div class="col-md-8 CajaBuscador">
+                                        @(Html.Kendo().AutoComplete()
+                                            .Name("BuscadorBillTo")
+                                            .Filter("contains")
+                                            .MinLength(3)
+                                            .DataTextField("Name")
+                                            .Placeholder(@Localizer[TextResources.Seleccionar])
+                                            .HtmlAttributes(new { style = "width:100%" })
+                                            .DataSource(data => data
+                                                .Read(read =>
+                                                {
+                                                    read.Action("GetBilltos", "SharedModal")
+                                                    .Type(HttpVerbs.Get).Data("setDataBillTo");
+                                                })
+                                                .ServerFiltering(true)
+                                            )
+                                        )
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="row">
+                                    @Html.Label(@Localizer[TextResources.Lbl_Consignee].ToString(), null, htmlAttributes: new { @class = "control-label col-md-4 LabelBuscador" })
+                                    <div class="col-md-8 CajaBuscador">
+                                        @(Html.Kendo().AutoComplete()
+                                            .Name("BuscadorClienteConsignee")
+                                            .Filter("contains")
+                                            .MinLength(3)
+                                            .DataTextField("Name")
+                                            .Placeholder(@Localizer[TextResources.Seleccione])
+                                            .HtmlAttributes(new { style = "width:100%" })
+                                            .DataSource(source => source
+                                                .ServerFiltering(true)
+                                                .Read(read => read.Action("GetBillToConsignees", "SharedModal")
+                                                .Type(HttpVerbs.Get).Data("setDataConsignee"))
+                                            )
+                                        )
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="row">
+                                    @Html.Label(@Localizer[TextResources.ETAHasta].ToString(), null, htmlAttributes: new { @class = "control-label col-md-4 LabelBuscador" })
+                                    <div class="col-md-8 CajaBuscador">
+                                        @(Html.Kendo().DatePicker()
+                                            .Enable(true)
+                                            .Format("ddd, dd MMM yyyy")
+                                            .Name("BuscadorFechaFin")
+                                            .Value(DateTime.Now)
+                                            .HtmlAttributes(new { style = "width:100%" })
+                                        )
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-1 pt-2">
+                        <div class="BotonBuscador">
+                            <a href="javascript: void(0)" onclick="RefreshCerradas()" style="text-decoration: none;">
+                                <i class="bar-menu-items fas fa-magnifying-glass BotonEncabezado fa-2x" title="@Localizer[TextResources.Refrescar]" id="Refrescar" aria-hidden="true" style="padding:0px;"></i>
+                            </a>
+                            <span id="espera" hidden style="vertical-align: middle; margin-left: 5px; position: absolute;">
+                                <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
