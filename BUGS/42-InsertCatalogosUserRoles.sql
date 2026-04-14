@@ -266,7 +266,7 @@ BEGIN
         ,'CONSIGNEES'
         ,'UserRoles'
         ,'ENUMERACION'
-        ,'Tipo de roles de usuario para listar'
+        ,'User role type for listing'
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
