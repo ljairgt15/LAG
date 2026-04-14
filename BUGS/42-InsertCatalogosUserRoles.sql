@@ -3,19 +3,20 @@ VERSION		MODIFIEDBY				MODIFIEDDATE	HU					MODIFICATION
 1			Mateo Velasco			2025-06-25		AC 51314			Initial Code - Creation of Consignees Rol
 2			Jorge Ortiz			    2025-07-24		LAG-CT-013 53071	Initial Code - Add new Catalog
 3           Ian Carlos Ortega       2025-12-15      LAG-CT-019 55188    Add new role called 'CLIENTE' to UserRoles catalog
+4           Jair Gomez              2026-04-14      LAG-CT-022 55188    Add suffix _TYPE to UserRoles catalog 
 */
 IF NOT EXISTS (
       SELECT 1
       FROM [dbo].[Catalogos]
       WHERE [codigo] = 'UserRoles' 
       AND [identificador] IN (
-            'AGENCIA_CARGA',
-            'BROKER',
-            'EMPLEADO',
-            'EXPORTADOR',
-            'BILLTO',
-            'CONSIGNEE',
-            'CLIENTE'
+            'AGENCIA_CARGA_TYPE',
+            'BROKER_TYPE',
+            'EMPLEADO_TYPE',
+            'EXPORTADOR_TYPE',
+            'BILLTO_TYPE',
+            'CONSIGNEE_TYPE',
+            'CLIENTE_TYPE'
       )
 )
 BEGIN
@@ -54,7 +55,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'AGENCIA_CARGA'
+        ,'AGENCIA_CARGA_TYPE'
         ,NULL
         ,NULL
         ,1
@@ -97,7 +98,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'BROKER'
+        ,'BROKER_TYPE'
         ,NULL
         ,NULL
         ,2
@@ -140,7 +141,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'EMPLEADO'
+        ,'EMPLEADO_TYPE'
         ,NULL
         ,NULL
         ,4
@@ -183,7 +184,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'EXPORTADOR'
+        ,'EXPORTADOR_TYPE'
         ,NULL
         ,NULL
         ,5
@@ -226,7 +227,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'BILLTO'
+        ,'BILLTO_TYPE'
         ,NULL
         ,NULL
         ,7
@@ -270,7 +271,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'CONSIGNEE'
+        ,'CONSIGNEE_TYPE'
         ,NULL
         ,NULL
         ,3
@@ -314,7 +315,7 @@ BEGIN
         ,'ACTIVO'
         ,NULL
         ,GETDATE()
-        ,'CLIENTE'
+        ,'CLIENTE_TYPE'
         ,NULL
         ,NULL
         ,8
