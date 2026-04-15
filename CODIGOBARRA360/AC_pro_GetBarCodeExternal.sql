@@ -27,21 +27,20 @@ ALTER   PROCEDURE [dbo].[AC_pro_GetBarCodeExternal]
 	@idNotificacion		UNIQUEIDENTIFIER= NULL,
 	@esInventario		BIT = NULL,
 	----=======Filtros de Entities==========
-	@EntityId			VARCHAR(16),
+	@EntityId			VARCHAR(16), -- idcliente
 	@supplierName		VARCHAR(512) = NULL,
 	@supplierId			VARCHAR(16) = NULL,
-	@consigneeName		VARCHAR(512) = NULL,
-	@consigneeId		VARCHAR(16) = NULL,
+	@consigneeName		VARCHAR(512) = NULL, --nuevo
+	@consigneeId		VARCHAR(16) = NULL, --nuevo
 	@shipToName			VARCHAR(512) = NULL,
 	@shipToId			VARCHAR(16) = NULL,
-	@billToName			VARCHAR(512) = NULL,
-	@billToId			VARCHAR(16) = NULL
+	@billToName			VARCHAR(512) = NULL, --nuevo
+	@billToId			VARCHAR(16) = NULL --nuevo
 )
 AS
 BEGIN 
 	BEGIN TRY
 		DECLARE @idParametroLista VARCHAR(16),
-				@tipoClienteLag VARCHAR(64),
 				@idEmpresa VARCHAR(16) = NULL,
 				@realEsPOD BIT,
 				@realEsVendida BIT,
@@ -119,9 +118,14 @@ BEGIN
 			nombreClienteConsignee VARCHAR(512)
 		);
 
-		CREATE TABLE #ClientesRel(
-			[id] [VARCHAR](16)
-		)	
+		CREATE TABLE #TMP_RelatedClients (
+        [Id]      VARCHAR(16),
+        [IdCliente]     VARCHAR(16),
+        [BillToConsigneeId] VARCHAR(16),
+        [BilltoId]     VARCHAR(16),
+        [ConsigneeId]     VARCHAR(16)
+        )
+
 		CREATE TABLE #idsCatalogos (
 			id [VARCHAR](64)
 		)
@@ -137,25 +141,11 @@ BEGIN
 			SELECT [Value] 
 			FROM [dbo].fnObtenerValoresXML(@estado)
 		END
-	
-			SELECT  @tipoClienteLag = cat.identificador 
-			FROM  DetalleEntidades DetI 
-				INNER JOIN dbo.Catalogos cat ON cat.id = DetI.idCatalogo
-			WHERE  DetI.idEntidad = @EntityId
 
-			IF @tipoClienteLag = 'CLIENTE'
-			BEGIN 
-				INSERT INTO #ClientesRel (id) 
-				VALUES(@EntityId)
-			END
-			ELSE
-			BEGIN 
-				INSERT INTO #ClientesRel (id) 
-				SELECT  idCliente 
-				FROM  dbo.GrupoClientes 
-				WHERE  idGrupoCliente = @EntityId
-			END
-
+		INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId)
+        EXEC [dbo].[AC_pro_GetClientsEntities]
+             @EntityId = @EntityId,
+             @UserType = @UserType 
 		
 		IF @tipoCliente IS NULL
 		BEGIN
@@ -172,19 +162,19 @@ BEGIN
 					/* validacion  tipo de clientes*/
 					SELECT TOP 1  @Consolidador = 'CONSOLIDADOR'
 					FROM  GuiasHouse GH
-						INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 					WHERE   GH.house IS NULL 
 						AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
 
 					SELECT TOP 1  @Consignee ='CONSIGNEE'
 					FROM  GuiasHouse GH
-						INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 					WHERE   GH.house IS NOT NULL 
 						AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
 
 					SELECT TOP 1  @Final = 'FINAL'
 					FROM  GuiasHouseDetalles GHD
-						INNER JOIN #ClientesRel CLI ON CLI.id =  GHD.idClienteFinal
+						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
 					WHERE fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
 				
 					/* CLIENTES FINALES */
@@ -246,7 +236,7 @@ BEGIN
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND  GHD.fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
-							INNER JOIN #ClientesRel CL ON CL.id =  GHD.ShipToId
+							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
 							INNER JOIN v_ClientsEntities vcd WITH (NOLOCK) ON  GH.ConsigneeId = vcd.ConsigneeId 
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
@@ -328,7 +318,7 @@ BEGIN
 							 GH.idCliente,
 							vcd.Nombre ConsigneeName
 						FROM GuiasHouse GH WITH (NOLOCK)
-							INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id =  GH.idCliente
+							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
 							INNER JOIN v_ClientsEntities VCD WITH (NOLOCK) ON  GH.ConsigneeId = VCD.ConsigneeId 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 							INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
@@ -414,7 +404,7 @@ BEGIN
 							 GH.idCliente,
 							ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
 						FROM GuiasHouse GH1 WITH (NOLOCK)
-							INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id = GH1.idCliente
+							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
 							INNER JOIN dbo.GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
 							INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
@@ -596,19 +586,19 @@ BEGIN
 						/* validacion  tipo de clientes*/
 						SELECT TOP 1  @Consolidador = 'CONSOLIDADOR'
 						FROM  GuiasHouse GH
-							INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 						WHERE   GH.house IS NULL 
 							AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
 
 						SELECT TOP 1  @Consignee ='CONSIGNEE'
 						FROM  GuiasHouse GH
-							INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 						WHERE  GH.house IS NOT NULL 
 							AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
 
 						SELECT TOP 1  @Final = 'FINAL'
 						FROM  GuiasHouseDetalles GHD
-							INNER JOIN #ClientesRel CLI ON CLI.id =  GHD.idClienteFinal
+							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
 						WHERE  fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
 
 						/* CLIENTES FINALES */
@@ -669,7 +659,7 @@ BEGIN
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
-								INNER JOIN #ClientesRel CL ON CL.id =  GHD.idClienteFinal
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
@@ -752,7 +742,7 @@ BEGIN
 								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
 							FROM
 								GuiasHouse GH WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id =  GH.idCliente
+								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
@@ -836,7 +826,7 @@ BEGIN
 								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id = GH1.idCliente
+								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
@@ -898,7 +888,7 @@ BEGIN
 							CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 							CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 							 GH.IdExportador,
-							 GH.idCliente IdClienteDistribucion,
+							 GH.ConsigneeId IdClienteDistribucion,
 							 GH.idBodega,
 							PC.id IdProgramacionCarrier,
 							PC.FechaDespacho, 
@@ -912,13 +902,13 @@ BEGIN
 							EX.nombre,
 							EX.razonSocial,
 							 GHD.idTipoDePieza,
-							 GHD.idClienteFinal,
+							 GHD.ShiptoId idClienteFinal,
 							 GHD.idUsuarioLog,
 							 GHD.idPoDetalle,
 							 GHD.idDetalleMercancia,
-							 GH.idCliente,
+							 GH.ConsigneeId idCliente,
 							ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
-							GH1.idCliente  idClienteConsolidador,
+							GH1.ConsigneeId idClienteConsolidador,
 							 GH.idGuia
 						INTO  #tempNotificacion
 						FROM
@@ -985,11 +975,11 @@ BEGIN
 								 GHD.idUsuarioLog,
 								 GHD.idPoDetalle,
 								 GHD.idDetalleMercancia,
-								 GHD.idCliente,
+								 GHD.ConsigneId idCliente,
 								 GHD.nombreClienteConsigne
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #ClientesRel CL ON CL.id =  GHD.idClienteFinal
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteFinal
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -1058,7 +1048,7 @@ BEGIN
 								 GHD.nombreClienteConsigne
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #ClientesRel CL ON CL.id =  GHD.idCliente
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idCliente
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -1127,7 +1117,7 @@ BEGIN
 								 GHD.nombreClienteConsigne
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #ClientesRel CL ON CL.id =  GHD.idClienteConsolidador
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteConsolidador
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -1305,7 +1295,7 @@ BEGIN
 						@Consolidador = 'CONSOLIDADOR'
 					FROM 
 						GuiasHouse GH
-						INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 					WHERE 
 						 GH.house IS NULL 
 						AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -1314,7 +1304,7 @@ BEGIN
 						@Consignee ='CONSIGNEE'
 					FROM 
 						GuiasHouse GH
-						INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 					WHERE 
 						 GH.house IS NOT NULL 
 						AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -1323,7 +1313,7 @@ BEGIN
 						@Final = 'FINAL'
 					FROM 
 						GuiasHouseDetalles GHD
-						INNER JOIN #ClientesRel CLI ON CLI.id =  GHD.idClienteFinal
+						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
 					WHERE 
 						fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
 
@@ -1388,7 +1378,7 @@ BEGIN
 							INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND  GHD.fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
-							INNER JOIN #ClientesRel CL ON CL.id =  GHD.idClienteFinal
+							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 							INNER JOIN #idsCatalogos CATEST ON CATEST.id =  GHD.estadoPieza
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
 							INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
@@ -1474,7 +1464,7 @@ BEGIN
 						FROM
 							GuiasHouse GH WITH (NOLOCK)
 							INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
-							INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id =  GH.idCliente
+							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 							INNER JOIN #idsCatalogos CATEST ON CATEST.id =  GHD.estadoPieza
 							INNER JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON 
@@ -1562,7 +1552,7 @@ BEGIN
 							ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
 						FROM
 							GuiasHouse GH1 WITH (NOLOCK)
-							INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id = GH1.idCliente
+							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
 							INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
@@ -1750,7 +1740,7 @@ BEGIN
 							@Consolidador = 'CONSOLIDADOR'
 						FROM 
 							GuiasHouse GH
-							INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 						WHERE 
 							 GH.house IS NULL 
 							AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -1759,7 +1749,7 @@ BEGIN
 							@Consignee ='CONSIGNEE'
 						FROM 
 							GuiasHouse GH
-							INNER JOIN #ClientesRel CLI ON CLI.id =  GH.idCliente
+							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 						WHERE 
 							 GH.house IS NOT NULL 
 							AND fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -1768,7 +1758,7 @@ BEGIN
 							@Final = 'FINAL'
 						FROM 
 							GuiasHouseDetalles GHD
-							INNER JOIN #ClientesRel CLI ON CLI.id =  GHD.idClienteFinal
+							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
 						WHERE 
 							fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
 
@@ -1830,7 +1820,7 @@ BEGIN
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
-								INNER JOIN #ClientesRel CL ON CL.id =  GHD.idClienteFinal
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
@@ -1913,7 +1903,7 @@ BEGIN
 								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
 							FROM
 								dbo.GuiasHouse GH WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id =  GH.idCliente
+								INNER JOIN#TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
@@ -1997,7 +1987,7 @@ BEGIN
 								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLI WITH (NOLOCK) ON CLI.id = GH1.idCliente
+								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
@@ -2149,7 +2139,7 @@ BEGIN
 							 GHD.nombreClienteConsigne
 						FROM
 							#tempNotificaciones GHD
-							INNER JOIN #ClientesRel CL ON CL.id =  GHD.ShipToId
+							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 						WHERE 
 							( GHD.ShipToId = ISNULL(@shipToId,  GHD.ShipToId))
 							AND CASE
@@ -2219,7 +2209,7 @@ BEGIN
 							 GHD.nombreClienteConsigne
 						FROM
 							#tempNotificaciones GHD
-							INNER JOIN #ClientesRel CL ON CL.id =  GHD.ConsigneeId
+							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ConsigneeId
 						WHERE 
 							( GHD.ShipToId = ISNULL(@shipToId,  GHD.ShipToId))
 							AND CASE
@@ -2289,7 +2279,7 @@ BEGIN
 							 GHD.nombreClienteConsigne
 						FROM
 							#tempNotificaciones GHD
-							INNER JOIN #ClientesRel CL ON CL.id =  GHD.idClienteConsolidador
+							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteConsolidador
 						WHERE 
 							( GHD.ShipToId = ISNULL(@shipToId,  GHD.ShipToId))
 							AND CASE
@@ -2585,7 +2575,7 @@ BEGIN
 						
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
-						INNER JOIN #ClientesRel CLC ON CLC.id =  GHD.idClienteFinal
+						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
 						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
@@ -2774,7 +2764,7 @@ BEGIN
 						
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
-						INNER JOIN #ClientesRel CLC ON CLC.id =  GHD.idClienteFinal
+						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
 						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
@@ -2939,7 +2929,7 @@ BEGIN
 								EX.razonSocial
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLC ON CLC.id =  GH.idCliente
+								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
@@ -3121,7 +3111,7 @@ BEGIN
 								EX.razonSocial
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLC ON CLC.id =  GH.idCliente
+								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
@@ -3304,7 +3294,7 @@ BEGIN
 								EX.razonSocial
 							FROM
 								GuiasHouse gh1 WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLC ON CLC.id = GH1.idCliente
+								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
@@ -3495,7 +3485,7 @@ BEGIN
 								EX.razonSocial
 							FROM
 								GuiasHouse gh1 WITH (NOLOCK)
-								INNER JOIN #ClientesRel CLC ON CLC.id = GH1.idCliente
+								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
