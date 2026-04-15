@@ -115,7 +115,7 @@ BEGIN
 			idUsuarioLog VARCHAR(16),
 			idPoDetalle UNIQUEIDENTIFIER,
 			idDetalleMercancia VARCHAR(16),
-			idCliente VARCHAR(16),
+			ConsigneeId VARCHAR(16),
 			ConsigneeName VARCHAR(512)
 		);
 
