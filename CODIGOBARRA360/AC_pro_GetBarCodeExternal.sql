@@ -116,7 +116,7 @@ BEGIN
 			idPoDetalle UNIQUEIDENTIFIER,
 			idDetalleMercancia VARCHAR(16),
 			idCliente VARCHAR(16),
-			nombreClienteConsignee VARCHAR(512)
+			ConsigneeName VARCHAR(512)
 		);
 
 		CREATE TABLE #TMP_RelatedClients (
@@ -416,7 +416,7 @@ BEGIN
 						
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-											 GH.idCliente = PMC.idEntidad 
+											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @idParametroLista
 						WHERE  GH1.house IS NULL 
 							AND GH1.fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -462,8 +462,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						VCS.id IdClienteFinal,
-						VCS.Nombre NombreClienteFinal,
+						VCS.id ShipToId,
+						VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GHD.NroGuia,
 						GHD.House,
