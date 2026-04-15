@@ -506,14 +506,14 @@ BEGIN
 						sv.fechaSolicitud FechaOrden,
 						p.pallet PalletLabel,
 						'' EstadoCarrier,
-						 GHD.RecibidoOrigen,
-						 GHD.RecibidoDestino,
-						 GHD.DespachadoDestino,
+						GHD.RecibidoOrigen,
+						GHD.RecibidoDestino,
+						GHD.DespachadoDestino,
 						md.id IdManifiesto,
 						'' Chofer,
 						cat.Nombre AccionNombre,
 						cat.NombreIngles AccionNombreIngles,
-						 GHD.IdEmpresa,
+						GHD.IdEmpresa,
 						pod.farmName FarmName 
 					FROM  #TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
@@ -607,65 +607,65 @@ BEGIN
 						BEGIN
 							INSERT INTO #TempPiezasPorCarrier
 							SELECT DISTINCT
-								 GHD.id,
-								 GHD.idGuiaHouse, 
-								 GHD.CodigoBarra,
-								 GHD.productoDescripcion DescripcionProducto,
+								GHD.id,
+								GHD.idGuiaHouse, 
+								GHD.CodigoBarra,
+								GHD.productoDescripcion DescripcionProducto,
 								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
-								 GHD.AltoCm,
-								 GHD.AnchoCm,
-								 GHD.LargoCm,
-								 GHD.AltoIn AltoInch,
-								 GHD.AnchoIn AnchoInch,
-								 GHD.LargoIn LargoInch,
-								 GHD.Nota,
-								 GHD.EstadoPieza,
-								 GHD.FechaCreacion,
-								 GHD.FechaCambio,
-								 GHD.TotalTallos,
-								 GHD.PrecioTallo,
-								 GHD.Peso,
-								 GHD.Po,
-								 GHD.RecepcionEscaner,
-								 GHD.TruckId,
-								 GHD.idCatalogoAccion IdAccion,
-								 GHD.NoPermitirVenta,
-								 GH.NroGuia,
-								 GH.House,
-								 GH.FechaOrigen,
-								 GH.FechaDestino,
+								GHD.AltoCm,
+								GHD.AnchoCm,
+								GHD.LargoCm,
+								GHD.AltoIn AltoInch,
+								GHD.AnchoIn AnchoInch,
+								GHD.LargoIn LargoInch,
+								GHD.Nota,
+								GHD.EstadoPieza,
+								GHD.FechaCreacion,
+								GHD.FechaCambio,
+								GHD.TotalTallos,
+								GHD.PrecioTallo,
+								GHD.Peso,
+								GHD.Po,
+								GHD.RecepcionEscaner,
+								GHD.TruckId,
+								GHD.idCatalogoAccion IdAccion,
+								GHD.NoPermitirVenta,
+								GH.NroGuia,
+								GH.House,
+								GH.FechaOrigen,
+								GH.FechaDestino,
 								CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
-								 GH.IdExportador,
-								 GH.idCliente IdClienteDistribucion,
-								 GH.idBodega,
+								GH.IdExportador,
+								GH.ConsigneeId ,
+								GH.idBodega,
 								PC.id IdProgramacionCarrier,
 								PC.FechaDespacho, 
-								 GHD.RecibidoOrigen,
-								 GHD.RecibidoDestino,
-								 GHD.DespachadoDestino,
+								GHD.RecibidoOrigen,
+								GHD.RecibidoDestino,
+								GHD.DespachadoDestino,
 								'' Chofer,
-								 GH.IdEmpresa,
+								GH.IdEmpresa,
 								pmc.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
-								 GHD.idTipoDePieza,
-								 GHD.idClienteFinal,
-								 GHD.idUsuarioLog,
-								 GHD.idPoDetalle,
-								 GHD.idDetalleMercancia,
-								 GH.idCliente,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
+								GHD.idTipoDePieza,
+								GHD.ShipToId,
+								GHD.idUsuarioLog,
+								GHD.idPoDetalle,
+								GHD.idDetalleMercancia,
+								GH.ConsigneeId,
+								VCC.Nombre ConsigneeName,
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-												 GH.idCliente = PMC.idEntidad 
+												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @idParametroLista
 							WHERE 
 								 GH.fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -678,9 +678,9 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%')
+									OR VCC.nombre LIKE @consigneeName+'%')
 								AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
-								AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
+								AND ( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 				
@@ -691,65 +691,65 @@ BEGIN
 						BEGIN
 							INSERT INTO #TempPiezasPorCarrier
 							SELECT DISTINCT
-								 GHD.id,
-								 GHD.idGuiaHouse, 
-								 GHD.CodigoBarra,
-								 GHD.productoDescripcion DescripcionProducto,
+								GHD.id,
+								GHD.idGuiaHouse, 
+								GHD.CodigoBarra,
+								GHD.productoDescripcion DescripcionProducto,
 								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
-								 GHD.AltoCm,
-								 GHD.AnchoCm,
-								 GHD.LargoCm,
-								 GHD.AltoIn AltoInch,
-								 GHD.AnchoIn AnchoInch,
-								 GHD.LargoIn LargoInch,
-								 GHD.Nota,
-								 GHD.EstadoPieza,
-								 GHD.FechaCreacion,
-								 GHD.FechaCambio,
-								 GHD.TotalTallos,
-								 GHD.PrecioTallo,
-								 GHD.Peso,
-								 GHD.Po,
-								 GHD.RecepcionEscaner,
-								 GHD.TruckId,
-								 GHD.idCatalogoAccion IdAccion,
-								 GHD.NoPermitirVenta,
-								 GH.NroGuia,
-								 GH.House,
-								 GH.FechaOrigen,
-								 GH.FechaDestino,
+								GHD.AltoCm,
+								GHD.AnchoCm,
+								GHD.LargoCm,
+								GHD.AltoIn AltoInch,
+								GHD.AnchoIn AnchoInch,
+								GHD.LargoIn LargoInch,
+								GHD.Nota,
+								GHD.EstadoPieza,
+								GHD.FechaCreacion,
+								GHD.FechaCambio,
+								GHD.TotalTallos,
+								GHD.PrecioTallo,
+								GHD.Peso,
+								GHD.Po,
+								GHD.RecepcionEscaner,
+								GHD.TruckId,
+								GHD.idCatalogoAccion IdAccion,
+								GHD.NoPermitirVenta,
+								GH.NroGuia,
+								GH.House,
+								GH.FechaOrigen,
+								GH.FechaDestino,
 								CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
-								 GH.IdExportador,
-								 GH.idCliente IdClienteDistribucion,
-								 GH.idBodega,
+								GH.IdExportador,
+								GH.ConsigneeId,
+								GH.idBodega,
 								PC.id IdProgramacionCarrier,
 								PC.FechaDespacho, 
-								 GHD.RecibidoOrigen,
-								 GHD.RecibidoDestino,
-								 GHD.DespachadoDestino,
+								GHD.RecibidoOrigen,
+								GHD.RecibidoDestino,
+								GHD.DespachadoDestino,
 								'' Chofer,
-								 GH.IdEmpresa,
+								GH.IdEmpresa,
 								pmc.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
-								 GHD.idTipoDePieza,
-								 GHD.idClienteFinal,
-								 GHD.idUsuarioLog,
-								 GHD.idPoDetalle,
-								 GHD.idDetalleMercancia,
-								 GH.idCliente,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
+								GHD.idTipoDePieza,
+								GHD.ShipToId,
+								GHD.idUsuarioLog,
+								GHD.idPoDetalle,
+								GHD.idDetalleMercancia,
+								GH.ConsigneeId,
+								VCC.Nombre ConsigneeName,
 							FROM
 								GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-												 GH.idCliente = PMC.idEntidad 
+												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @idParametroLista
 							WHERE 
 								 GH.house IS NOT NULL 
@@ -763,9 +763,9 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%')
+									OR VCC.nombre LIKE @consigneeName+'%')
 								AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
-								AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
+								AND ( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 						END
@@ -775,66 +775,66 @@ BEGIN
 						BEGIN
 							INSERT INTO #TempPiezasPorCarrier
 							SELECT DISTINCT
-								 GHD.id,
-								 GHD.idGuiaHouse, 
-								 GHD.CodigoBarra,
-								 GHD.productoDescripcion DescripcionProducto,
+								GHD.id,
+								GHD.idGuiaHouse, 
+								GHD.CodigoBarra,
+								GHD.productoDescripcion DescripcionProducto,
 								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
-								 GHD.AltoCm,
-								 GHD.AnchoCm,
-								 GHD.LargoCm,
-								 GHD.AltoIn AltoInch,
-								 GHD.AnchoIn AnchoInch,
-								 GHD.LargoIn LargoInch,
-								 GHD.Nota,
-								 GHD.EstadoPieza,
-								 GHD.FechaCreacion,
-								 GHD.FechaCambio,
-								 GHD.TotalTallos,
-								 GHD.PrecioTallo,
-								 GHD.Peso,
-								 GHD.Po,
-								 GHD.RecepcionEscaner,
-								 GHD.TruckId,
-								 GHD.idCatalogoAccion IdAccion,
-								 GHD.NoPermitirVenta,
-								 GH.NroGuia,
-								 GH.House,
-								 GH.FechaOrigen,
-								 GH.FechaDestino,
+								GHD.AltoCm,
+								GHD.AnchoCm,
+								GHD.LargoCm,
+								GHD.AltoIn AltoInch,
+								GHD.AnchoIn AnchoInch,
+								GHD.LargoIn LargoInch,
+								GHD.Nota,
+								GHD.EstadoPieza,
+								GHD.FechaCreacion,
+								GHD.FechaCambio,
+								GHD.TotalTallos,
+								GHD.PrecioTallo,
+								GHD.Peso,
+								GHD.Po,
+								GHD.RecepcionEscaner,
+								GHD.TruckId,
+								GHD.idCatalogoAccion IdAccion,
+								GHD.NoPermitirVenta,
+								GH.NroGuia,
+								GH.House,
+								GH.FechaOrigen,
+								GH.FechaDestino,
 								CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
-								 GH.IdExportador,
-								 GH.idCliente IdClienteDistribucion,
-								 GH.idBodega,
+								GH.IdExportador,
+								GH.ConsigneeId,
+								GH.idBodega,
 								PC.id IdProgramacionCarrier,
 								PC.FechaDespacho, 
-								 GHD.RecibidoOrigen,
-								 GHD.RecibidoDestino,
-								 GHD.DespachadoDestino,
+								GHD.RecibidoOrigen,
+								GHD.RecibidoDestino,
+								GHD.DespachadoDestino,
 								'' Chofer,
-								 GH.IdEmpresa,
+								GH.IdEmpresa,
 								pmc.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
-								 GHD.idTipoDePieza,
-								 GHD.idClienteFinal,
-								 GHD.idUsuarioLog,
-								 GHD.idPoDetalle,
-								 GHD.idDetalleMercancia,
-								 GH.idCliente,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
+								GHD.idTipoDePieza,
+								GHD.ShipToId,
+								GHD.idUsuarioLog,
+								GHD.idPoDetalle,
+								GHD.idDetalleMercancia,
+								GH.ConsigneeId,
+								VCC.Nombre ConsigneeName,
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-												 GH.idCliente = PMC.idEntidad 
+												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @idParametroLista
 							WHERE 
 								GH1.house IS NULL 
@@ -848,9 +848,9 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%')
+									OR VCC.nombre LIKE @consigneeName+'%')
 								AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
-								AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
+								AND ( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 						END
@@ -859,128 +859,129 @@ BEGIN
 					BEGIN
 					
 						SELECT 
-							 GHD.id,
-							 GHD.idGuiaHouse, 
-							 GHD.CodigoBarra,
-							 GHD.productoDescripcion DescripcionProducto,
+							GHD.id,
+							GHD.idGuiaHouse, 
+							GHD.CodigoBarra,
+							GHD.productoDescripcion DescripcionProducto,
 							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
-							 GHD.AltoCm,
-							 GHD.AnchoCm,
-							 GHD.LargoCm,
-							 GHD.AltoIn AltoInch,
-							 GHD.AnchoIn AnchoInch,
-							 GHD.LargoIn LargoInch,
-							 GHD.Nota,
-							 GHD.EstadoPieza,
-							 GHD.FechaCreacion,
-							 GHD.FechaCambio,
-							 GHD.TotalTallos,
-							 GHD.PrecioTallo,
-							 GHD.Peso,
-							 GHD.Po,
-							 GHD.RecepcionEscaner,
-							 GHD.TruckId,
-							 GHD.idCatalogoAccion IdAccion,
-							 GHD.NoPermitirVenta,
-							 GH.NroGuia,
-							 GH.House,
-							 GH.FechaOrigen,
-							 GH.FechaDestino,
+							GHD.AltoCm,
+							GHD.AnchoCm,
+							GHD.LargoCm,
+							GHD.AltoIn AltoInch,
+							GHD.AnchoIn AnchoInch,
+							GHD.LargoIn LargoInch,
+							GHD.Nota,
+							GHD.EstadoPieza,
+							GHD.FechaCreacion,
+							GHD.FechaCambio,
+							GHD.TotalTallos,
+							GHD.PrecioTallo,
+							GHD.Peso,
+							GHD.Po,
+							GHD.RecepcionEscaner,
+							GHD.TruckId,
+							GHD.idCatalogoAccion IdAccion,
+							GHD.NoPermitirVenta,
+							GH.NroGuia,
+							GH.House,
+							GH.FechaOrigen,
+							GH.FechaDestino,
 							CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 							CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
-							 GH.IdExportador,
-							 GH.ConsigneeId IdClienteDistribucion,
-							 GH.idBodega,
+							GH.IdExportador,
+							GH.ConsigneeId,
+							GH.idBodega,
 							PC.id IdProgramacionCarrier,
 							PC.FechaDespacho, 
-							 GHD.RecibidoOrigen,
-							 GHD.RecibidoDestino,
-							 GHD.DespachadoDestino,
+							GHD.RecibidoOrigen,
+							GHD.RecibidoDestino,
+							GHD.DespachadoDestino,
 							'' Chofer,
-							 GH.IdEmpresa,
+							GH.IdEmpresa,
 							pmc.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
-							 GHD.idTipoDePieza,
-							 GHD.ShiptoId idClienteFinal,
-							 GHD.idUsuarioLog,
-							 GHD.idPoDetalle,
-							 GHD.idDetalleMercancia,
-							 GH.ConsigneeId idCliente,
-							ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+							GHD.idTipoDePieza,
+							GHD.ShiptoId,
+							GHD.idUsuarioLog,
+							GHD.idPoDetalle,
+							GHD.idDetalleMercancia,
+							GH.ConsigneeId,
+							VCC.nombre ConsigneeName
+							-- ver que hace
 							GH1.ConsigneeId idClienteConsolidador,
-							 GH.idGuia
+							GH.idGuia
 						INTO  #tempNotificacion
 						FROM
 							NotificacionPiezasDetalle ntpd WITH (NOLOCK) 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON ntpd.idGuiaHouseDetalle =  GHD.id
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
-							INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-											 GH.idCliente = PMC.idEntidad 
+											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @idParametroLista
 						WHERE 
 							ntPD.idNotificacionPiezas = @idNotificacion
 
 						INSERT INTO #TempPiezasPorCarrier
 							SELECT 
-								 GHD.id,
-								 GHD.idGuiaHouse, 
-								 GHD.CodigoBarra,
-								 GHD.DescripcionProducto,
-								 GHD.FechaRecepcion,
-								 GHD.AltoCm,
-								 GHD.AnchoCm,
-								 GHD.LargoCm,
-								 GHD.AltoInch,
-								 GHD.AnchoInch,
-								 GHD.LargoInch,
-								 GHD.Nota,
-								 GHD.EstadoPieza,
-								 GHD.FechaCreacion,
-								 GHD.FechaCambio,
-								 GHD.TotalTallos,
-								 GHD.PrecioTallo,
-								 GHD.Peso,
-								 GHD.Po,
-								 GHD.RecepcionEscaner,
-								 GHD.TruckId,
-								 GHD.IdAccion,
-								 GHD.NoPermitirVenta,
-								 GHD.NroGuia,
-								 GHD.House,
-								 GHD.FechaOrigen,
-								 GHD.FechaDestino,
-								 GHD.FechaOrigenFecha,
-								 GHD.FechaDestinoFecha,
-								 GHD.IdExportador,
-								 GHD.IdClienteDistribucion,
-								 GHD.idBodega,
-								 GHD.IdProgramacionCarrier,
-								 GHD.FechaDespacho, 
-								 GHD.RecibidoOrigen,
-								 GHD.RecibidoDestino,
-								 GHD.DespachadoDestino,
-								 GHD.Chofer,
-								 GHD.IdEmpresa,
-								 GHD.valor,
-								 GHD.nombreComercial,
-								 GHD.nombre,
-								 GHD.razonSocial,
-								 GHD.idTipoDePieza,
-								 GHD.idClienteFinal,
-								 GHD.idUsuarioLog,
-								 GHD.idPoDetalle,
-								 GHD.idDetalleMercancia,
-								 GHD.ConsigneId idCliente,
-								 GHD.nombreClienteConsigne
+								GHD.id,
+								GHD.idGuiaHouse, 
+								GHD.CodigoBarra,
+								GHD.DescripcionProducto,
+								GHD.FechaRecepcion,
+								GHD.AltoCm,
+								GHD.AnchoCm,
+								GHD.LargoCm,
+								GHD.AltoInch,
+								GHD.AnchoInch,
+								GHD.LargoInch,
+								GHD.Nota,
+								GHD.EstadoPieza,
+								GHD.FechaCreacion,
+								GHD.FechaCambio,
+								GHD.TotalTallos,
+								GHD.PrecioTallo,
+								GHD.Peso,
+								GHD.Po,
+								GHD.RecepcionEscaner,
+								GHD.TruckId,
+								GHD.IdAccion,
+								GHD.NoPermitirVenta,
+								GHD.NroGuia,
+								GHD.House,
+								GHD.FechaOrigen,
+								GHD.FechaDestino,
+								GHD.FechaOrigenFecha,
+								GHD.FechaDestinoFecha,
+								GHD.IdExportador,
+								GHD.ConsigneeId,
+								GHD.idBodega,
+								GHD.IdProgramacionCarrier,
+								GHD.FechaDespacho, 
+								GHD.RecibidoOrigen,
+								GHD.RecibidoDestino,
+								GHD.DespachadoDestino,
+								GHD.Chofer,
+								GHD.IdEmpresa,
+								GHD.valor,
+								GHD.nombreComercial,
+								GHD.nombre,
+								GHD.razonSocial,
+								GHD.idTipoDePieza,
+								GHD.ShipToId,
+								GHD.idUsuarioLog,
+								GHD.idPoDetalle,
+								GHD.idDetalleMercancia,
+								GHD.ConsigneeId,
+								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteFinal
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -990,66 +991,66 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR  GHD.nombreClienteConsigne LIKE @consigneeName+'%')
+									OR  GHD.ConsigneeName LIKE @consigneeName+'%')
 								AND ( GHD.idGuia = ISNULL(@idGuia,  GHD.idGuia))
 								AND( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
 								AND (@supplierName IS NULL OR  GHD.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GHD.house LIKE @house+'%')
 							UNION
 							SELECT 
-								 GHD.id,
-								 GHD.idGuiaHouse, 
-								 GHD.CodigoBarra,
-								 GHD.DescripcionProducto,
-								 GHD.FechaRecepcion,
-								 GHD.AltoCm,
-								 GHD.AnchoCm,
-								 GHD.LargoCm,
-								 GHD.AltoInch,
-								 GHD.AnchoInch,
-								 GHD.LargoInch,
-								 GHD.Nota,
-								 GHD.EstadoPieza,
-								 GHD.FechaCreacion,
-								 GHD.FechaCambio,
-								 GHD.TotalTallos,
-								 GHD.PrecioTallo,
-								 GHD.Peso,
-								 GHD.Po,
-								 GHD.RecepcionEscaner,
-								 GHD.TruckId,
-								 GHD.IdAccion,
-								 GHD.NoPermitirVenta,
-								 GHD.NroGuia,
-								 GHD.House,
-								 GHD.FechaOrigen,
-								 GHD.FechaDestino,
-								 GHD.FechaOrigenFecha,
-								 GHD.FechaDestinoFecha,
-								 GHD.IdExportador,
-								 GHD.IdClienteDistribucion,
-								 GHD.idBodega,
-								 GHD.IdProgramacionCarrier,
-								 GHD.FechaDespacho, 
-								 GHD.RecibidoOrigen,
-								 GHD.RecibidoDestino,
-								 GHD.DespachadoDestino,
-								 GHD.Chofer,
-								 GHD.IdEmpresa,
-								 GHD.valor,
-								 GHD.nombreComercial,
-								 GHD.nombre,
-								 GHD.razonSocial,
-								 GHD.idTipoDePieza,
-								 GHD.idClienteFinal,
-								 GHD.idUsuarioLog,
-								 GHD.idPoDetalle,
-								 GHD.idDetalleMercancia,
-								 GHD.idCliente,
-								 GHD.nombreClienteConsigne
+								GHD.id,
+								GHD.idGuiaHouse, 
+								GHD.CodigoBarra,
+								GHD.DescripcionProducto,
+								GHD.FechaRecepcion,
+								GHD.AltoCm,
+								GHD.AnchoCm,
+								GHD.LargoCm,
+								GHD.AltoInch,
+								GHD.AnchoInch,
+								GHD.LargoInch,
+								GHD.Nota,
+								GHD.EstadoPieza,
+								GHD.FechaCreacion,
+								GHD.FechaCambio,
+								GHD.TotalTallos,
+								GHD.PrecioTallo,
+								GHD.Peso,
+								GHD.Po,
+								GHD.RecepcionEscaner,
+								GHD.TruckId,
+								GHD.IdAccion,
+								GHD.NoPermitirVenta,
+								GHD.NroGuia,
+								GHD.House,
+								GHD.FechaOrigen,
+								GHD.FechaDestino,
+								GHD.FechaOrigenFecha,
+								GHD.FechaDestinoFecha,
+								GHD.IdExportador,
+								GHD.ConsigneeId,
+								GHD.idBodega,
+								GHD.IdProgramacionCarrier,
+								GHD.FechaDespacho, 
+								GHD.RecibidoOrigen,
+								GHD.RecibidoDestino,
+								GHD.DespachadoDestino,
+								GHD.Chofer,
+								GHD.IdEmpresa,
+								GHD.valor,
+								GHD.nombreComercial,
+								GHD.nombre,
+								GHD.razonSocial,
+								GHD.idTipoDePieza,
+								GHD.ShipToId,
+								GHD.idUsuarioLog,
+								GHD.idPoDetalle,
+								GHD.idDetalleMercancia,
+								GHD.ConsigneeId,
+								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idCliente
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ConsigneeId
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -1059,66 +1060,66 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR  GHD.nombreClienteConsigne LIKE @consigneeName+'%')
+									OR  GHD.ConsigneeName LIKE @consigneeName+'%')
 								AND ( GHD.idGuia = ISNULL(@idGuia,  GHD.idGuia))
 								AND( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
 								AND (@supplierName IS NULL OR  GHD.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GHD.house LIKE @house+'%')
 							UNION
 							SELECT 
-								 GHD.id,
-								 GHD.idGuiaHouse, 
-								 GHD.CodigoBarra,
-								 GHD.DescripcionProducto,
-								 GHD.FechaRecepcion,
-								 GHD.AltoCm,
-								 GHD.AnchoCm,
-								 GHD.LargoCm,
-								 GHD.AltoInch,
-								 GHD.AnchoInch,
-								 GHD.LargoInch,
-								 GHD.Nota,
-								 GHD.EstadoPieza,
-								 GHD.FechaCreacion,
-								 GHD.FechaCambio,
-								 GHD.TotalTallos,
-								 GHD.PrecioTallo,
-								 GHD.Peso,
-								 GHD.Po,
-								 GHD.RecepcionEscaner,
-								 GHD.TruckId,
-								 GHD.IdAccion,
-								 GHD.NoPermitirVenta,
-								 GHD.NroGuia,
-								 GHD.House,
-								 GHD.FechaOrigen,
-								 GHD.FechaDestino,
-								 GHD.FechaOrigenFecha,
-								 GHD.FechaDestinoFecha,
-								 GHD.IdExportador,
-								 GHD.IdClienteDistribucion,
-								 GHD.idBodega,
-								 GHD.IdProgramacionCarrier,
-								 GHD.FechaDespacho, 
-								 GHD.RecibidoOrigen,
-								 GHD.RecibidoDestino,
-								 GHD.DespachadoDestino,
-								 GHD.Chofer,
-								 GHD.IdEmpresa,
-								 GHD.valor,
-								 GHD.nombreComercial,
-								 GHD.nombre,
-								 GHD.razonSocial,
-								 GHD.idTipoDePieza,
-								 GHD.idClienteFinal,
-								 GHD.idUsuarioLog,
-								 GHD.idPoDetalle,
-								 GHD.idDetalleMercancia,
-								 GHD.idCliente,
-								 GHD.nombreClienteConsigne
+								GHD.id,
+								GHD.idGuiaHouse, 
+								GHD.CodigoBarra,
+								GHD.DescripcionProducto,
+								GHD.FechaRecepcion,
+								GHD.AltoCm,
+								GHD.AnchoCm,
+								GHD.LargoCm,
+								GHD.AltoInch,
+								GHD.AnchoInch,
+								GHD.LargoInch,
+								GHD.Nota,
+								GHD.EstadoPieza,
+								GHD.FechaCreacion,
+								GHD.FechaCambio,
+								GHD.TotalTallos,
+								GHD.PrecioTallo,
+								GHD.Peso,
+								GHD.Po,
+								GHD.RecepcionEscaner,
+								GHD.TruckId,
+								GHD.IdAccion,
+								GHD.NoPermitirVenta,
+								GHD.NroGuia,
+								GHD.House,
+								GHD.FechaOrigen,
+								GHD.FechaDestino,
+								GHD.FechaOrigenFecha,
+								GHD.FechaDestinoFecha,
+								GHD.IdExportador,
+								GHD.ConsigneeId,
+								GHD.idBodega,
+								GHD.IdProgramacionCarrier,
+								GHD.FechaDespacho, 
+								GHD.RecibidoOrigen,
+								GHD.RecibidoDestino,
+								GHD.DespachadoDestino,
+								GHD.Chofer,
+								GHD.IdEmpresa,
+								GHD.valor,
+								GHD.nombreComercial,
+								GHD.nombre,
+								GHD.razonSocial,
+								GHD.idTipoDePieza,
+								GHD.ShipToId,
+								GHD.idUsuarioLog,
+								GHD.idPoDetalle,
+								GHD.idDetalleMercancia,
+								GHD.ConsigneeId,
+								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteConsolidador
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ConsigneeId
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -1128,7 +1129,7 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR  GHD.nombreClienteConsigne LIKE @consigneeName+'%')
+									OR  GHD.ConsigneeName LIKE @consigneeName+'%')
 								AND ( GHD.idGuia = ISNULL(@idGuia,  GHD.idGuia))
 								AND( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
 								AND (@supplierName IS NULL OR  GHD.nombreComercial LIKE @supplierName+'%')
@@ -1137,49 +1138,49 @@ BEGIN
 					END
 
 					SELECT DISTINCT
-						 GHD.id,
-						 GHD.idGuiaHouse, 
-						 GHD.CodigoBarra,
-						 GHD.productoDescripcion DescripcionProducto,
+						GHD.id,
+						GHD.idGuiaHouse, 
+						GHD.CodigoBarra,
+						GHD.productoDescripcion DescripcionProducto,
 						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
-						 GHD.AltoCm,
-						 GHD.AnchoCm,
-						 GHD.LargoCm,
-						 GHD.AltoInch,
-						 GHD.AnchoInch,
-						 GHD.LargoInch,
-						 GHD.Nota,
-						 GHD.EstadoPieza,
-						 GHD.FechaCreacion,
-						 GHD.FechaCambio,
-						 GHD.TotalTallos,
-						 GHD.PrecioTallo,
-						 GHD.Peso,
-						 GHD.Po,
-						 GHD.RecepcionEscaner,
-						 GHD.TruckId,
-						 GHD.IdAccion,
-						 GHD.NoPermitirVenta,
+						GHD.AltoCm,
+						GHD.AnchoCm,
+						GHD.LargoCm,
+						GHD.AltoInch,
+						GHD.AnchoInch,
+						GHD.LargoInch,
+						GHD.Nota,
+						GHD.EstadoPieza,
+						GHD.FechaCreacion,
+						GHD.FechaCambio,
+						GHD.TotalTallos,
+						GHD.PrecioTallo,
+						GHD.Peso,
+						GHD.Po,
+						GHD.RecepcionEscaner,
+						GHD.TruckId,
+						GHD.IdAccion,
+						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+						VCS.Id ShipToId,
+						VCS.Nombre ShipToName,
 						u.nombre Nombre,
-						 GHD.NroGuia,
-						 GHD.House,
-						 GHD.FechaOrigen,
-						 GHD.FechaDestino,
-						 GHD.fechaOrigen FechaOrigenFecha,
-						 GHD.fechaDestino FechaDestinoFecha,
-						 GHD.IdExportador,
-						 GHD.nombreComercial NombreComercialExportador,
-						 GHD.nombre NombreExportador,
-						 GHD.razonSocial RazonSocialExportador,
-						 GHD.idCliente IdClienteDistribucion,
-						 GHD.nombreClienteConsignee NombreClienteDistribucion,
+						GHD.NroGuia,
+						GHD.House,
+						GHD.FechaOrigen,
+						GHD.FechaDestino,
+						GHD.fechaOrigen FechaOrigenFecha,
+						GHD.fechaDestino FechaDestinoFecha,
+						GHD.IdExportador,
+						GHD.nombreComercial NombreComercialExportador,
+						GHD.nombre NombreExportador,
+						GHD.razonSocial RazonSocialExportador,
+						GHD.ConsigneeId,
+						GHD.ConsigneeName,
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
-						 GHD.valor CodigoClienteInventario, 
+						GHD.valor CodigoClienteInventario, 
 						ed.Puerta, 
 						'' Camion,
 						ed.truckId NroDespacho,
@@ -1206,20 +1207,20 @@ BEGIN
 						sv.fechaSolicitud FechaOrden,
 						p.pallet PalletLabel,
 						'' EstadoCarrier,
-						 GHD.RecibidoOrigen,
-						 GHD.RecibidoDestino,
-						 GHD.DespachadoDestino,
+						GHD.RecibidoOrigen,
+						GHD.RecibidoDestino,
+						GHD.DespachadoDestino,
 						md.id IdManifiesto,
 						'' Chofer,
 						cat.Nombre AccionNombre,
 						cat.NombreIngles AccionNombreIngles,
-						 GHD.IdEmpresa,
+						GHD.IdEmpresa,
 						pod.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id 
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -1266,7 +1267,7 @@ BEGIN
 						AND (@orden IS NULL OR sv.nroOrden LIKE @orden+'%')
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND CASE 
 							WHEN @IdBodega IS NULL THEN 1
