@@ -230,15 +230,15 @@ BEGIN
 							 GHD.idUsuarioLog,
 							 GHD.idPoDetalle,
 							 GHD.idDetalleMercancia,
-							 GH.idCliente,
-							vcd.nombre ConsigneeName
+							GH.ConsigneeId,
+							VCC.nombre ConsigneeName
 						FROM ProgramacionCarrier pc  WITH (NOLOCK)
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND  GHD.fechaCreacion BETWEEN @fechaDesde AND @FechaHasta
 							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
-							INNER JOIN v_ClientsEntities vcd WITH (NOLOCK) ON  GH.ConsigneeId = vcd.ConsigneeId 
+							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
@@ -254,7 +254,7 @@ BEGIN
 							AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 							AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 							AND (@consigneeName IS NULL 
-								OR vcd.nombre LIKE @consigneeName+'%')
+								OR VCC.nombre LIKE @consigneeName+'%')
 							AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
 							AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 							AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
