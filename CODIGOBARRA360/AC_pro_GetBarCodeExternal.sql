@@ -462,8 +462,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+						VCS.id IdClienteFinal,
+						VCS.Nombre NombreClienteFinal,
 						u.nombre Nombre,
 						GHD.NroGuia,
 						GHD.House,
@@ -475,8 +475,8 @@ BEGIN
 						GHD.nombreComercial NombreComercialExportador,
 						GHD.nombre NombreExportador,
 						GHD.razonSocial RazonSocialExportador,
-						GHD.idCliente IdClienteDistribucion,
-						GHD.nombreClienteConsignee NombreClienteDistribucion,
+						GHD.ConsigneeId,
+						GHD.ConsigneeName,
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
@@ -518,7 +518,7 @@ BEGIN
 					FROM  #TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -564,7 +564,7 @@ BEGIN
 						AND (@orden IS NULL OR sv.nroOrden LIKE @orden+'%')
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND CASE 
 							WHEN @IdBodega IS NULL THEN 1
