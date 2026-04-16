@@ -36,7 +36,8 @@ ALTER   PROCEDURE [dbo].[AC_pro_GetBarCodeExternal]
 	@shipToName			VARCHAR(512) = NULL,
 	@shipToId			VARCHAR(16) = NULL,
 	@billToName			VARCHAR(512) = NULL, --nuevo
-	@billToId			VARCHAR(16) = NULL --nuevo
+	@billToId			VARCHAR(16) = NULL, --nuevo
+	@UserType           VARCHAR(32) = NULL
 )
 AS
 BEGIN 
@@ -656,7 +657,7 @@ BEGIN
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
 								GH.ConsigneeId,
-								VCC.Nombre ConsigneeName,
+								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
@@ -740,7 +741,7 @@ BEGIN
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
 								GH.ConsigneeId,
-								VCC.Nombre ConsigneeName,
+								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
@@ -824,7 +825,7 @@ BEGIN
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
 								GH.ConsigneeId,
-								VCC.Nombre ConsigneeName,
+								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
@@ -903,13 +904,13 @@ BEGIN
 							EX.nombre,
 							EX.razonSocial,
 							GHD.idTipoDePieza,
-							GHD.ShiptoId,
+							GHD.ShipToId,
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
 							GH.ConsigneeId,
 							VCC.nombre ConsigneeName
-							-- ver que hace
+							-- ver que hace - OCUPA EN EL UNION
 							GH1.ConsigneeId idClienteConsolidador,
 							GH.idGuia
 						INTO  #tempNotificacion
@@ -1119,7 +1120,7 @@ BEGIN
 								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
-								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ConsigneeId
+								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteConsolidador
 							WHERE 
 								CASE
 									WHEN @idGuiaHouse IS NULL THEN 1
@@ -1491,7 +1492,7 @@ BEGIN
 							AND ( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 							AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 							AND (@house IS NULL OR  GH.house LIKE @house+'%')
-							AND ( GHD.ShipToId = ISNULL(@shipToId,  GHD.idClienteFinal))
+							AND ( GHD.ShipToId = ISNULL(@shipToId,  GHD.ShipToId))
 							AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 							AND (@TruckId IS NULL OR  GHD.truckId LIKE '%' + @TruckId + '%')
 							AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
@@ -1613,8 +1614,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+						VCS.id ShipToId,
+						VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GHD.NroGuia,
 						GHD.House,
@@ -1626,8 +1627,8 @@ BEGIN
 						GHD.nombreComercial NombreComercialExportador,
 						GHD.nombre NombreExportador,
 						GHD.razonSocial RazonSocialExportador,
-						GHD.idCliente IdClienteDistribucion,
-						GHD.nombreClienteConsignee NombreClienteDistribucion,
+						GHD.ConsigneeId,
+						GHD.ConsigneeName,
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
@@ -1670,7 +1671,7 @@ BEGIN
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -1721,7 +1722,7 @@ BEGIN
 							ELSE 0 END = 1
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN vcs.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND CASE 
 								WHEN @esInventario IS NULL THEN 1
