@@ -1736,6 +1736,7 @@ BEGIN
 				
 				END
 				ELSE
+
 				BEGIN
 					IF @idNotificacion IS NULL
 					BEGIN
@@ -1801,7 +1802,7 @@ BEGIN
 								CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.IdExportador,
-								GH.idCliente IdClienteDistribucion,
+								GH.ConsigneeId,
 								GH.idBodega,
 								PC.id IdProgramacionCarrier,
 								PC.FechaDespacho, 
@@ -1815,21 +1816,21 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial,
 								GHD.idTipoDePieza,
-								GHD.idClienteFinal,
+								GHD.ShipToId,
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.idCliente,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
+								GH.ConsigneeId,
+                                VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-												 GH.idCliente = PMC.idEntidad 
+												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @idParametroLista
 							WHERE 
 								 GH.fechaDestino BETWEEN @fechaDesde AND @FechaHasta
@@ -1842,7 +1843,7 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%')
+									OR VCC.Nombre LIKE @consigneeName+'%')
 								AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
 								AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
@@ -1885,7 +1886,7 @@ BEGIN
 								CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.IdExportador,
-								GH.idCliente IdClienteDistribucion,
+								GH.ConsigneeId,
 								GH.idBodega,
 								PC.id IdProgramacionCarrier,
 								PC.FechaDespacho, 
@@ -1899,21 +1900,21 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial,
 								GHD.idTipoDePieza,
-								GHD.idClienteFinal,
+								GHD.ConsigneeId,
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.idCliente,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
+								GH.ConsigneeId,
+                                VCC.Nombre ConsigneeName
 							FROM
 								dbo.GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN#TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-												 GH.idCliente = PMC.idEntidad 
+												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @idParametroLista
 							WHERE 
 								 GH.house IS NOT NULL 
@@ -1927,9 +1928,9 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%')
+									OR VCC.Nombre LIKE @consigneeName+'%')
 								AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
-								AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
+								AND ( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 						END
@@ -1969,7 +1970,7 @@ BEGIN
 								CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.IdExportador,
-								GH.idCliente IdClienteDistribucion,
+								GH.ConsigneeId,
 								GH.idBodega,
 								PC.id IdProgramacionCarrier,
 								PC.FechaDespacho, 
@@ -1987,18 +1988,18 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.idCliente,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne
+								GH.ConsigneeId,
+								VCC.Nombre nombreClienteConsigne
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-												 GH.idCliente = PMC.idEntidad 
+												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @idParametroLista
 							WHERE 
 								GH1.house IS NULL 
@@ -2012,7 +2013,7 @@ BEGIN
 								AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 								AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 								AND (@consigneeName IS NULL 
-									OR ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%')
+									OR VCC.Nombre LIKE @consigneeName+'%')
 								AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
 								AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
@@ -2052,7 +2053,7 @@ BEGIN
 							CONVERT(DATE,  GH.fechaOrigen) FechaOrigenFecha,
 							CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 							GH.IdExportador,
-							GH.idCliente IdClienteDistribucion,
+							GH.ConsigneeId,
 							GH.idBodega,
 							PC.id IdProgramacionCarrier,
 							PC.FechaDespacho, 
@@ -2071,7 +2072,7 @@ BEGIN
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
 							GH.ConsigneeId,
-							ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                            vcc.Nombre ConsigneeName,
 							GH1.idCliente  idClienteConsolidador,
 							GH.idGuia
 						INTO  #tempNotificaciones
@@ -2080,11 +2081,11 @@ BEGIN
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON ntpd.idGuiaHouseDetalle =  GHD.id
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
-							INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                            INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-											 GH.idCliente = PMC.idEntidad 
+											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @idParametroLista
 						WHERE 
 							ntPD.idNotificacionPiezas = @idNotificacion
@@ -2121,7 +2122,7 @@ BEGIN
 							GHD.FechaOrigenFecha,
 							GHD.FechaDestinoFecha,
 							GHD.IdExportador,
-							GHD.IdClienteDistribucion,
+							GHD.ConsigneeId,
 							GHD.idBodega,
 							GHD.IdProgramacionCarrier,
 							GHD.FechaDespacho, 
@@ -2140,7 +2141,7 @@ BEGIN
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
 							GHD.ConsigneeId,
-							GHD.nombreClienteConsigne
+							GHD.ConsigneeName
 						FROM
 							#tempNotificaciones GHD
 							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
@@ -2154,9 +2155,9 @@ BEGIN
 							AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 							AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 							AND (@consigneeName IS NULL 
-								OR  GHD.nombreClienteConsigne LIKE @consigneeName+'%')
+								OR  GHD.ConsigneeName LIKE @consigneeName+'%')
 							AND ( GHD.idGuia = ISNULL(@idGuia,  GHD.idGuia))
-							AND( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
+							AND ( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
 							AND (@supplierName IS NULL OR  GHD.nombreComercial LIKE @supplierName+'%')
 							AND (@house IS NULL OR  GHD.house LIKE @house+'%')
 						UNION
@@ -2191,7 +2192,7 @@ BEGIN
 							GHD.FechaOrigenFecha,
 							GHD.FechaDestinoFecha,
 							GHD.IdExportador,
-							GHD.IdClienteDistribucion,
+							GHD.ConsigneeId,
 							GHD.idBodega,
 							GHD.IdProgramacionCarrier,
 							GHD.FechaDespacho, 
@@ -2210,7 +2211,7 @@ BEGIN
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
 							GHD.ConsigneeId,
-							GHD.nombreClienteConsigne
+							GHD.ConsigneeName
 						FROM
 							#tempNotificaciones GHD
 							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ConsigneeId
@@ -2224,9 +2225,9 @@ BEGIN
 							AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 							AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 							AND (@consigneeName IS NULL 
-								OR  GHD.nombreClienteConsigne LIKE @consigneeName+'%')
+								OR  GHD.ConsigneeName LIKE @consigneeName+'%')
 							AND ( GHD.idGuia = ISNULL(@idGuia,  GHD.idGuia))
-							AND( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
+							AND ( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
 							AND (@supplierName IS NULL OR  GHD.nombreComercial LIKE @supplierName+'%')
 							AND (@house IS NULL OR  GHD.house LIKE @house+'%')
 						UNION
@@ -2261,7 +2262,7 @@ BEGIN
 							 GHD.FechaOrigenFecha,
 							 GHD.FechaDestinoFecha,
 							 GHD.IdExportador,
-							 GHD.IdClienteDistribucion,
+							 GHD.ConsigneeId,
 							 GHD.idBodega,
 							 GHD.IdProgramacionCarrier,
 							 GHD.FechaDespacho, 
@@ -2280,7 +2281,7 @@ BEGIN
 							 GHD.idPoDetalle,
 							 GHD.idDetalleMercancia,
 							 GHD.ConsigneeId,
-							 GHD.nombreClienteConsigne
+							 GHD.ConsigneeName
 						FROM
 							#tempNotificaciones GHD
 							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.idClienteConsolidador
@@ -2294,7 +2295,7 @@ BEGIN
 							AND (@codBarra IS NULL OR  GHD.codigoBarra LIKE @codBarra+'%')
 							AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 							AND (@consigneeName IS NULL 
-								OR  GHD.nombreClienteConsigne LIKE @consigneeName+'%')
+								OR  GHD.ConsigneeName LIKE @consigneeName+'%')
 							AND ( GHD.idGuia = ISNULL(@idGuia,  GHD.idGuia))
 							AND( GHD.idExportador = ISNULL(@supplierId,  GHD.idExportador))
 							AND (@supplierName IS NULL OR  GHD.nombreComercial LIKE @supplierName+'%')
@@ -2327,8 +2328,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GHD.NroGuia,
 						GHD.House,
@@ -2340,8 +2341,8 @@ BEGIN
 						GHD.nombreComercial NombreComercialExportador,
 						GHD.nombre NombreExportador,
 						GHD.razonSocial RazonSocialExportador,
-						GHD.idCliente IdClienteDistribucion,
-						GHD.nombreClienteConsignee NombreClienteDistribucion,
+						GHD.ConsigneeId,
+						GHD.ConsigneeName,
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
@@ -2384,7 +2385,7 @@ BEGIN
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -2435,7 +2436,7 @@ BEGIN
 						AND (@orden IS NULL OR sv.nroOrden LIKE @orden+'%')
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND CASE 
 							WHEN @IdBodega IS NULL THEN 1
@@ -2487,8 +2488,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GH.NroGuia,
 						GH.House,
@@ -2500,8 +2501,8 @@ BEGIN
 						GH.nombreComercial NombreComercialExportador,
 						GH.nombre NombreExportador,
 						GH.razonSocial RazonSocialExportador,
-						GH.idCliente IdClienteDistribucion,
-						GH.nombreClienteConsigne NombreClienteDistribucion,
+						GH.ConsigneeId ,
+						GH.ConsigneeName ,
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
@@ -2552,9 +2553,9 @@ BEGIN
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.idBodega,
 								GH.IdEmpresa,
-								GH.idCliente,
+								GH.ConsigneeId,
 								GH.idGuia,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                                VCC.Nombre ConsigneeName,
 								pmc.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
@@ -2563,9 +2564,9 @@ BEGIN
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-										 GH.idCliente = PMC.idEntidad 
+										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @idParametroLista
 							WHERE
 								 GH.idGuia = @idGuia
@@ -2574,14 +2575,14 @@ BEGIN
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 								AND CASE 
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%' THEN 1
+									WHEN VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						INNER JOIN ProgramacionCarrier pc WITH (NOLOCK) ON
 															 GHD.id = PC.idGuiaHouseDetalle 
@@ -2633,7 +2634,7 @@ BEGIN
 				
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND (@nroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @nroManifiesto + '%')
 						AND (@palletLabel IS NULL OR p.pallet LIKE '%' + @palletLabel + '%')
@@ -2676,8 +2677,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GH.NroGuia,
 						GH.House,
@@ -2689,8 +2690,8 @@ BEGIN
 						GH.nombreComercial NombreComercialExportador,
 						GH.nombre NombreExportador,
 						GH.razonSocial RazonSocialExportador,
-						GH.idCliente IdClienteDistribucion,
-						GH.nombreClienteConsigne NombreClienteDistribucion,
+						GH.ConsigneeId ,
+						GH.ConsigneeName ,
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
@@ -2743,7 +2744,7 @@ BEGIN
 								GH.IdEmpresa,
 								GH.idCliente,
 								GH.idGuia,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                                VCC.Nombre ConsigneeName,
 								pmc.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
@@ -2752,25 +2753,25 @@ BEGIN
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-										 GH.idCliente = PMC.idEntidad 
+										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @idParametroLista
 							WHERE
 								 GH.idGuia = @idGuia
 								AND ( GH.idExportador =  ISNULL(@supplierId,  GH.idExportador))
 								AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
-								AND CASE 
+								AND CASE  
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%' THEN 1
+									WHEN VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -2818,7 +2819,7 @@ BEGIN
 						AND (@nroPo IS NULL OR  GHD.po LIKE '%' + @nroPo + '%')
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND (@nroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @nroManifiesto + '%')
 						AND (@palletLabel IS NULL OR p.pallet LIKE '%' + @palletLabel + '%')
@@ -2857,8 +2858,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GH.NroGuia,
 						GH.House,
@@ -2870,8 +2871,8 @@ BEGIN
 						GH.nombreComercial NombreComercialExportador,
 						GH.nombre NombreExportador,
 						GH.razonSocial RazonSocialExportador,
-						GH.idCliente IdClienteDistribucion,
-						GH.nombreClienteConsigne NombreClienteDistribucion,
+						GH.ConsigneeId ,
+						GH.ConsigneeName ,
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
@@ -2923,9 +2924,9 @@ BEGIN
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.idBodega,
 								GH.IdEmpresa,
-								GH.idCliente,
+								GH.ConsigneeId,
 								GH.idGuia,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                                VCC.Nombre ConsigneeName,
 								pmc.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
@@ -2935,9 +2936,9 @@ BEGIN
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-										 GH.idCliente = PMC.idEntidad 
+										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @idParametroLista
 							WHERE
 								 GH.idGuia = @idGuia
@@ -2946,12 +2947,12 @@ BEGIN
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 								AND CASE 
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%' THEN 1
+									WHEN VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						INNER JOIN ProgramacionCarrier pc WITH (NOLOCK) ON 
 													 GHD.id = PC.idGuiaHouseDetalle 
@@ -3005,7 +3006,7 @@ BEGIN
 				
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND (@nroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @nroManifiesto + '%')
 						AND (@palletLabel IS NULL OR p.pallet LIKE '%' + @palletLabel + '%')
@@ -3040,8 +3041,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GH.NroGuia,
 						GH.House,
@@ -3053,8 +3054,8 @@ BEGIN
 						GH.nombreComercial NombreComercialExportador,
 						GH.nombre NombreExportador,
 						GH.razonSocial RazonSocialExportador,
-						GH.idCliente IdClienteDistribucion,
-						GH.nombreClienteConsigne NombreClienteDistribucion,
+						GH.ConsigneeId ,
+						GH.ConsigneeName ,
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
@@ -3105,9 +3106,9 @@ BEGIN
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.idBodega,
 								GH.IdEmpresa,
-								GH.idCliente,
+								GH.ConsigneeId,
 								GH.idGuia,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                                VCC.Nombre ConsigneeName,
 								pmc.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
@@ -3117,9 +3118,9 @@ BEGIN
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-										 GH.idCliente = PMC.idEntidad 
+										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @idParametroLista
 							WHERE
 								-- GH.FechaDestino BETWEEN  @fechaDesde AND @fechaHasta  
@@ -3130,12 +3131,12 @@ BEGIN
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 								AND CASE 
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%' THEN 1
+									WHEN VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -3184,7 +3185,7 @@ BEGIN
 				
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND (@nroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @nroManifiesto + '%')
 						AND (@palletLabel IS NULL OR p.pallet LIKE '%' + @palletLabel + '%')
@@ -3223,8 +3224,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GH.NroGuia,
 						GH.House,
@@ -3236,8 +3237,8 @@ BEGIN
 						GH.nombreComercial NombreComercialExportador,
 						GH.nombre NombreExportador,
 						GH.razonSocial RazonSocialExportador,
-						GH.idCliente IdClienteDistribucion,
-						GH.nombreClienteConsigne NombreClienteDistribucion,
+						GH.ConsigneeId ,
+						GH.ConsigneeName ,
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
@@ -3288,9 +3289,9 @@ BEGIN
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.idBodega,
 								GH.IdEmpresa,
-								GH.idCliente,
+								GH.ConsigneeId,
 								GH.idGuia,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                                VCC.Nombre ConsigneeName,
 								pmc.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
@@ -3301,9 +3302,9 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-										 GH.idCliente = PMC.idEntidad 
+										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @idParametroLista
 							WHERE
 								GH1.house IS NULL 
@@ -3314,7 +3315,7 @@ BEGIN
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 								AND CASE 
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%' THEN 1
+									WHEN VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
@@ -3370,7 +3371,7 @@ BEGIN
 						AND (@nroPo IS NULL OR  GHD.po LIKE '%' + @nroPo + '%')
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND (@nroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @nroManifiesto + '%')
 						AND (@palletLabel IS NULL OR p.pallet LIKE '%' + @palletLabel + '%')
@@ -3414,8 +3415,8 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						CLF.id IdClienteFinal,
-						ISNULL(clf.nombreClienteFinal, clf.nombre) NombreClienteFinal,
+                        VCS.ID ShipToId,
+                        VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GH.NroGuia,
 						GH.House,
@@ -3427,8 +3428,8 @@ BEGIN
 						GH.nombreComercial NombreComercialExportador,
 						GH.nombre NombreExportador,
 						GH.razonSocial RazonSocialExportador,
-						GH.idCliente IdClienteDistribucion,
-						GH.nombreClienteConsigne NombreClienteDistribucion,
+						GH.ConsigneeId ,
+						GH.ConsigneeName,
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
@@ -3479,9 +3480,9 @@ BEGIN
 								CONVERT(DATE,  GH.fechaDestino) FechaDestinoFecha,
 								GH.idBodega,
 								GH.IdEmpresa,
-								GH.idCliente,
+								GH.ConsigneeId,
 								GH.idGuia,
-								ISNULL(cld.nombreClienteFinal, cld.nombre) nombreClienteConsigne,
+                                VCC.Nombre ConsigneeName,
 								pmc.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
@@ -3492,9 +3493,9 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								INNER JOIN Clientes cld WITH (NOLOCK) ON  GH.idCliente = cld.id 
+                                INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
-										 GH.idCliente = PMC.idEntidad 
+										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @idParametroLista
 							WHERE
 								GH1.house IS NULL 
@@ -3504,12 +3505,12 @@ BEGIN
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 								AND CASE 
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL(cld.nombreClienteFinal, cld.nombre) LIKE @consigneeName+'%' THEN 1
+									WHEN ISNULL VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -3557,7 +3558,7 @@ BEGIN
 						AND (@nroPo IS NULL OR  GHD.po LIKE '%' + @nroPo + '%')
 						AND CASE 
 							WHEN @shipToName IS NULL THEN 1
-							WHEN ISNULL(clf.nombreClienteFinal, clf.nombre) LIKE @shipToName+'%' THEN 1
+							WHEN VCS.Nombre LIKE @shipToName+'%' THEN 1
 							ELSE 0 END = 1
 						AND (@nroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @nroManifiesto + '%')
 						AND (@palletLabel IS NULL OR p.pallet LIKE '%' + @palletLabel + '%')
