@@ -970,7 +970,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GHD.ConsigneeId,
 								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
@@ -1039,7 +1038,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GHD.ConsigneeId,
 								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
@@ -1108,7 +1106,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GHD.ConsigneeId,
 								GHD.ConsigneeName
 							FROM
 								#tempNotificacion GHD
@@ -2126,7 +2123,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GHD.ConsigneeId,
 							GHD.ConsigneeName
 						FROM
 							#tempNotificaciones GHD
@@ -2196,7 +2192,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GHD.ConsigneeId,
 							GHD.ConsigneeName
 						FROM
 							#tempNotificaciones GHD
@@ -2266,7 +2261,6 @@ BEGIN
 							 GHD.idUsuarioLog,
 							 GHD.idPoDetalle,
 							 GHD.idDetalleMercancia,
-							 GHD.ConsigneeId,
 							 GHD.ConsigneeName
 						FROM
 							#tempNotificaciones GHD
