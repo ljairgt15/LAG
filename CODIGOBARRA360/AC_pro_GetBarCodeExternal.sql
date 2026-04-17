@@ -26,17 +26,15 @@ ALTER   PROCEDURE [dbo].[AC_pro_GetBarCodeExternal]
 	@isDispatchCarrier	BIT = NULL,
 	@idNotificacion		UNIQUEIDENTIFIER= NULL,
 	@esInventario		BIT = NULL,
-	--nombre cliente distribuion ya no se usa
-	----=======Filtros de Entities==========
-	@EntityId			VARCHAR(16), -- idcliente
+	@EntityId			VARCHAR(16), 
 	@supplierName		VARCHAR(512) = NULL,
 	@supplierId			VARCHAR(16) = NULL,
-	@consigneeName		VARCHAR(512) = NULL, --nuevo
-	@consigneeId		VARCHAR(16) = NULL, --nuevo
+	@consigneeName		VARCHAR(512) = NULL, 
+	@consigneeId		VARCHAR(16) = NULL, 
 	@shipToName			VARCHAR(512) = NULL,
 	@shipToId			VARCHAR(16) = NULL,
-	@billToName			VARCHAR(512) = NULL, --nuevo
-	@billToId			VARCHAR(16) = NULL, --nuevo
+	@billToName			VARCHAR(512) = NULL, 
+	@billToId			VARCHAR(16) = NULL,
 	@UserType           VARCHAR(32) = NULL
 )
 AS
