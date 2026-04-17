@@ -1989,7 +1989,7 @@ BEGIN
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
 								GH.ConsigneeId,
-								VCC.Nombre nombreClienteConsigne
+								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
@@ -3324,7 +3324,7 @@ BEGIN
 																AND PC.idCarrier = @idCarrier
 																AND PC.fechaDespacho = @fechaDespacho
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
-						INNER JOIN Clientes clf WITH (NOLOCK) ON  GHD.idClienteFinal = clf.id
+                        INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -3505,7 +3505,7 @@ BEGIN
 								AND (@house IS NULL OR  GH.house LIKE @house+'%')
 								AND CASE 
 									WHEN @consigneeName IS NULL THEN 1
-									WHEN ISNULL VCC.Nombre LIKE @consigneeName+'%' THEN 1
+									WHEN VCC.Nombre LIKE @consigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
