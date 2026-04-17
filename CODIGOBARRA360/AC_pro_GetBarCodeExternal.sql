@@ -116,7 +116,6 @@ BEGIN
 			idUsuarioLog VARCHAR(16),
 			idPoDetalle UNIQUEIDENTIFIER,
 			idDetalleMercancia VARCHAR(16),
-			ConsigneeId VARCHAR(16),
 			ConsigneeName VARCHAR(512)
 		);
 
@@ -232,7 +231,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.nombre ConsigneeName
 						FROM ProgramacionCarrier pc  WITH (NOLOCK)
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON 
@@ -317,7 +315,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.Nombre ConsigneeName
 						FROM GuiasHouse GH WITH (NOLOCK)
 							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
@@ -403,7 +400,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.Nombre ConsigneeName
 						FROM GuiasHouse GH1 WITH (NOLOCK)
 							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
@@ -656,7 +652,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.ConsigneeId,
 								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
@@ -740,7 +735,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.ConsigneeId,
 								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH WITH (NOLOCK)
@@ -824,7 +818,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.ConsigneeId,
 								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
@@ -1373,7 +1366,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.Nombre ConsigneeName
 						FROM
 							ProgramacionCarrier pc  WITH (NOLOCK)
@@ -1461,7 +1453,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.Nombre ConsigneeName
 						FROM
 							GuiasHouse GH WITH (NOLOCK)
@@ -1550,7 +1541,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.Nombre ConsigneeName
 						FROM
 							GuiasHouse GH1 WITH (NOLOCK)
@@ -1819,7 +1809,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.ConsigneeId,
                                 VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH  WITH (NOLOCK)
@@ -1903,7 +1892,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.ConsigneeId,
                                 VCC.Nombre ConsigneeName
 							FROM
 								dbo.GuiasHouse GH WITH (NOLOCK)
@@ -1987,7 +1975,6 @@ BEGIN
 								GHD.idUsuarioLog,
 								GHD.idPoDetalle,
 								GHD.idDetalleMercancia,
-								GH.ConsigneeId,
 								VCC.Nombre ConsigneeName
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
