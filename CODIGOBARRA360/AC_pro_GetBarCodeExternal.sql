@@ -1890,7 +1890,7 @@ BEGIN
                                 VCC.Nombre ConsigneeName
 							FROM
 								dbo.GuiasHouse GH WITH (NOLOCK)
-								INNER JOIN#TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
+								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
