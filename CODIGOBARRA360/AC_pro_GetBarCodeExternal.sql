@@ -899,7 +899,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
 							VCC.nombre ConsigneeName,
 							GH1.ConsigneeId idClienteConsolidador,
 							GH.idGuia
@@ -2052,7 +2051,6 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-							GH.ConsigneeId,
                             vcc.Nombre ConsigneeName,
 							GH1.ConsigneeId  idClienteConsolidador,
 							GH.idGuia
