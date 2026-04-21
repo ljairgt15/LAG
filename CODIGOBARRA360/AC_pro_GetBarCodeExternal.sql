@@ -251,7 +251,7 @@ BEGIN
 							INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
@@ -337,7 +337,7 @@ BEGIN
 												AND PC.fechaDespacho = @FechaDespacho
 												AND PC.idCarrier = @IdCarrier
 						
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
@@ -423,7 +423,7 @@ BEGIN
 											AND PC.fechaDespacho = @FechaDespacho
 											AND  PC.idCarrier = @IdCarrier
 						
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
@@ -527,7 +527,7 @@ BEGIN
 					FROM  #TempPiezasPorCarrier ghd 
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
-						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
+						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -670,7 +670,7 @@ BEGIN
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
@@ -753,7 +753,7 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
@@ -837,7 +837,7 @@ BEGIN
 								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
@@ -923,7 +923,7 @@ BEGIN
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
@@ -1219,7 +1219,7 @@ BEGIN
 						pod.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
-						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
+						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id 
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
@@ -1384,7 +1384,7 @@ BEGIN
 							INNER JOIN #idsCatalogos CATEST ON CATEST.id =  GHD.estadoPieza
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
@@ -1473,7 +1473,7 @@ BEGIN
 												AND PC.fechaDespacho = @FechaDespacho
 												AND PC.idCarrier = @IdCarrier
 						
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
@@ -1561,7 +1561,7 @@ BEGIN
 											PC.idGuiaHouseDetalle =  GHD.id
 											AND PC.fechaDespacho = @FechaDespacho
 											AND  PC.idCarrier = @IdCarrier
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
@@ -1666,7 +1666,7 @@ BEGIN
 						pod.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
-						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
+						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
@@ -1823,7 +1823,7 @@ BEGIN
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
@@ -1906,7 +1906,7 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
@@ -1990,7 +1990,7 @@ BEGIN
 								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
@@ -2075,7 +2075,7 @@ BEGIN
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
                             INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
@@ -2373,7 +2373,7 @@ BEGIN
 						pod.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
-						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
+						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
@@ -2553,7 +2553,7 @@ BEGIN
 								EX.razonSocial
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
@@ -2742,7 +2742,7 @@ BEGIN
 								EX.razonSocial
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
@@ -2925,7 +2925,7 @@ BEGIN
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
@@ -3107,7 +3107,7 @@ BEGIN
 							FROM
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
@@ -3291,7 +3291,7 @@ BEGIN
 								GuiasHouse gh1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
@@ -3482,7 +3482,7 @@ BEGIN
 								GuiasHouse gh1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
-								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
+								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
