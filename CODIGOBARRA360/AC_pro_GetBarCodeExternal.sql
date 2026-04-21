@@ -502,8 +502,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -541,8 +541,8 @@ BEGIN
           					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           					ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
@@ -1195,8 +1195,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -1235,8 +1235,8 @@ BEGIN
           					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           					ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
@@ -1642,8 +1642,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -1682,8 +1682,8 @@ BEGIN
           					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           					ORDER BY pinv.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
@@ -2349,8 +2349,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -2389,8 +2389,8 @@ BEGIN
           					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           					ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
@@ -2509,8 +2509,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -2590,8 +2590,8 @@ BEGIN
           				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           				  ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
@@ -2698,8 +2698,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -2775,8 +2775,8 @@ BEGIN
           				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           				  ORDER BY pinv.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
@@ -2879,8 +2879,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -2960,8 +2960,8 @@ BEGIN
           				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           				  ORDER BY pinv.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
@@ -3062,8 +3062,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -3140,8 +3140,8 @@ BEGIN
           				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           				  ORDER BY pinv.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
@@ -3245,8 +3245,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -3328,8 +3328,8 @@ BEGIN
           				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           				  ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
@@ -3436,8 +3436,8 @@ BEGIN
 						END Inventario, 
 						chekInventario.id IdPiezasInventariadas,
 						chekInventario.fechaCambio FechaCambioPiezasInven,
-						ub.id IdUbicacion,
-						ub.codigo NombreUbicacion,
+						UB.id IdUbicacion,
+						UB.codigo NombreUbicacion,
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
@@ -3514,8 +3514,8 @@ BEGIN
           				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           				  ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones ub WITH (NOLOCK) ON up.idUbicacion = ub.id 
-						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
