@@ -244,7 +244,7 @@ BEGIN
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
 							VCC.nombre ConsigneeName
-						FROM ProgramacionCarrier pc  WITH (NOLOCK)
+						FROM ProgramacionCarrier PC  WITH (NOLOCK)
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND  GHD.fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
@@ -545,7 +545,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
@@ -671,7 +671,7 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
+								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
@@ -754,7 +754,7 @@ BEGIN
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								LEFT JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
+								LEFT JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
@@ -1239,7 +1239,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
@@ -1376,7 +1376,7 @@ BEGIN
 							GHD.idDetalleMercancia,
 							VCC.Nombre ConsigneeName
 						FROM
-							ProgramacionCarrier pc  WITH (NOLOCK)
+							ProgramacionCarrier PC  WITH (NOLOCK)
 							INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND  GHD.fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
@@ -1468,7 +1468,7 @@ BEGIN
 							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId =  GH.ConsigneeId
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 							INNER JOIN #idsCatalogos CATEST ON CATEST.id =  GHD.estadoPieza
-							INNER JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON 
+							INNER JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON 
 												PC.idGuiaHouseDetalle =  GHD.id 
 												AND PC.fechaDespacho = @FechaDespacho
 												AND PC.idCarrier = @IdCarrier
@@ -1686,7 +1686,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
@@ -1824,7 +1824,7 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CL ON CL.ConsigneeId =  GHD.ShipToId
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
+								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
@@ -1907,7 +1907,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
-								LEFT JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
+								LEFT JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
@@ -2393,7 +2393,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
@@ -2574,7 +2574,7 @@ BEGIN
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
-						INNER JOIN ProgramacionCarrier pc WITH (NOLOCK) ON
+						INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON
 															 GHD.id = PC.idGuiaHouseDetalle 
 															AND PC.idCarrier = @IdCarrier
 															AND PC.fechaDespacho = @FechaDespacho
@@ -2779,7 +2779,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id
@@ -2944,7 +2944,7 @@ BEGIN
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
-						INNER JOIN ProgramacionCarrier pc WITH (NOLOCK) ON 
+						INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
 													 GHD.id = PC.idGuiaHouseDetalle 
 													AND PC.idCarrier = @IdCarrier
 													AND PC.fechaDespacho = @FechaDespacho 
@@ -3144,7 +3144,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
@@ -3309,7 +3309,7 @@ BEGIN
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
-						INNER JOIN ProgramacionCarrier pc WITH (NOLOCK) ON 
+						INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND PC.idCarrier = @IdCarrier
 																AND PC.fechaDespacho = @FechaDespacho
@@ -3518,7 +3518,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON ub.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
