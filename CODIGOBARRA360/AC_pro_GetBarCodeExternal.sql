@@ -133,9 +133,9 @@ BEGIN
 		)
 
 		SELECT  @IdParametroLista = id 
-		FROM ParametrosLista pl
-		WHERE pl.codigo = 'TipoServicio'
-			AND (@IdEmpresa IS NULL OR pl.idEmpresa = @IdEmpresa);
+		FROM ParametrosLista PL
+		WHERE PL.codigo = 'TipoServicio'
+			AND (@IdEmpresa IS NULL OR PL.idEmpresa = @IdEmpresa);
 
 		IF(@Estado IS NOT NULL)
 		BEGIN
