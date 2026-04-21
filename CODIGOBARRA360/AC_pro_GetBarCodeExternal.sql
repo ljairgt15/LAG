@@ -2,7 +2,7 @@
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-04-18		  58763			 Initial code based on pro_ConsultarCodigoBarrasClientes
 */
-ALTER   PROCEDURE [dbo].[AC_pro_GetBarCodeExternal]
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetBarCodeExternal]
 (
 	@FechaDesde			DATETIME,
 	@FechaHasta			DATETIME,
