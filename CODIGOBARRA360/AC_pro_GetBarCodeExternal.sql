@@ -489,9 +489,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -531,7 +531,7 @@ BEGIN
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -1182,9 +1182,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -1225,7 +1225,7 @@ BEGIN
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -1629,9 +1629,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -1672,7 +1672,7 @@ BEGIN
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -2336,9 +2336,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GHD.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -2379,7 +2379,7 @@ BEGIN
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -2496,9 +2496,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -2580,7 +2580,7 @@ BEGIN
 															AND PC.fechaDespacho = @FechaDespacho
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -2685,9 +2685,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -2765,7 +2765,7 @@ BEGIN
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -2866,9 +2866,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -2950,7 +2950,7 @@ BEGIN
 													AND PC.fechaDespacho = @FechaDespacho 
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -3049,9 +3049,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -3130,7 +3130,7 @@ BEGIN
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -3232,9 +3232,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -3318,7 +3318,7 @@ BEGIN
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
@@ -3423,9 +3423,9 @@ BEGIN
 						ISNULL(ubicacionesBodega.idBodega, GH.idBodega) IdBodega,
 						ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
 						GH.valor CodigoClienteInventario, 
-						ed.Puerta, 
+						ED.Puerta, 
 						'' Camion,
-						ed.truckId NroDespacho,
+						ED.truckId NroDespacho,
 						dm.nombre NombreProducto,
 						dm.nombreIngles NombreInglesProducto,
 						dm.id IdDetalleMercancia,
@@ -3504,7 +3504,7 @@ BEGIN
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ed WITH (NOLOCK) ON dd.idEncabezadoDespacho = ed.id
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
