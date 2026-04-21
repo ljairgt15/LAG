@@ -168,28 +168,28 @@ BEGIN
 					@FechaDesde =  DATEADD(DAY,-90,@FechaDespacho),
 					@FechaHasta = @FechaDespacho
 			END
+			/* validacion  tipo de clientes*/
+			SELECT TOP 1 @Consolidador = 'CONSOLIDADOR'
+			FROM GuiasHouse GH WITH (NOLOCK)
+			INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId = GH.ConsigneeId
+			WHERE GH.house IS NULL
+			AND GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
+
+			SELECT TOP 1 @Consignee = 'CONSIGNEE'
+			FROM GuiasHouse GH WITH (NOLOCK)
+			INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId = GH.ConsigneeId
+			WHERE GH.house IS NOT NULL
+			AND GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
+
+			SELECT TOP 1 @Final = 'FINAL'
+			FROM GuiasHouseDetalles GHD WITH (NOLOCK)
+			INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId = GHD.ShipToId
+			WHERE GHD.fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
+
 			IF @Estado IS NULL
 			BEGIN
 				IF @FechaDespacho IS NOT NULL AND @IdCarrier IS NOT NULL
 				BEGIN
-					/* validacion  tipo de clientes*/
-					SELECT TOP 1  @Consolidador = 'CONSOLIDADOR'
-					FROM  GuiasHouse GH WITH (NOLOCK)
-						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-					WHERE   GH.house IS NULL 
-						AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-					SELECT TOP 1  @Consignee ='CONSIGNEE'
-					FROM  GuiasHouse GH WITH (NOLOCK)
-						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-					WHERE   GH.house IS NOT NULL 
-						AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-					SELECT TOP 1  @Final = 'FINAL'
-					FROM  GuiasHouseDetalles GHD WITH (NOLOCK)
-						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
-					WHERE fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
-				
 					/* CLIENTES FINALES */
 					IF @Final IS NOT NULL 
 					BEGIN
@@ -271,7 +271,6 @@ BEGIN
 							AND( GH.idExportador = ISNULL(@SupplierId,  GH.idExportador))
 							AND (@SupplierName IS NULL OR EX.nombreComercial LIKE @SupplierName+'%')
 							AND (@House IS NULL OR  GH.house LIKE @House+'%')
-				
 					END
 
 					 /* CLIENTES CONSIGNEE */
@@ -593,24 +592,6 @@ BEGIN
 				BEGIN
 					IF @IdNotificacion IS NULL
 					BEGIN
-						/* validacion  tipo de clientes*/
-						SELECT TOP 1  @Consolidador = 'CONSOLIDADOR'
-						FROM  GuiasHouse GH
-							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-						WHERE   GH.house IS NULL 
-							AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-						SELECT TOP 1  @Consignee ='CONSIGNEE'
-						FROM  GuiasHouse GH
-							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-						WHERE  GH.house IS NOT NULL 
-							AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-						SELECT TOP 1  @Final = 'FINAL'
-						FROM  GuiasHouseDetalles GHD
-							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
-						WHERE  fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
-
 						/* CLIENTES FINALES */
 						IF @Final IS NOT NULL 
 						BEGIN
@@ -691,7 +672,6 @@ BEGIN
 								AND ( GH.idExportador = ISNULL(@SupplierId,  GH.idExportador))
 								AND (@SupplierName IS NULL OR EX.nombreComercial LIKE @SupplierName+'%')
 								AND (@House IS NULL OR  GH.house LIKE @House+'%')
-				
 						END
 
 						 /* CLIENTES CONSIGNEE */
@@ -1135,7 +1115,6 @@ BEGIN
 								AND( GHD.idExportador = ISNULL(@SupplierId,  GHD.idExportador))
 								AND (@SupplierName IS NULL OR  GHD.nombreComercial LIKE @SupplierName+'%')
 								AND (@House IS NULL OR  GHD.house LIKE @House+'%')
-					
 					END
 
 					SELECT DISTINCT
@@ -1283,42 +1262,12 @@ BEGIN
 								WHEN @EsInventario = 1 AND SV.tipoVenta < 4 THEN 1 
 								ELSE 0 
 							END  = 1
-
-
 				END
 			END
 			ELSE
 			BEGIN 
 				IF @FechaDespacho IS NOT NULL AND @IdCarrier IS NOT NULL
 				BEGIN
-					/* validacion  tipo de clientes*/
-					SELECT TOP 1 
-						@Consolidador = 'CONSOLIDADOR'
-					FROM 
-						GuiasHouse GH WITH (NOLOCK)
-						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-					WHERE 
-						 GH.house IS NULL 
-						AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-					SELECT TOP 1 
-						@Consignee ='CONSIGNEE'
-					FROM 
-						GuiasHouse GH WITH (NOLOCK)
-						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-					WHERE 
-						 GH.house IS NOT NULL 
-						AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-					SELECT TOP 1 
-						@Final = 'FINAL'
-					FROM 
-						GuiasHouseDetalles GHD WITH (NOLOCK)
-						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
-					WHERE 
-						fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
-
-
 					/* CLIENTES FINALES */
 					IF @Final IS NOT NULL 
 					BEGIN
@@ -1403,7 +1352,6 @@ BEGIN
 							AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE @CodBarra+'%')
 							AND (@TruckId IS NULL OR  GHD.truckId LIKE '%' + @TruckId + '%')
 							AND (@NroPo IS NULL OR  GHD.po LIKE @NroPo+'%')
-				
 					END
 
 					 /* CLIENTES CONSIGNEE */
@@ -1727,40 +1675,12 @@ BEGIN
 								WHEN @EsInventario = 1 AND SV.tipoVenta < 4 THEN 1 
 								ELSE 0 
 							END  = 1
-				
 				END
 				ELSE
 
 				BEGIN
 					IF @IdNotificacion IS NULL
 					BEGIN
-						/* validacion  tipo de clientes*/
-						SELECT TOP 1 
-							@Consolidador = 'CONSOLIDADOR'
-						FROM 
-							GuiasHouse GH WITH (NOLOCK)
-							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-						WHERE 
-							 GH.house IS NULL 
-							AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-						SELECT TOP 1 
-							@Consignee ='CONSIGNEE'
-						FROM 
-							GuiasHouse GH WITH (NOLOCK)
-							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
-						WHERE 
-							 GH.house IS NOT NULL WITH (NOLOCK) 
-							AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
-
-						SELECT TOP 1 
-							@Final = 'FINAL'
-						FROM 
-							GuiasHouseDetalles GHD WITH (NOLOCK)
-							INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
-						WHERE 
-							fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
-
 						/* CLIENTES FINALES */
 						IF @Final IS NOT NULL 
 						BEGIN
@@ -1841,7 +1761,6 @@ BEGIN
 								AND( GH.idExportador = ISNULL(@SupplierId,  GH.idExportador))
 								AND (@SupplierName IS NULL OR EX.nombreComercial LIKE @SupplierName+'%')
 								AND (@House IS NULL OR  GH.house LIKE @House+'%')
-				
 						END
 
 						 /* CLIENTES CONSIGNEE */
@@ -2438,7 +2357,6 @@ BEGIN
 								WHEN @EsInventario = 1 AND SV.tipoVenta < 4 THEN 1 
 								ELSE 0 
 							END  = 1
-
 				END
 			END
 		END
