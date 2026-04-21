@@ -492,9 +492,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -532,7 +532,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -1185,9 +1185,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -1226,7 +1226,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -1632,9 +1632,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -1673,7 +1673,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -2339,9 +2339,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -2380,7 +2380,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -2499,9 +2499,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -2581,7 +2581,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -2688,9 +2688,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -2766,7 +2766,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -2869,9 +2869,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -2951,7 +2951,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -3052,9 +3052,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -3131,7 +3131,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -3235,9 +3235,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -3319,7 +3319,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
@@ -3426,9 +3426,9 @@ BEGIN
 						ED.Puerta, 
 						'' Camion,
 						ED.truckId NroDespacho,
-						dm.nombre NombreProducto,
-						dm.nombreIngles NombreInglesProducto,
-						dm.id IdDetalleMercancia,
+						DM.nombre NombreProducto,
+						DM.nombreIngles NombreInglesProducto,
+						DM.id IdDetalleMercancia,
 						CASE 
 							WHEN  chekInventario.id IS NOT NULL 
 							THEN CAST(1 AS BIT) 
@@ -3505,7 +3505,7 @@ BEGIN
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
-						LEFT JOIN DetalleMercancias dm WITH (NOLOCK) ON  GHD.idDetalleMercancia = dm.id
+						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
