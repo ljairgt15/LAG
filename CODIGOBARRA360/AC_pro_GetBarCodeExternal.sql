@@ -148,6 +148,17 @@ BEGIN
         EXEC [dbo].[AC_pro_GetClientsEntities]
              @EntityId = @EntityId,
              @UserType = @UserType 
+        
+        IF @billToId IS NOT NULL
+        BEGIN
+            DELETE FROM #TMP_RelatedClients 
+            WHERE BilltoId <> @billToId OR BilltoId IS NULL;
+        END
+        ELSE IF @billToName IS NOT NULL
+        BEGIN
+			DELETE FROM #TMP_RelatedClients 
+            WHERE BillToName NOT LIKE @billToName + '%' OR BillToName IS NULL;
+        END
 		
 		IF @tipoCliente IS NULL
 		BEGIN
@@ -256,7 +267,7 @@ BEGIN
 							AND (@nroPo IS NULL OR  GHD.po LIKE @nroPo+'%')
 							AND (@consigneeName IS NULL 
 								OR VCC.nombre LIKE @consigneeName+'%')
-							AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
+														AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
 							AND( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 							AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
 							AND (@house IS NULL OR  GH.house LIKE @house+'%')
@@ -1474,7 +1485,7 @@ BEGIN
 								WHEN  GH.id = @idGuiaHouse THEN 1
 								ELSE 0 END = 1
 							AND (@consigneeName IS NULL 
-								OR VCC.Nombre LIKE @consigneeName+'%')
+								OR VCC.Nombre LIKE @consigneeName+'%')							
 							AND ( GH.idGuia = ISNULL(@idGuia,  GH.idGuia))
 							AND ( GH.idExportador = ISNULL(@supplierId,  GH.idExportador))
 							AND (@supplierName IS NULL OR EX.nombreComercial LIKE @supplierName+'%')
