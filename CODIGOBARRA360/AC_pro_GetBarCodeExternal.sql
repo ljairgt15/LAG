@@ -510,26 +510,26 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GHD.IdEmpresa,
-						pod.farmName FarmName 
+						POD.farmName FarmName 
 					FROM  #TempPiezasPorCarrier ghd 
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -548,7 +548,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -558,9 +558,9 @@ BEGIN
           					ORDER BY svc.fechaSolicitud DESC
         				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id 
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.IdAccion = cat.Id 
-					WHERE (@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
+					WHERE (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
 							WHEN @SinManifiesto = 0 THEN 1
 							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
@@ -569,8 +569,8 @@ BEGIN
 							WHEN @IdManifiesto IS NULL THEN 1
 							WHEN MD.id = @IdManifiesto THEN 1
 							ELSE 0 END = 1
-						AND (@PalletLabel IS NULL OR p.pallet LIKE @PalletLabel+'%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE @Orden+'%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE @PalletLabel+'%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE @Orden+'%')
 						AND CASE 
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
@@ -1203,27 +1203,27 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GHD.IdEmpresa,
-						pod.farmName FarmName 
+						POD.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id 
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -1242,7 +1242,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -1250,12 +1250,12 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           					WHERE  GHD.id = svd.idGuiaHouseDetalle 
           					ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.IdAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE
-						(@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
+						(@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
 							WHEN @SinManifiesto = 0 THEN 1
 							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
@@ -1264,8 +1264,8 @@ BEGIN
 							WHEN @IdManifiesto IS NULL THEN 1
 							WHEN MD.id = @IdManifiesto THEN 1
 							ELSE 0 END = 1
-						AND (@PalletLabel IS NULL OR p.pallet LIKE @PalletLabel+'%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE @Orden+'%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE @PalletLabel+'%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE @Orden+'%')
 						AND CASE 
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
@@ -1650,27 +1650,27 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GHD.IdEmpresa,
-						pod.farmName FarmName 
+						POD.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -1689,7 +1689,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -1697,12 +1697,12 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           					WHERE  GHD.id = svd.idGuiaHouseDetalle 
           					ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.IdAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE
-						(@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
+						(@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
 							WHEN @SinManifiesto = 0 THEN 1
 							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
@@ -1711,8 +1711,8 @@ BEGIN
 							WHEN @IdManifiesto IS NULL THEN 1
 							WHEN MD.id = @IdManifiesto THEN 1
 							ELSE 0 END = 1
-						AND (@PalletLabel IS NULL OR p.pallet LIKE @PalletLabel+'%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE @Orden+'%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE @PalletLabel+'%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE @Orden+'%')
 						AND CASE 
 							WHEN @IdBodega IS NULL THEN 1
 							WHEN ISNULL(ubicacionesBodega.idBodega,  GHD.idBodega) = @IdBodega THEN 1
@@ -2357,27 +2357,27 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GHD.IdEmpresa,
-						pod.farmName FarmName 
+						POD.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -2396,7 +2396,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -2404,16 +2404,16 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           					WHERE  GHD.id = svd.idGuiaHouseDetalle 
           					ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.IdAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE
 						(
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
 							WHEN @SinManifiesto = 0 THEN 1
 							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
@@ -2422,8 +2422,8 @@ BEGIN
 							WHEN @IdManifiesto IS NULL THEN 1
 							WHEN MD.id = @IdManifiesto THEN 1
 							ELSE 0 END = 1
-						AND (@PalletLabel IS NULL OR p.pallet LIKE @PalletLabel+'%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE @Orden+'%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE @PalletLabel+'%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE @Orden+'%')
 						AND CASE 
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
@@ -2517,20 +2517,20 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GH.IdEmpresa,
-						pod.farmName FarmName
+						POD.farmName FarmName
 					FROM 
 						(
 							SELECT
@@ -2578,7 +2578,7 @@ BEGIN
 															 GHD.id = PC.idGuiaHouseDetalle 
 															AND PC.idCarrier = @IdCarrier
 															AND PC.fechaDespacho = @FechaDespacho
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -2596,7 +2596,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id
 						OUTER APPLY (
           				  SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -2604,10 +2604,10 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
           				  ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.idCatalogoAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
 						AND(
@@ -2617,7 +2617,7 @@ BEGIN
 						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
 							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
-							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
+							WHEN SV.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
 						AND (@NroPo IS NULL OR  GHD.po LIKE '%' + @NroPo + '%')
@@ -2626,9 +2626,9 @@ BEGIN
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
 							ELSE 0 END = 1
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @NroManifiesto + '%')
-						AND (@PalletLabel IS NULL OR p.pallet LIKE '%' + @PalletLabel + '%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE '%' + @Orden + '%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE '%' + @PalletLabel + '%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE '%' + @Orden + '%')
 						AND CASE 
 								WHEN @EsInventario IS NULL THEN 1
 								WHEN @EsInventario = 0 AND SV.nroOrden IS NULL  THEN 1
@@ -2706,20 +2706,20 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GH.IdEmpresa,
-						pod.farmName FarmName
+						POD.farmName FarmName
 					FROM 
 						(
 							SELECT
@@ -2763,7 +2763,7 @@ BEGIN
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -2782,7 +2782,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id
 						OUTER APPLY (
           				  SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud
@@ -2790,10 +2790,10 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
        				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
           				  ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.idCatalogoAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
 						AND(
@@ -2803,7 +2803,7 @@ BEGIN
 						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
 							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
-							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
+							WHEN SV.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
 						AND (@NroPo IS NULL OR  GHD.po LIKE '%' + @NroPo + '%')
@@ -2811,9 +2811,9 @@ BEGIN
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
 							ELSE 0 END = 1
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @NroManifiesto + '%')
-						AND (@PalletLabel IS NULL OR p.pallet LIKE '%' + @PalletLabel + '%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE '%' + @Orden + '%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE '%' + @PalletLabel + '%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE '%' + @Orden + '%')
 						AND (@EsInventario IS NULL OR ISNULL(ubicacionesBodega.areaInventario, 0) =  @EsInventario)
 				END
 
@@ -2887,21 +2887,21 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						hl.HeaderLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GH.IdEmpresa,
-						pod.farmName FarmName
+						POD.farmName FarmName
 					FROM 
 						(
 							SELECT
@@ -2948,7 +2948,7 @@ BEGIN
 													 GHD.id = PC.idGuiaHouseDetalle 
 													AND PC.idCarrier = @IdCarrier
 													AND PC.fechaDespacho = @FechaDespacho 
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -2966,7 +2966,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud
@@ -2974,11 +2974,11 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
           				  ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
 						LEFT JOIN HeaderLabels hl WITH (NOLOCK) ON  GHD.idHeaderLabel = hl.id 
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.idCatalogoAccion = cat.Id 
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId ))
 						AND (
@@ -2989,7 +2989,7 @@ BEGIN
 					
 						AND CASE 
 							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
-							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
+							WHEN SV.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
 						AND (@NroPo IS NULL OR  GHD.po LIKE '%' + @NroPo + '%')
@@ -2998,9 +2998,9 @@ BEGIN
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
 							ELSE 0 END = 1
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @NroManifiesto + '%')
-						AND (@PalletLabel IS NULL OR p.pallet LIKE '%' + @PalletLabel + '%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE '%' + @Orden + '%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE '%' + @PalletLabel + '%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE '%' + @Orden + '%')
 						AND (@EsInventario IS NULL OR ISNULL(ubicacionesBodega.areaInventario, 0) = @EsInventario)
 				END
 				ELSE
@@ -3070,20 +3070,20 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GH.IdEmpresa,
-						pod.farmName FarmName
+						POD.farmName FarmName
 					FROM 
 						(
 							SELECT
@@ -3128,7 +3128,7 @@ BEGIN
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -3147,7 +3147,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud
@@ -3155,10 +3155,10 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
           				  ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.idCatalogoAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
 						AND (
@@ -3168,7 +3168,7 @@ BEGIN
 						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
 							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
-							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
+							WHEN SV.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
 						AND (@NroPo IS NULL OR  GHD.po LIKE '%' + @NroPo + '%')
@@ -3177,9 +3177,9 @@ BEGIN
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
 							ELSE 0 END = 1
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @NroManifiesto + '%')
-						AND (@PalletLabel IS NULL OR p.pallet LIKE '%' + @PalletLabel + '%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE '%' + @Orden + '%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE '%' + @PalletLabel + '%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE '%' + @Orden + '%')
 						AND (@EsInventario IS NULL OR ISNULL(ubicacionesBodega.areaInventario, 0) = @EsInventario)
 				END
 			
@@ -3253,20 +3253,20 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						GH.IdEmpresa,
-						pod.farmName FarmName
+						POD.farmName FarmName
 					FROM 
 						(
 							SELECT
@@ -3316,7 +3316,7 @@ BEGIN
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -3334,7 +3334,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -3342,10 +3342,10 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
           				  ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id 
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.idCatalogoAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
 						AND (
@@ -3355,7 +3355,7 @@ BEGIN
 						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
 							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
-							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
+							WHEN SV.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
 						AND (@NroPo IS NULL OR  GHD.po LIKE '%' + @NroPo + '%')
@@ -3363,9 +3363,9 @@ BEGIN
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
 							ELSE 0 END = 1
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @NroManifiesto + '%')
-						AND (@PalletLabel IS NULL OR p.pallet LIKE '%' + @PalletLabel + '%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE '%' + @Orden + '%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE '%' + @PalletLabel + '%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE '%' + @Orden + '%')
 						AND CASE 
 								WHEN @EsInventario IS NULL THEN 1
 								WHEN @EsInventario = 0 AND SV.nroOrden IS NULL  THEN 1
@@ -3444,20 +3444,20 @@ BEGIN
 						T.id IdCarrier,
 						T.codigoMiami CodigoCarrier,
 						T.nombre NombreCarrier,
-						md.NroManifiesto,
-						sv.nroOrden Orden,
-						sv.fechaSolicitud FechaOrden,
-						p.pallet PalletLabel,
+						MD.NroManifiesto,
+						SV.nroOrden Orden,
+						SV.fechaSolicitud FechaOrden,
+						P.pallet PalletLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
 						GHD.DespachadoDestino,
-						md.id IdManifiesto,
+						MD.id IdManifiesto,
 						'' Chofer,
-						cat.Nombre AccionNombre,
-						cat.NombreIngles AccionNombreIngles,
+						CAT.Nombre AccionNombre,
+						CAT.NombreIngles AccionNombreIngles,
 						 GH.IdEmpresa,
-						pod.farmName FarmName
+						POD.farmName FarmName
 					FROM 
 						(
 							SELECT
@@ -3502,7 +3502,7 @@ BEGIN
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
-						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
+						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
 						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
@@ -3521,7 +3521,7 @@ BEGIN
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
@@ -3529,10 +3529,10 @@ BEGIN
             				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
           				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
           				  ORDER BY svc.fechaSolicitud DESC
-        				) sv
+        				) SV
 						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets p WITH (NOLOCK) ON pd.idPallet = p.id 
-						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.idCatalogoAccion = cat.Id 
+						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
 						AND (
@@ -3542,7 +3542,7 @@ BEGIN
 						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
 							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
-							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
+							WHEN SV.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
 						AND (@NroPo IS NULL OR  GHD.po LIKE '%' + @NroPo + '%')
@@ -3550,9 +3550,9 @@ BEGIN
 							WHEN @ShipToName IS NULL THEN 1
 							WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
 							ELSE 0 END = 1
-						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE '%' + @NroManifiesto + '%')
-						AND (@PalletLabel IS NULL OR p.pallet LIKE '%' + @PalletLabel + '%')
-						AND (@Orden IS NULL OR sv.nroOrden LIKE '%' + @Orden + '%')
+						AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @NroManifiesto + '%')
+						AND (@PalletLabel IS NULL OR P.pallet LIKE '%' + @PalletLabel + '%')
+						AND (@Orden IS NULL OR SV.nroOrden LIKE '%' + @Orden + '%')
 						AND CASE 
 								WHEN @EsInventario IS NULL THEN 1
 								WHEN @EsInventario = 0 AND SV.nroOrden IS NULL  THEN 1
