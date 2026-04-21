@@ -415,7 +415,7 @@ BEGIN
 							VCC.Nombre ConsigneeName
 						FROM GuiasHouse GH1 WITH (NOLOCK)
 							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
-							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
+							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 							INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
@@ -834,7 +834,7 @@ BEGIN
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
-								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
+								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
@@ -921,7 +921,7 @@ BEGIN
 							NotificacionPiezasDetalle NTP WITH (NOLOCK) 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON NTP.idGuiaHouseDetalle =  GHD.id
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
-							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
+							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia AND GH1.house IS NULL
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
@@ -1553,7 +1553,7 @@ BEGIN
 						FROM
 							GuiasHouse GH1 WITH (NOLOCK)
 							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
-							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
+							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 							INNER JOIN #idsCatalogos CATEST ON CATEST.id =  GHD.estadoPieza
@@ -1987,7 +1987,7 @@ BEGIN
 							FROM
 								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
-								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
+								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
@@ -2073,7 +2073,7 @@ BEGIN
 							NotificacionPiezasDetalle NTP WITH (NOLOCK) 
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON NTP.idGuiaHouseDetalle =  GHD.id
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
-							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
+							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia AND GH1.house IS NULL
                             INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
@@ -2552,7 +2552,7 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial
 							FROM
-								GuiasHouse gh WITH (NOLOCK)
+								GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
@@ -2741,7 +2741,7 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial
 							FROM
-								GuiasHouse gh WITH (NOLOCK)
+								GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
@@ -2891,7 +2891,7 @@ BEGIN
 						SV.nroOrden Orden,
 						SV.fechaSolicitud FechaOrden,
 						P.pallet PalletLabel,
-						hl.HeaderLabel,
+						HL.HeaderLabel,
 						'' EstadoCarrier,
 						GHD.RecibidoOrigen,
 						GHD.RecibidoDestino,
@@ -2923,7 +2923,7 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial
 							FROM
-								GuiasHouse gh WITH (NOLOCK)
+								GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
@@ -2977,7 +2977,7 @@ BEGIN
         				) SV
 						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
 						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id 
-						LEFT JOIN HeaderLabels hl WITH (NOLOCK) ON  GHD.idHeaderLabel = hl.id 
+						LEFT JOIN HeaderLabels HL WITH (NOLOCK) ON  GHD.idHeaderLabel = HL.id 
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId ))
@@ -3105,7 +3105,7 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial
 							FROM
-								GuiasHouse gh WITH (NOLOCK)
+								GuiasHouse GH WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
@@ -3288,9 +3288,9 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial
 							FROM
-								GuiasHouse gh1 WITH (NOLOCK)
+								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
-								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
+								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
@@ -3298,8 +3298,8 @@ BEGIN
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								GH1.house IS NULL 
-								-- AND gh1.FechaDestino BETWEEN @FechaDesde AND @FechaHasta  
-								AND gh1.idGuia = @IdGuia
+								-- AND GH1.FechaDestino BETWEEN @FechaDesde AND @FechaHasta  
+								AND GH1.idGuia = @IdGuia
 								AND ( GH.idExportador =  ISNULL(@SupplierId,  GH.idExportador))
 								AND (@SupplierName IS NULL OR EX.nombreComercial LIKE @SupplierName+'%')
 								AND (@House IS NULL OR  GH.house LIKE @House+'%')
@@ -3479,9 +3479,9 @@ BEGIN
 								EX.nombre,
 								EX.razonSocial
 							FROM
-								GuiasHouse gh1 WITH (NOLOCK)
+								GuiasHouse GH1 WITH (NOLOCK)
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId = GH1.ConsigneeId
-								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
+								INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
@@ -3489,7 +3489,7 @@ BEGIN
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								GH1.house IS NULL 
-								AND gh1.idGuia = @IdGuia
+								AND GH1.idGuia = @IdGuia
 								AND ( GH.idExportador =  ISNULL(@SupplierId,  GH.idExportador))
 								AND (@SupplierName IS NULL OR EX.nombreComercial LIKE @SupplierName+'%')
 								AND (@House IS NULL OR  GH.house LIKE @House+'%')
