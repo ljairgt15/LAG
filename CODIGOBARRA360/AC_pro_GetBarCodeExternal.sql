@@ -918,8 +918,8 @@ BEGIN
 							GH.idGuia
 						INTO  #tempNotificacion
 						FROM
-							NotificacionPiezasDetalle ntpd WITH (NOLOCK) 
-							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON ntpd.idGuiaHouseDetalle =  GHD.id
+							NotificacionPiezasDetalle NTP WITH (NOLOCK) 
+							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON NTP.idGuiaHouseDetalle =  GHD.id
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
@@ -929,7 +929,7 @@ BEGIN
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
-							ntPD.idNotificacionPiezas = @IdNotificacion
+							NTP.idNotificacionPiezas = @IdNotificacion
 
 						INSERT INTO #TempPiezasPorCarrier
 							SELECT 
@@ -2070,8 +2070,8 @@ BEGIN
 							GH.idGuia
 						INTO  #tempNotificaciones
 						FROM
-							NotificacionPiezasDetalle ntpd WITH (NOLOCK) 
-							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON ntpd.idGuiaHouseDetalle =  GHD.id
+							NotificacionPiezasDetalle NTP WITH (NOLOCK) 
+							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON NTP.idGuiaHouseDetalle =  GHD.id
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =  GHD.idGuiaHouse
 							INNER JOIN GuiasHouse GH1 WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia AND GH1.house IS NULL
                             INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
@@ -2081,7 +2081,7 @@ BEGIN
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
-							ntPD.idNotificacionPiezas = @IdNotificacion
+							NTP.idNotificacionPiezas = @IdNotificacion
 
 						INSERT INTO #TempPiezasPorCarrier
 						SELECT 
