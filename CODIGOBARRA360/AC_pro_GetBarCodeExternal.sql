@@ -40,29 +40,29 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetBarCodeExternal]
 AS
 BEGIN 
 	BEGIN TRY
-		DECLARE @idParametroLista VARCHAR(16),
-				@idEmpresa VARCHAR(16) = NULL,
-				@realEsPOD BIT,
-				@realEsVendida BIT,
+		DECLARE @IdParametroLista VARCHAR(16),
+				@IdEmpresa VARCHAR(16) = NULL,
+				@RealEsPOD BIT,
+				@RealEsVendida BIT,
 				@Final VARCHAR (16) = NULL,
 				@Consignee VARCHAR (16) = NULL,
 				@Consolidador VARCHAR (16) = NULL,
-				@fechaSinHora DATE,
-				@sinManifiesto BIT = 0
+				@FechaSinHora DATE,
+				@SinManifiesto BIT = 0
 
 		
-		SELECT @realEsPOD = CAST(ISNULL(@EsPOD,0) AS BIT),
-				@realEsVendida = CAST(ISNULL(@EsVendida,0)AS BIT),
-				@fechaSinHora = CONVERT(DATE, GETDATE())
+		SELECT @RealEsPOD = CAST(ISNULL(@EsPOD,0) AS BIT),
+				@RealEsVendida = CAST(ISNULL(@EsVendida,0)AS BIT),
+				@FechaSinHora = CONVERT(DATE, GETDATE())
 			
 		IF (@IsDispatchCarrier IS  NULL OR @IsDispatchCarrier = 0 ) AND @IdManifiesto IS NULL
 		BEGIN 
-			SELECT  @sinManifiesto = 1
+			SELECT  @SinManifiesto = 1
 		END
 
 		IF @IdCarrier IS NULL AND @FechaDespacho IS NULL AND @IdManifiesto IS NULL
 		BEGIN
-			SELECT @sinManifiesto = 0
+			SELECT @SinManifiesto = 0
 		END
 
 		CREATE TABLE #TempPiezasPorCarrier (
@@ -132,10 +132,10 @@ BEGIN
 			id [VARCHAR](64)
 		)
 
-		SELECT  @idParametroLista = id 
+		SELECT  @IdParametroLista = id 
 		FROM ParametrosLista pl
 		WHERE pl.codigo = 'TipoServicio'
-			AND (@idEmpresa IS NULL OR pl.idEmpresa = @idEmpresa);
+			AND (@IdEmpresa IS NULL OR pl.idEmpresa = @IdEmpresa);
 
 		IF(@Estado IS NOT NULL)
 		BEGIN
@@ -199,7 +199,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -254,7 +254,7 @@ BEGIN
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE  PC.fechaDespacho = @FechaDespacho
 							AND PC.idCarrier = @IdCarrier
 							AND ( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -283,7 +283,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -340,7 +340,7 @@ BEGIN
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE   GH.house IS NOT NULL 
 							AND  GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
 							AND CASE
@@ -368,7 +368,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -426,7 +426,7 @@ BEGIN
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE  GH1.house IS NULL 
 							AND GH1.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
 							AND CASE
@@ -450,7 +450,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -562,8 +562,8 @@ BEGIN
 						LEFT JOIN Catalogos cat WITH (NOLOCK) ON  GHD.IdAccion = cat.Id 
 					WHERE (@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
-							WHEN @sinManifiesto = 0 THEN 1
-							WHEN @sinManifiesto = 1 AND MD.ID IS NULL THEN 1
+							WHEN @SinManifiesto = 0 THEN 1
+							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
 							ELSE 0 END = 1
 						AND CASE
 							WHEN @IdManifiesto IS NULL THEN 1
@@ -620,7 +620,7 @@ BEGIN
 								GHD.idGuiaHouse, 
 								GHD.CodigoBarra,
 								GHD.productoDescripcion DescripcionProducto,
-								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+								ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 								GHD.AltoCm,
 								GHD.AnchoCm,
 								GHD.LargoCm,
@@ -674,7 +674,7 @@ BEGIN
 								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
-												AND PMC.idParametroLista = @idParametroLista
+												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
 								 GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
 								AND ( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -703,7 +703,7 @@ BEGIN
 								GHD.idGuiaHouse, 
 								GHD.CodigoBarra,
 								GHD.productoDescripcion DescripcionProducto,
-								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+								ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 								GHD.AltoCm,
 								GHD.AnchoCm,
 								GHD.LargoCm,
@@ -757,7 +757,7 @@ BEGIN
 								LEFT JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
-												AND PMC.idParametroLista = @idParametroLista
+												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
 								 GH.house IS NOT NULL 
 								AND  GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
@@ -786,7 +786,7 @@ BEGIN
 								GHD.idGuiaHouse, 
 								GHD.CodigoBarra,
 								GHD.productoDescripcion DescripcionProducto,
-								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+								ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 								GHD.AltoCm,
 								GHD.AnchoCm,
 								GHD.LargoCm,
@@ -841,7 +841,7 @@ BEGIN
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
-												AND PMC.idParametroLista = @idParametroLista
+												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
 								GH1.house IS NULL 
 								AND GH1.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
@@ -869,7 +869,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -927,7 +927,7 @@ BEGIN
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
 							ntPD.idNotificacionPiezas = @IdNotificacion
 
@@ -1143,7 +1143,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -1257,8 +1257,8 @@ BEGIN
 					WHERE
 						(@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
-							WHEN @sinManifiesto = 0 THEN 1
-							WHEN @sinManifiesto = 1 AND MD.ID IS NULL THEN 1
+							WHEN @SinManifiesto = 0 THEN 1
+							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
 							ELSE 0 END = 1
 						AND CASE
 							WHEN @IdManifiesto IS NULL THEN 1
@@ -1330,7 +1330,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -1387,7 +1387,7 @@ BEGIN
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
 							PC.fechaDespacho = @FechaDespacho
 							AND PC.idCarrier = @IdCarrier
@@ -1417,7 +1417,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -1476,7 +1476,7 @@ BEGIN
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
 							 GH.house IS NOT NULL 
 							AND  GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
@@ -1505,7 +1505,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -1564,7 +1564,7 @@ BEGIN
 							INNER JOIN Exportadores ex WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
 							GH1.house IS NULL 
 							AND GH1.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
@@ -1590,7 +1590,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -1704,8 +1704,8 @@ BEGIN
 					WHERE
 						(@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
-							WHEN @sinManifiesto = 0 THEN 1
-							WHEN @sinManifiesto = 1 AND MD.ID IS NULL THEN 1
+							WHEN @SinManifiesto = 0 THEN 1
+							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
 							ELSE 0 END = 1
 						AND CASE
 							WHEN @IdManifiesto IS NULL THEN 1
@@ -1773,7 +1773,7 @@ BEGIN
 								GHD.idGuiaHouse, 
 								GHD.CodigoBarra,
 								GHD.productoDescripcion DescripcionProducto,
-								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+								ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 								GHD.AltoCm,
 								GHD.AnchoCm,
 								GHD.LargoCm,
@@ -1827,7 +1827,7 @@ BEGIN
 								LEFT JOIN ProgramacionCarrier pc WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
-												AND PMC.idParametroLista = @idParametroLista
+												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
 								 GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
 								AND ( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -1856,7 +1856,7 @@ BEGIN
 								GHD.idGuiaHouse, 
 								GHD.CodigoBarra,
 								GHD.productoDescripcion DescripcionProducto,
-								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+								ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 								GHD.AltoCm,
 								GHD.AnchoCm,
 								GHD.LargoCm,
@@ -1910,7 +1910,7 @@ BEGIN
 								LEFT JOIN ProgramacionCarrier pc  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
-												AND PMC.idParametroLista = @idParametroLista
+												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
 								 GH.house IS NOT NULL 
 								AND  GH.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
@@ -1939,7 +1939,7 @@ BEGIN
 								GHD.idGuiaHouse, 
 								GHD.CodigoBarra,
 								GHD.productoDescripcion DescripcionProducto,
-								ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+								ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 								GHD.AltoCm,
 								GHD.AnchoCm,
 								GHD.LargoCm,
@@ -1994,7 +1994,7 @@ BEGIN
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
-												AND PMC.idParametroLista = @idParametroLista
+												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
 								GH1.house IS NULL 
 								AND GH1.fechaDestino BETWEEN @FechaDesde AND @FechaHasta
@@ -2021,7 +2021,7 @@ BEGIN
 							GHD.idGuiaHouse, 
 							GHD.CodigoBarra,
 							GHD.productoDescripcion DescripcionProducto,
-							ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+							ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 							GHD.AltoCm,
 							GHD.AnchoCm,
 							GHD.LargoCm,
@@ -2079,7 +2079,7 @@ BEGIN
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
 							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
-											AND PMC.idParametroLista = @idParametroLista
+											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
 							ntPD.idNotificacionPiezas = @IdNotificacion
 
@@ -2297,7 +2297,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -2415,8 +2415,8 @@ BEGIN
 						)
 						AND (@NroManifiesto IS NULL OR md.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
-							WHEN @sinManifiesto = 0 THEN 1
-							WHEN @sinManifiesto = 1 AND MD.ID IS NULL THEN 1
+							WHEN @SinManifiesto = 0 THEN 1
+							WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
 							ELSE 0 END = 1
 						AND CASE
 							WHEN @IdManifiesto IS NULL THEN 1
@@ -2457,7 +2457,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -2557,7 +2557,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
-										AND PMC.idParametroLista = @idParametroLista
+										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								 GH.idGuia = @IdGuia
 								AND ( GH.idExportador =  ISNULL(@SupplierId,  GH.idExportador))
@@ -2614,9 +2614,9 @@ BEGIN
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@EsPOD IS NULL OR  GHD.esPOD = @realEsPOD)
+						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
-							WHEN @EsVendida IS NULL OR @realEsVendida = 0  THEN 1
+							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
 							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
@@ -2646,7 +2646,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -2746,7 +2746,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
-										AND PMC.idParametroLista = @idParametroLista
+										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								 GH.idGuia = @IdGuia
 								AND ( GH.idExportador =  ISNULL(@SupplierId,  GH.idExportador))
@@ -2800,9 +2800,9 @@ BEGIN
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@EsPOD IS NULL OR  GHD.esPOD = @realEsPOD)
+						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
-							WHEN @EsVendida IS NULL OR @realEsVendida = 0  THEN 1
+							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
 							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
@@ -2827,7 +2827,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -2929,7 +2929,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
-										AND PMC.idParametroLista = @idParametroLista
+										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								 GH.idGuia = @IdGuia
 								AND ( GH.idExportador =  ISNULL(@SupplierId,  GH.idExportador))
@@ -2985,10 +2985,10 @@ BEGIN
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@EsPOD IS NULL OR  GHD.esPOD = @realEsPOD)
+						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 					
 						AND CASE 
-							WHEN @EsVendida IS NULL OR @realEsVendida = 0  THEN 1
+							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
 							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
@@ -3010,7 +3010,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -3111,7 +3111,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
-										AND PMC.idParametroLista = @idParametroLista
+										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								-- GH.FechaDestino BETWEEN  @FechaDesde AND @FechaHasta  
 								--AND 
@@ -3165,9 +3165,9 @@ BEGIN
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@EsPOD IS NULL OR  GHD.esPOD = @realEsPOD)
+						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
-							WHEN @EsVendida IS NULL OR @realEsVendida = 0  THEN 1
+							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
 							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
@@ -3193,7 +3193,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -3295,7 +3295,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
-										AND PMC.idParametroLista = @idParametroLista
+										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								GH1.house IS NULL 
 								-- AND gh1.FechaDestino BETWEEN @FechaDesde AND @FechaHasta  
@@ -3352,9 +3352,9 @@ BEGIN
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@EsPOD IS NULL OR  GHD.esPOD = @realEsPOD)
+						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
-							WHEN @EsVendida IS NULL OR @realEsVendida = 0  THEN 1
+							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
 							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
@@ -3384,7 +3384,7 @@ BEGIN
 						GHD.idGuiaHouse, 
 						GHD.CodigoBarra,
 						GHD.productoDescripcion DescripcionProducto,
-						ISNULL( GHD.fechaRecepcion, @fechaSinHora) FechaRecepcion,
+						ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
 						GHD.AltoCm,
 						GHD.AnchoCm,
 						GHD.LargoCm,
@@ -3486,7 +3486,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
-										AND PMC.idParametroLista = @idParametroLista
+										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
 								GH1.house IS NULL 
 								AND gh1.idGuia = @IdGuia
@@ -3539,9 +3539,9 @@ BEGIN
 							@Estado IS NULL 
 							OR  GHD.estadoPieza IN (SELECT id FROM #idsCatalogos) 
 						)
-						AND (@EsPOD IS NULL OR  GHD.esPOD = @realEsPOD)
+						AND (@EsPOD IS NULL OR  GHD.esPOD = @RealEsPOD)
 						AND CASE 
-							WHEN @EsVendida IS NULL OR @realEsVendida = 0  THEN 1
+							WHEN @EsVendida IS NULL OR @RealEsVendida = 0  THEN 1
 							WHEN sv.fechaSolicitud IS NOT NULL THEN 1
 							ELSE 0 END = 1
 						AND (@CodBarra IS NULL OR  GHD.codigoBarra LIKE '%' + @CodBarra + '%')
