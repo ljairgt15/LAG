@@ -507,9 +507,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -546,7 +546,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -1200,9 +1200,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -1240,7 +1240,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -1647,9 +1647,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -1687,7 +1687,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -2354,9 +2354,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -2394,7 +2394,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -2514,9 +2514,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -2594,7 +2594,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id
 						OUTER APPLY (
@@ -2703,9 +2703,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -2780,7 +2780,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id
 						OUTER APPLY (
@@ -2884,9 +2884,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -2964,7 +2964,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -3067,9 +3067,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -3145,7 +3145,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -3250,9 +3250,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -3332,7 +3332,7 @@ BEGIN
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
@@ -3441,9 +3441,9 @@ BEGIN
 						chekInventario.numero NumeroCheckInventario,
 						PC.id IdProgramacionCarrier,
 						PC.FechaDespacho,
-						t.id IdCarrier,
-						t.codigoMiami CodigoCarrier,
-						t.nombre NombreCarrier,
+						T.id IdCarrier,
+						T.codigoMiami CodigoCarrier,
+						T.nombre NombreCarrier,
 						md.NroManifiesto,
 						sv.nroOrden Orden,
 						sv.fechaSolicitud FechaOrden,
@@ -3519,7 +3519,7 @@ BEGIN
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
-						LEFT JOIN Transportes t WITH (NOLOCK) ON PC.idCarrier = t.id 
+						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
 						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
 						LEFT JOIN ManifiestosDespacho md WITH (NOLOCK) ON pm.idManifiestoDespacho = md.id 
 						OUTER APPLY (
