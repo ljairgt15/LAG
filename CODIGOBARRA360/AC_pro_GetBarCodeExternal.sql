@@ -174,19 +174,19 @@ BEGIN
 				BEGIN
 					/* validacion  tipo de clientes*/
 					SELECT TOP 1  @Consolidador = 'CONSOLIDADOR'
-					FROM  GuiasHouse GH
+					FROM  GuiasHouse GH WITH (NOLOCK)
 						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 					WHERE   GH.house IS NULL 
 						AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
 
 					SELECT TOP 1  @Consignee ='CONSIGNEE'
-					FROM  GuiasHouse GH
+					FROM  GuiasHouse GH WITH (NOLOCK)
 						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GH.ConsigneeId
 					WHERE   GH.house IS NOT NULL 
 						AND fechaDestino BETWEEN @FechaDesde AND @FechaHasta
 
 					SELECT TOP 1  @Final = 'FINAL'
-					FROM  GuiasHouseDetalles GHD
+					FROM  GuiasHouseDetalles GHD WITH (NOLOCK)
 						INNER JOIN #TMP_RelatedClients CLI ON CLI.ConsigneeId =  GHD.ShipToId
 					WHERE fechaCreacion BETWEEN @FechaDesde AND @FechaHasta
 				
@@ -415,7 +415,7 @@ BEGIN
 							VCC.Nombre ConsigneeName
 						FROM GuiasHouse GH1 WITH (NOLOCK)
 							INNER JOIN #TMP_RelatedClients CLI WITH (NOLOCK) ON CLI.ConsigneeId = GH1.ConsigneeId
-							INNER JOIN dbo.GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
+							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.idGuia = gh1.idGuia
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 							INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 							INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
@@ -471,7 +471,7 @@ BEGIN
 						GHD.NoPermitirVenta,
 						tp.id IdTipoPieza,
 						tp.TipoPieza,
-						VCS.id ShipToId,
+						VCS.Id ShipToId,
 						VCS.Nombre ShipToName,
 						u.nombre Nombre,
 						GHD.NroGuia,
@@ -525,9 +525,9 @@ BEGIN
 						GHD.IdEmpresa,
 						pod.farmName FarmName 
 					FROM  #TempPiezasPorCarrier ghd 
-						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
+						LEFT JOIN Exportadores ex WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
 						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
@@ -536,8 +536,8 @@ BEGIN
 						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
 						OUTER APPLY (
           					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          					FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
+          					FROM PiezasInventariadas pinv WITH (NOLOCK)
+            				LEFT JOIN ChequeoInventario checkInv WITH (NOLOCK) ON pinv.IdChequeoInventario = checkInv.id 
           					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
           					ORDER BY pinv.fechaCambio DESC
         				) AS chekInventario
@@ -552,8 +552,8 @@ BEGIN
 						OUTER APPLY (
           					SELECT TOP 1 
 								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          					FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
+          					FROM SolicitudDeVentaDetalles svd WITH (NOLOCK)
+            				LEFT JOIN SolicitudDeVenta svc WITH (NOLOCK) ON svd.idSolicitud = svc.id 
           					WHERE  GHD.id = svd.idGuiaHouseDetalle 
           					ORDER BY svc.fechaSolicitud DESC
         				) SV
