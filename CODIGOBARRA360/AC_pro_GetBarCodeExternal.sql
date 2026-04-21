@@ -1665,9 +1665,9 @@ BEGIN
 						POD.farmName FarmName 
 					FROM 
 						#TempPiezasPorCarrier GHD 
-						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
+						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
 						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
@@ -2064,7 +2064,7 @@ BEGIN
 							GHD.idUsuarioLog,
 							GHD.idPoDetalle,
 							GHD.idDetalleMercancia,
-                            vcc.Nombre ConsigneeName,
+                            VCC.Nombre ConsigneeName,
 							GH1.ConsigneeId  idClienteConsolidador,
 							GH.idGuia
 						INTO  #tempNotificaciones
