@@ -234,7 +234,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -252,7 +252,7 @@ BEGIN
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE  PC.fechaDespacho = @FechaDespacho
@@ -318,7 +318,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							''  Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -338,7 +338,7 @@ BEGIN
 												AND PC.idCarrier = @IdCarrier
 						
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE   GH.house IS NOT NULL 
@@ -403,7 +403,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -424,7 +424,7 @@ BEGIN
 											AND  PC.idCarrier = @IdCarrier
 						
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE  GH1.house IS NULL 
@@ -655,7 +655,7 @@ BEGIN
 								GHD.DespachadoDestino,
 								'' Chofer,
 								GH.IdEmpresa,
-								pmc.valor,
+								PMC.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
@@ -672,7 +672,7 @@ BEGIN
 								INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
@@ -738,7 +738,7 @@ BEGIN
 								GHD.DespachadoDestino,
 								'' Chofer,
 								GH.IdEmpresa,
-								pmc.valor,
+								PMC.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
@@ -755,7 +755,7 @@ BEGIN
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
@@ -821,7 +821,7 @@ BEGIN
 								GHD.DespachadoDestino,
 								'' Chofer,
 								GH.IdEmpresa,
-								pmc.valor,
+								PMC.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
@@ -839,7 +839,7 @@ BEGIN
 								INNER JOIN GuiasHouseDetalles AS GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
@@ -904,7 +904,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -925,7 +925,7 @@ BEGIN
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
@@ -1365,7 +1365,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -1385,7 +1385,7 @@ BEGIN
 							INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id =   GHD.idGuiaHouse
 							INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id 
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
@@ -1452,7 +1452,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -1474,7 +1474,7 @@ BEGIN
 												AND PC.idCarrier = @IdCarrier
 						
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
@@ -1540,7 +1540,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -1562,7 +1562,7 @@ BEGIN
 											AND PC.fechaDespacho = @FechaDespacho
 											AND  PC.idCarrier = @IdCarrier
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
@@ -1808,7 +1808,7 @@ BEGIN
 								GHD.DespachadoDestino,
 								'' Chofer,
 								GH.IdEmpresa,
-								pmc.valor,
+								PMC.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
@@ -1825,7 +1825,7 @@ BEGIN
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
@@ -1891,7 +1891,7 @@ BEGIN
 								GHD.DespachadoDestino,
 								'' Chofer,
 								GH.IdEmpresa,
-								pmc.valor,
+								PMC.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
@@ -1908,7 +1908,7 @@ BEGIN
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC  WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id 
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
@@ -1974,7 +1974,7 @@ BEGIN
 								GHD.DespachadoDestino,
 								'' Chofer,
 								GH.IdEmpresa,
-								pmc.valor,
+								PMC.valor,
 								EX.nombreComercial,
 								EX.nombre,
 								EX.razonSocial,
@@ -1992,7 +1992,7 @@ BEGIN
 								INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 								LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 												 GH.ConsigneeId = PMC.idEntidad 
 												AND PMC.idParametroLista = @IdParametroLista
 							WHERE 
@@ -2056,7 +2056,7 @@ BEGIN
 							GHD.DespachadoDestino,
 							'' Chofer,
 							GH.IdEmpresa,
-							pmc.valor,
+							PMC.valor,
 							EX.nombreComercial,
 							EX.nombre,
 							EX.razonSocial,
@@ -2077,7 +2077,7 @@ BEGIN
                             INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
 							INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
 							LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON PC.idGuiaHouseDetalle =  GHD.id
-							LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+							LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 											 GH.ConsigneeId = PMC.idEntidad 
 											AND PMC.idParametroLista = @IdParametroLista
 						WHERE 
@@ -2546,7 +2546,7 @@ BEGIN
 								GH.ConsigneeId,
 								GH.idGuia,
                                 VCC.Nombre ConsigneeName,
-								pmc.valor, 
+								PMC.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
 								EX.nombre,
@@ -2555,7 +2555,7 @@ BEGIN
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
@@ -2735,7 +2735,7 @@ BEGIN
 								GH.ConsigneeId,
 								GH.idGuia,
                                 VCC.Nombre ConsigneeName,
-								pmc.valor, 
+								PMC.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
 								EX.nombre,
@@ -2744,7 +2744,7 @@ BEGIN
 								GuiasHouse gh WITH (NOLOCK)
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
@@ -2917,7 +2917,7 @@ BEGIN
 								GH.ConsigneeId,
 								GH.idGuia,
                                 VCC.Nombre ConsigneeName,
-								pmc.valor, 
+								PMC.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
 								EX.nombre,
@@ -2927,7 +2927,7 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
@@ -3099,7 +3099,7 @@ BEGIN
 								GH.ConsigneeId,
 								GH.idGuia,
                                 VCC.Nombre ConsigneeName,
-								pmc.valor, 
+								PMC.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
 								EX.nombre,
@@ -3109,7 +3109,7 @@ BEGIN
 								INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GH.ConsigneeId
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
@@ -3282,7 +3282,7 @@ BEGIN
 								GH.ConsigneeId,
 								GH.idGuia,
                                 VCC.Nombre ConsigneeName,
-								pmc.valor, 
+								PMC.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
 								EX.nombre,
@@ -3293,7 +3293,7 @@ BEGIN
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
@@ -3473,7 +3473,7 @@ BEGIN
 								GH.ConsigneeId,
 								GH.idGuia,
                                 VCC.Nombre ConsigneeName,
-								pmc.valor, 
+								PMC.valor, 
 								EX.id IdExportador,
 								EX.nombreComercial,
 								EX.nombre,
@@ -3484,7 +3484,7 @@ BEGIN
 								INNER JOIN GuiasHouse gh WITH (NOLOCK) ON  GH.idGuia = GH1.idGuia
 								INNER JOIN Exportadores EX WITH (NOLOCK) ON  GH.idExportador = EX.id
                                 INNER JOIN v_ClientsEntities VCC WITH (NOLOCK) ON  GH.ConsigneeId = VCC.Id
-								LEFT JOIN ParametrosCatalogos pmc WITH (NOLOCK) ON 
+								LEFT JOIN ParametrosCatalogos PMC WITH (NOLOCK) ON 
 										 GH.ConsigneeId = PMC.idEntidad 
 										AND PMC.idParametroLista = @IdParametroLista
 							WHERE
