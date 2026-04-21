@@ -21,3 +21,22 @@ exec dbo.pro_ConsultarCodigoBarrasClientes
 	@esInventario=0,
 	@IdCliente=N'CLI013680',
 	@idClienteFinal=N'CLI0116411'
+
+
+
+exec dbo.AC_pro_GetBarCodeExternal 
+	@fechaDesde='20220101',
+	@fechaHasta='20260423',
+	@estado=N'<?xml version="1.0" encoding="utf-16"?>  <ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">    <string>PENDING</string>  </ArrayOfString>',
+	@isDispatchCarrier=0,
+	@EntityId=N'CLI013680',
+	@consigneeName=N'BOTANICA WHOLESALE HOUSTON',
+	@consigneeId=N'ETY011765',
+	@UserType=N'GRUPOCLIENTE'
+exec dbo.pro_ConsultarCodigoBarrasClientes 
+	@fechaDesde='20220101',
+	@fechaHasta='20260423',
+	@estado=N'<?xml version="1.0" encoding="utf-16"?>  <ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">    <string>PENDING</string>  </ArrayOfString>',
+	@isDispatchCarrier=0,
+	@IdCliente=N'CLI013680',
+	@nombreClienteDistribucion=N'BOTANICA WHOLESALE HOUSTON'
