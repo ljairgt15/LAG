@@ -2359,6 +2359,151 @@ BEGIN
 							END  = 1
 				END
 			END
+			SELECT DISTINCT
+				GHD.id,
+				GHD.idGuiaHouse, 
+				GHD.CodigoBarra,
+				GHD.productoDescripcion DescripcionProducto,
+				ISNULL( GHD.fechaRecepcion, @FechaSinHora) FechaRecepcion,
+				GHD.AltoCm,
+				GHD.AnchoCm,
+				GHD.LargoCm,
+				GHD.AltoInch,
+				GHD.AnchoInch,
+				GHD.LargoInch,
+				GHD.Nota,
+				GHD.EstadoPieza,
+				GHD.FechaCreacion,
+				GHD.FechaCambio,
+				GHD.TotalTallos,
+				GHD.PrecioTallo,
+				GHD.Peso,
+				GHD.Po,
+				GHD.RecepcionEscaner,
+				GHD.TruckId,
+				GHD.IdAccion,
+				GHD.NoPermitirVenta,
+				TP.id IdTipoPieza,
+				TP.TipoPieza,
+				VCS.Id ShipToId,
+				VCS.Nombre ShipToName,
+				U.nombre Nombre,
+				GHD.NroGuia,
+				GHD.House,
+				GHD.FechaOrigen,
+				GHD.FechaDestino,
+				GHD.fechaOrigen FechaOrigenFecha,
+				GHD.fechaDestino FechaDestinoFecha,
+				GHD.IdExportador,
+				GHD.nombreComercial NombreComercialExportador,
+				GHD.nombre NombreExportador,
+				GHD.razonSocial RazonSocialExportador,
+				GHD.ConsigneeId,
+				GHD.ConsigneeName,
+				ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) IdBodega,
+				ISNULL(bodegaPieza.nombre,bodegaGuia.nombre) NombreBodega,
+				GHD.valor CodigoClienteInventario, 
+				ED.Puerta, 
+				'' Camion,
+				ED.truckId NroDespacho,
+				DM.nombre NombreProducto,
+				DM.nombreIngles NombreInglesProducto,
+				DM.id IdDetalleMercancia,
+				CASE 
+					WHEN  chekInventario.id IS NOT NULL 
+					THEN CAST(1 AS BIT) 
+					ELSE CAST(0 AS BIT) 
+				END Inventario, 
+				chekInventario.id IdPiezasInventariadas,
+				chekInventario.fechaCambio FechaCambioPiezasInven,
+				UB.id IdUbicacion,
+				UB.codigo NombreUbicacion,
+				chekInventario.numero NumeroCheckInventario,
+				PC.id IdProgramacionCarrier,
+				PC.FechaDespacho,
+				T.id IdCarrier,
+				T.codigoMiami CodigoCarrier,
+				T.nombre NombreCarrier,
+				MD.NroManifiesto,
+				SV.nroOrden Orden,
+				SV.fechaSolicitud FechaOrden,
+				P.pallet PalletLabel,
+				'' EstadoCarrier,
+				GHD.RecibidoOrigen,
+				GHD.RecibidoDestino,
+				GHD.DespachadoDestino,
+				MD.id IdManifiesto,
+				'' Chofer,
+				CAT.Nombre AccionNombre,
+				CAT.NombreIngles AccionNombreIngles,
+				GHD.IdEmpresa,
+				POD.farmName FarmName 
+			FROM  #TempPiezasPorCarrier GHD 
+				INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
+				INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
+				LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
+				LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
+				LEFT JOIN PoDetalles POD WITH (NOLOCK) ON  GHD.idPoDetalle = POD.id
+				LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+				LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
+				LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
+				LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
+				OUTER APPLY (
+					SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+					FROM PiezasInventariadas PIN WITH (NOLOCK)
+					LEFT JOIN ChequeoInventario checkInv WITH (NOLOCK) ON PIN.IdChequeoInventario = checkInv.id 
+					WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+					ORDER BY PIN.fechaCambio DESC
+				) AS chekInventario
+				LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
+				LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
+				LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
+				LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id              
+				LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
+				LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
+				LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+				LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
+				OUTER APPLY (
+					SELECT TOP 1 
+						SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+					FROM SolicitudDeVentaDetalles SVD WITH (NOLOCK)
+					LEFT JOIN SolicitudDeVenta SVC WITH (NOLOCK) ON SVD.idSolicitud = SVC.id 
+					WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+					ORDER BY SVC.fechaSolicitud DESC
+				) AS SV
+				LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+				LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id 
+				LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
+			WHERE 
+				(@Estado IS NULL OR GHD.estadoPieza IN (SELECT id FROM #idsCatalogos))
+				AND (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
+				AND CASE
+					WHEN @SinManifiesto = 0 THEN 1
+					WHEN @SinManifiesto = 1 AND MD.ID IS NULL THEN 1
+					ELSE 0 END = 1
+				AND CASE
+					WHEN @IdManifiesto IS NULL THEN 1
+					WHEN MD.id = @IdManifiesto THEN 1
+					ELSE 0 END = 1
+				AND (@PalletLabel IS NULL OR P.pallet LIKE @PalletLabel+'%')
+				AND (@Orden IS NULL OR SV.nroOrden LIKE @Orden+'%')
+				AND CASE 
+					WHEN @ShipToName IS NULL THEN 1
+					WHEN VCS.Nombre LIKE @ShipToName+'%' THEN 1
+					ELSE 0 END = 1
+				AND CASE 
+					WHEN @IdBodega IS NULL THEN 1
+					WHEN ISNULL(ubicacionesBodega.idBodega, GHD.idBodega) = @IdBodega THEN 1
+					ELSE 0 END = 1
+				AND CASE 
+					WHEN @EsInventario IS NULL THEN 1
+					WHEN @EsInventario = 0 AND SV.nroOrden IS NULL  THEN 1
+					WHEN @EsInventario = 0 AND SV.tipoVenta = 5 AND SV.tipoPieza = 2 THEN 1
+					WHEN @EsInventario = 0 AND SV.tipoVenta = 4  THEN 1
+					WHEN @EsInventario = 1 AND SV.tipoVenta = 5 AND SV.tipoPieza = 1 THEN 1
+					WHEN @EsInventario = 1 AND SV.tipoVenta < 4 THEN 1 
+					ELSE 0 
+				END  = 1
 		END
 		ELSE 
 		BEGIN
