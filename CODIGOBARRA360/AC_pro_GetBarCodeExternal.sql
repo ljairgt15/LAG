@@ -524,41 +524,41 @@ BEGIN
 						CAT.NombreIngles AccionNombreIngles,
 						GHD.IdEmpresa,
 						POD.farmName FarmName 
-					FROM  #TempPiezasPorCarrier ghd 
+					FROM  #TempPiezasPorCarrier GHD 
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          					FROM PiezasInventariadas pinv WITH (NOLOCK)
-            				LEFT JOIN ChequeoInventario checkInv WITH (NOLOCK) ON pinv.IdChequeoInventario = checkInv.id 
-          					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          					ORDER BY pinv.fechaCambio DESC
+          					SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          					FROM PiezasInventariadas PIN WITH (NOLOCK)
+            				LEFT JOIN ChequeoInventario checkInv WITH (NOLOCK) ON PIN.IdChequeoInventario = checkInv.id 
+          					WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          					ORDER BY PIN.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          					FROM SolicitudDeVentaDetalles svd WITH (NOLOCK)
-            				LEFT JOIN SolicitudDeVenta svc WITH (NOLOCK) ON svd.idSolicitud = svc.id 
-          					WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          					ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          					FROM SolicitudDeVentaDetalles SVD WITH (NOLOCK)
+            				LEFT JOIN SolicitudDeVenta SVC WITH (NOLOCK) ON SVD.idSolicitud = SVC.id 
+          					WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          					ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id 
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE (@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
 						AND CASE
@@ -1218,41 +1218,41 @@ BEGIN
 						GHD.IdEmpresa,
 						POD.farmName FarmName 
 					FROM 
-						#TempPiezasPorCarrier ghd 
+						#TempPiezasPorCarrier GHD 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id 
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          					FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          					ORDER BY pinv.fechaCambio DESC
+          					SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          					FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          					WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          					ORDER BY PIN.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          					FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          					WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          					ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          					FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          					WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          					ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE
 						(@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
@@ -1665,41 +1665,41 @@ BEGIN
 						GHD.IdEmpresa,
 						POD.farmName FarmName 
 					FROM 
-						#TempPiezasPorCarrier ghd 
+						#TempPiezasPorCarrier GHD 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          					FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          					ORDER BY pinv.fechaCambio DESC
+          					SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          					FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          					WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          					ORDER BY PIN.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          					FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          					WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          					ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          					FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          					WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          					ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE
 						(@NroManifiesto IS NULL OR MD.nroManifiesto LIKE @NroManifiesto+'%')
@@ -2372,41 +2372,41 @@ BEGIN
 						GHD.IdEmpresa,
 						POD.farmName FarmName 
 					FROM 
-						#TempPiezasPorCarrier ghd 
+						#TempPiezasPorCarrier GHD 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          					SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          					FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          					WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          					ORDER BY pinv.fechaCambio DESC
+          					SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          					FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          					WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          					ORDER BY PIN.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GHD.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           					SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          					FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          					WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          					ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          					FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          					WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          					ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.IdAccion = CAT.Id 
 					WHERE
 						(
@@ -2569,7 +2569,7 @@ BEGIN
 									ELSE 0 END = 1
 						
 						) GH 
-						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
+						INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
@@ -2579,34 +2579,34 @@ BEGIN
 															AND PC.idCarrier = @IdCarrier
 															AND PC.fechaDespacho = @FechaDespacho
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          				  FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          				  ORDER BY pinv.fechaCambio DESC
+          				  SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          				  FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          				  WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          				  ORDER BY PIN.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
 						OUTER APPLY (
           				  SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          				  FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          				  ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          				  FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          				  WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          				  ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -2758,41 +2758,41 @@ BEGIN
 									ELSE 0 END = 1
 						
 						) GH 
-						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
+						INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          				  FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          				  ORDER BY pinv.fechaCambio DESC
+          				  SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          				  FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          				  WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          				  ORDER BY PIN.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
 						OUTER APPLY (
           				  SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud
-          				  FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-       				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          				  ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud
+          				  FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+       				  WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          				  ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -2940,7 +2940,7 @@ BEGIN
 									WHEN VCC.Nombre LIKE @ConsigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
-						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
+						INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
@@ -2949,34 +2949,34 @@ BEGIN
 													AND PC.idCarrier = @IdCarrier
 													AND PC.fechaDespacho = @FechaDespacho 
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          				  FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          				  ORDER BY pinv.fechaCambio DESC
+          				  SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          				  FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          				  WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          				  ORDER BY PIN.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud
-          				  FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          				  ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud
+          				  FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          				  WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          				  ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id 
 						LEFT JOIN HeaderLabels hl WITH (NOLOCK) ON  GHD.idHeaderLabel = hl.id 
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
@@ -3124,40 +3124,40 @@ BEGIN
 									WHEN VCC.Nombre LIKE @ConsigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
-						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
+						INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          				  FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          				  ORDER BY pinv.fechaCambio DESC
+          				  SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          				  FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          				  WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          				  ORDER BY PIN.fechaCambio DESC
         				) chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud
-          				  FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          				  ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud
+          				  FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          				  WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          				  ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -3308,7 +3308,7 @@ BEGIN
 									WHEN VCC.Nombre LIKE @ConsigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
-						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
+						INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND PC.idCarrier = @IdCarrier
@@ -3317,34 +3317,34 @@ BEGIN
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          				  FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          				  ORDER BY pinv.fechaCambio DESC
+          				  SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          				  FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          				  WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          				  ORDER BY PIN.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          				  FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          				  ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          				  FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          				  WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          				  ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id 
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
@@ -3498,40 +3498,40 @@ BEGIN
 									WHEN VCC.Nombre LIKE @ConsigneeName+'%' THEN 1
 									ELSE 0 END = 1
 						) GH 
-						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
+						INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios U WITH (NOLOCK) ON  GHD.idUsuarioLog = U.id
 						LEFT JOIN PoDetalles POD ON  GHD.idPoDetalle = POD.id
-						LEFT JOIN DetalleDespacho dd WITH (NOLOCK) ON  GHD.id = dd.idGuiaHouseDetalle
-						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON dd.idEncabezadoDespacho = ED.id
+						LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON  GHD.id = DD.idGuiaHouseDetalle
+						LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
 						LEFT JOIN DetalleMercancias DM WITH (NOLOCK) ON  GHD.idDetalleMercancia = DM.id
-						LEFT JOIN UbicacionPiezas up WITH (NOLOCK) ON  GHD.id = up.idGuiaHouseDetalle 
+						LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON  GHD.id = UP.idGuiaHouseDetalle 
 						OUTER APPLY (
-          				  SELECT TOP 1 pinv.id, checkInv.estado, pinv.fechaCambio, checkInv.numero 
-          				  FROM PiezasInventariadas pinv
-            				LEFT JOIN ChequeoInventario checkInv ON pinv.IdChequeoInventario = checkInv.id 
-          				  WHERE pinv.IdGuiaHouseDetalle= GHD.id 
-          				  ORDER BY pinv.fechaCambio DESC
+          				  SELECT TOP 1 PIN.id, checkInv.estado, PIN.fechaCambio, checkInv.numero 
+          				  FROM PiezasInventariadas PIN
+            				LEFT JOIN ChequeoInventario checkInv ON PIN.IdChequeoInventario = checkInv.id 
+          				  WHERE PIN.IdGuiaHouseDetalle= GHD.id 
+          				  ORDER BY PIN.fechaCambio DESC
         				) AS chekInventario
-						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON up.idUbicacion = UB.id 
+						LEFT JOIN Ubicaciones UB WITH (NOLOCK) ON UP.idUbicacion = UB.id 
 						LEFT JOIN UbicacionesBodega ubicacionesBodega WITH (NOLOCK) ON UB.idUbicacionBodega = ubicacionesBodega.id 
 						LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON  GH.idBodega = bodegaGuia.id 
 						LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ubicacionesBodega.idBodega = bodegaPieza.id 				
 						LEFT JOIN ProgramacionCarrier PC WITH (NOLOCK) ON  GHD.id = PC.idGuiaHouseDetalle 
 						LEFT JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id 
-						LEFT JOIN ProgramacionManifiesto pm WITH (NOLOCK) ON PC.id = pm.idProgramacionCarrier
-						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON pm.idManifiestoDespacho = MD.id 
+						LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PC.id = PM.idProgramacionCarrier
+						LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id 
 						OUTER APPLY (
           				  SELECT TOP 1 
-								svc.nroOrden, svc.fechaSolicitud, svc.tipoVenta, svd.tipoPieza
-          				  FROM SolicitudDeVentaDetalles svd 
-            				LEFT JOIN SolicitudDeVenta svc ON svd.idSolicitud = svc.id 
-          				  WHERE  GHD.id = svd.idGuiaHouseDetalle 
-          				  ORDER BY svc.fechaSolicitud DESC
+								SVC.nroOrden, SVC.fechaSolicitud, SVC.tipoVenta, SVD.tipoPieza
+          				  FROM SolicitudDeVentaDetalles SVD 
+            				LEFT JOIN SolicitudDeVenta SVC ON SVD.idSolicitud = SVC.id 
+          				  WHERE  GHD.id = SVD.idGuiaHouseDetalle 
+          				  ORDER BY SVC.fechaSolicitud DESC
         				) SV
-						LEFT JOIN PalletsDetalles pd WITH (NOLOCK) ON  GHD.id = pd.idGuiasHouseDetalle
-						LEFT JOIN Pallets P WITH (NOLOCK) ON pd.idPallet = P.id 
+						LEFT JOIN PalletsDetalles PD WITH (NOLOCK) ON  GHD.id = PD.idGuiasHouseDetalle
+						LEFT JOIN Pallets P WITH (NOLOCK) ON PD.idPallet = P.id 
 						LEFT JOIN Catalogos CAT WITH (NOLOCK) ON  GHD.idCatalogoAccion = CAT.Id 
 					WHERE
 						( GHD.ShipToId = ISNULL(@ShipToId,  GHD.ShipToId))
