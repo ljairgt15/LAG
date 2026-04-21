@@ -469,8 +469,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
 						VCS.Id ShipToId,
 						VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -525,7 +525,7 @@ BEGIN
 						GHD.IdEmpresa,
 						pod.farmName FarmName 
 					FROM  #TempPiezasPorCarrier ghd 
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
@@ -1162,8 +1162,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
 						VCS.Id ShipToId,
 						VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -1220,7 +1220,7 @@ BEGIN
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id 
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
@@ -1609,8 +1609,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
 						VCS.id ShipToId,
 						VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -1667,7 +1667,7 @@ BEGIN
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
 						INNER JOIN v_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
@@ -2316,8 +2316,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -2374,7 +2374,7 @@ BEGIN
 					FROM 
 						#TempPiezasPorCarrier ghd 
 						LEFT JOIN Exportadores EX WITH (NOLOCK) ON  GHD.idExportador = EX.id
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						LEFT JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
@@ -2476,8 +2476,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.idCatalogoAccion IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -2571,7 +2571,7 @@ BEGIN
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON
@@ -2665,8 +2665,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.idCatalogoAccion IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -2760,7 +2760,7 @@ BEGIN
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
 						INNER JOIN #TMP_RelatedClients CLC ON CLC.ConsigneeId =  GHD.ShipToId
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
@@ -2846,8 +2846,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.idCatalogoAccion IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -2941,7 +2941,7 @@ BEGIN
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						INNER JOIN ProgramacionCarrier PC WITH (NOLOCK) ON 
@@ -3029,8 +3029,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.idCatalogoAccion IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -3125,7 +3125,7 @@ BEGIN
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
@@ -3212,8 +3212,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.idCatalogoAccion IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -3313,7 +3313,7 @@ BEGIN
 																 GHD.id = PC.idGuiaHouseDetalle 
 																AND PC.idCarrier = @IdCarrier
 																AND PC.fechaDespacho = @FechaDespacho
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
@@ -3403,8 +3403,8 @@ BEGIN
 						GHD.TruckId,
 						GHD.idCatalogoAccion IdAccion,
 						GHD.NoPermitirVenta,
-						tp.id IdTipoPieza,
-						tp.TipoPieza,
+						TP.id IdTipoPieza,
+						TP.TipoPieza,
                         VCS.ID ShipToId,
                         VCS.Nombre ShipToName,
 						u.nombre Nombre,
@@ -3499,7 +3499,7 @@ BEGIN
 									ELSE 0 END = 1
 						) GH 
 						INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON  GHD.idGuiaHouse =  GH.id 
-						INNER JOIN TiposDePieza tp WITH (NOLOCK) ON  GHD.idTipoDePieza = tp.id
+						INNER JOIN TiposDePieza TP WITH (NOLOCK) ON  GHD.idTipoDePieza = TP.id
                         INNER JOIN V_ClientsEntities VCS WITH (NOLOCK) ON  GHD.ShipToId = VCS.Id
 						INNER JOIN Usuarios u WITH (NOLOCK) ON  GHD.idUsuarioLog = u.id
 						LEFT JOIN PoDetalles pod ON  GHD.idPoDetalle = pod.id
