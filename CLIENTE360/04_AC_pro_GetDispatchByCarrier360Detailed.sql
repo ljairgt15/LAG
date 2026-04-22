@@ -40,7 +40,9 @@ BEGIN
         [IdCliente]     VARCHAR(16),
         [BillToConsigneeId] VARCHAR(16),
         [BilltoId]     VARCHAR(16),
-        [ConsigneeId]     VARCHAR(16)
+        [ConsigneeId]     VARCHAR(16),
+        [BillToName]    VARCHAR(256),
+        [Name]          VARCHAR(256)
         )
         
         CREATE TABLE #TMP_Exporters ( 
@@ -87,7 +89,7 @@ BEGIN
         FROM Documentos 
         WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId)
+        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
         EXEC [dbo].[AC_pro_GetClientsEntities]
              @EntityId = @EntityId,
              @UserType = @UserType 
