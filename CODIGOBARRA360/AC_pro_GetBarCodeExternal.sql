@@ -124,8 +124,7 @@ BEGIN
             [BillToId]          VARCHAR(16),
             [ConsigneeId]       VARCHAR(16),
             [BillToName]        VARCHAR(256),
-            [Name]              VARCHAR(256),
-            [JoinKey]           VARCHAR(16)
+            [Name]              VARCHAR(256)
         )
 
 		CREATE TABLE #idsCatalogos (
@@ -144,7 +143,7 @@ BEGIN
 			FROM [dbo].fnObtenerValoresXML(@Estado)
 		END
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name], JoinKey)
+        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
         EXEC [dbo].[AC_pro_GetClientsEntities]
              @EntityId = @EntityId,
              @UserType = @UserType 
