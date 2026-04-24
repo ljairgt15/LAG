@@ -118,14 +118,9 @@ BEGIN
 		);
 
 		CREATE TABLE #TMP_RelatedClients (
-            [Id]                VARCHAR(16),
-            [IdCliente]         VARCHAR(16),
-            [BillToConsigneeId] VARCHAR(16),
-            [BillToId]          VARCHAR(16),
-            [ConsigneeId]       VARCHAR(16),
-            [BillToName]        VARCHAR(256),
-            [Name]              VARCHAR(256)
-        )
+			BilltoId VARCHAR(50),
+			ConsigneeId VARCHAR(50)
+		);
 
 		CREATE TABLE #idsCatalogos (
 			id [VARCHAR](64)
@@ -143,22 +138,20 @@ BEGIN
 			FROM [dbo].fnObtenerValoresXML(@Estado)
 		END
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
-        EXEC [dbo].[AC_pro_GetClientsEntities]
-             @EntityId = @EntityId,
-             @UserType = @UserType 
-        
-        IF @BillToId IS NOT NULL
-        BEGIN
-            DELETE FROM #TMP_RelatedClients 
-            WHERE BilltoId <> @BillToId OR BilltoId IS NULL;
-        END
-        ELSE IF @BillToName IS NOT NULL
-        BEGIN
-			DELETE FROM #TMP_RelatedClients 
-            WHERE BillToName NOT LIKE @BillToName + '%' OR BillToName IS NULL;
-        END
-		
+		IF @BillToId IS NOT NULL
+		BEGIN
+			INSERT INTO #TMP_RelatedClients (BilltoId, ConsigneeId)
+			SELECT BilltoId, ConsigneeId
+			FROM dbo.f_GetClientsEntities(@EntityId, @UserType)
+			WHERE BilltoId = @BillToId;
+		END
+		ELSE
+		BEGIN
+			INSERT INTO #TMP_RelatedClients (BilltoId, ConsigneeId)
+			SELECT BilltoId, ConsigneeId
+			FROM dbo.f_GetClientsEntities(@EntityId, @UserType);
+		END
+
 		IF @TipoCliente IS NULL
 		BEGIN
 			IF @FechaDespacho IS NOT NULL 
