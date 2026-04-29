@@ -1,6 +1,6 @@
-/*  
-  VERSION		AUTOR					FECHA			  HU			CAMBIO                                                                                   
-  1			    Jair Gomez 			   25-02-2026		 57747  	   Initial Code - Based on pro_ReporteProgramacion_ListarInformacion. 
+/*
+VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
+1			Jair Gomez      	2026-04-29		  57747			 Based on pro_ReporteProgramacion_ListarInformacion
 */
 
 ALTER         PROCEDURE [dbo].[01-Ac_pro_GetProgrammingAnalyticsReport]
