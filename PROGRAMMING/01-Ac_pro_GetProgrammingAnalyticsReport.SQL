@@ -147,28 +147,28 @@ BEGIN
 			)
 				SELECT 
 					G.id AS Id,
-					gc.id AS IdGuiaConsolidada,
+					GC.id AS IdGuiaConsolidada,
 					G.fechaEmbarque AS FechaEmbarque,
-					cd.codigoIATA AS Origin,
-					gc.nroGuia AS ShipmentNr,
-					cl.nombre AS Consignatario,
-					ISNULL(cl.nombreClienteFinal,cl.nombre) AS ShipTo, 
+					CD.codigoIATA AS Origin,
+					GC.nroGuia AS ShipmentNr,
+					CL.nombre AS Consignatario,
+					ISNULL(CL.nombreClienteFinal,CL.nombre) AS ShipTo, 
 					G.idEmpresa AS IdEmpresa,
-					cl.id AS IdClienteFinal,
-					coor.id AS IdCoordinacion,
+					CL.id AS IdClienteFinal,
+					COOR.id AS IdCoordinacion,
 					'Test' AS CodigoBarra,
 					'Test' AS CodigoBarraInv,
-					coor.totalCajasCoordinacion AS CajasCoordinadas,
-					coor.totalPiezasCoordinacion AS PiezasCoordinadas,
+					COOR.totalCajasCoordinacion AS CajasCoordinadas,
+					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					cl.id AS IdClienteConsignee
+					CL.id AS IdClienteConsignee
 				FROM #idGuias guiasTemp 
 				INNER JOIN Guias G WITH(NOLOCK) ON G.idGuiaConsolidada = guiasTemp.idGuias
-				INNER JOIN Guias gc WITH(NOLOCK) ON G.idGuiaConsolidada = gc.id
-				INNER JOIN Coordinaciones coor WITH(NOLOCK) ON G.id = coor.idGuia
+				INNER JOIN Guias GC WITH(NOLOCK) ON G.idGuiaConsolidada = GC.id
+				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
 				INNER JOIN Puertos p ON G.idPuertoOrigen = p.id
-				INNER JOIN Ciudades cd ON p.idCiudad = cd.id
-				INNER JOIN Clientes cl WITH(NOLOCK) ON G.idCliente = cl.id
+				INNER JOIN Ciudades CD ON p.idCiudad = CD.id
+				INNER JOIN Clientes CL WITH(NOLOCK) ON G.idCliente = CL.id
 		END
 	ELSE
 		BEGIN
@@ -194,25 +194,25 @@ BEGIN
 				SELECT 
 					G.id AS Id,
 					G.fechaEmbarque AS FechaEmbarque,
-					cd.codigoIATA AS Origin,
+					CD.codigoIATA AS Origin,
 					G.nroGuia AS ShipmentNr,
-					cl.nombre AS Consignatario,
-					ISNULL(cl.nombreClienteFinal,cl.nombre) AS ShipTo,
+					CL.nombre AS Consignatario,
+					ISNULL(CL.nombreClienteFinal,CL.nombre) AS ShipTo,
 					G.idEmpresa AS IdEmpresa,
-					cl.id AS IdClienteFinal,
-					coor.id AS IdCoordinacion,
+					CL.id AS IdClienteFinal,
+					COOR.id AS IdCoordinacion,
 					'Test' AS CodigoBarra,
 					'Test' AS CodigoBarraInv,
-					coor.totalCajasCoordinacion AS CajasCoordinadas,
-					coor.totalPiezasCoordinacion AS PiezasCoordinadas,
+					COOR.totalCajasCoordinacion AS CajasCoordinadas,
+					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					cl.id AS IdClienteConsignee
+					CL.id AS IdClienteConsignee
 				FROM  #idGuias guiasTemp 
 				INNER JOIN guias G WITH(NOLOCK)ON G.id = guiasTemp.idGuias
-				INNER JOIN Coordinaciones coor WITH(NOLOCK) ON G.id = coor.idGuia
+				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
 				INNER JOIN Puertos p ON G.idPuertoOrigen = p.id
-				INNER JOIN Ciudades cd ON p.idCiudad = cd.id
-				INNER JOIN Clientes cl WITH(NOLOCK) ON G.idCliente = cl.id
+				INNER JOIN Ciudades CD ON p.idCiudad = CD.id
+				INNER JOIN Clientes CL WITH(NOLOCK) ON G.idCliente = CL.id
 		END
 	/*Informeacion de InventarioTemporal*/
 	INSERT INTO #CoordinacionesAux
