@@ -3,7 +3,7 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-04-29		  57747			 Based on pro_ObtenerDimensionesPiezasClientes
 */
 
-CREATE OR ALTER   PROCEDURE [dbo].[Ac_pro_GetClientsPieceDimensions]
+CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_GetClientsPieceDimensions]
     @IdClientes VARCHAR(MAX)
 AS
 BEGIN

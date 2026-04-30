@@ -3,7 +3,7 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-04-29		  57747			 Based on pro_ReporteProgramacion_ListarInformacion
 */
 
-ALTER         PROCEDURE [dbo].[01-Ac_pro_GetProgrammingAnalyticsReport]
+CREATE OR ALTER PROCEDURE [dbo].[01-Ac_pro_GetProgrammingAnalyticsReport]
     @IdGuias VARCHAR(MAX),
 	@GuiaConsolidada BIT
 AS
