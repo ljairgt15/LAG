@@ -25,7 +25,9 @@ BEGIN
 		)
 
 	SELECT 
+	--no hace nada ni en el codigo
 		ROW_NUMBER() OVER (ORDER BY H.idCliente) AS id,
+		--
 		H.idCliente,
 		H.tipoPiezaInventario AS tipoPieza,
 		AVG(H.largo/2.54) AS largo,
