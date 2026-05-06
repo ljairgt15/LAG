@@ -158,21 +158,21 @@ BEGIN
 					--mismo dato
 					VCC.nombre AS ShipTo, 
 					G.idEmpresa AS IdEmpresa,
-					VCC.id AS IdClienteFinal,
+					VCC.ConsigneeId AS IdClienteFinal,
 					COOR.id AS IdCoordinacion,
 					'Test' AS CodigoBarra,
 					'Test' AS CodigoBarraInv,
 					COOR.totalCajasCoordinacion AS CajasCoordinadas,
 					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					VCC.id AS IdClienteConsignee
+					VCC.ConsigneeId AS IdClienteConsignee
 				FROM #idGuias guiasTemp 
 				INNER JOIN Guias G WITH(NOLOCK) ON G.idGuiaConsolidada = guiasTemp.idGuias
 				INNER JOIN Guias GC WITH(NOLOCK) ON G.idGuiaConsolidada = GC.id
 				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
 				INNER JOIN Puertos p ON G.idPuertoOrigen = p.id
 				INNER JOIN Ciudades CD ON p.idCiudad = CD.id
-				INNER JOIN v_ClientsEntities VCC ON G.ConsigneeId = VCC.Id
+				INNER JOIN v_ClientsEntities VCC ON G.BillToConsigneeId = VCC.Id
 		END
 	ELSE
 		BEGIN
@@ -204,20 +204,20 @@ BEGIN
 					--mismo dato
 					VCC.nombre AS ShipTo,
 					G.idEmpresa AS IdEmpresa,
-					VCC.id AS IdClienteFinal,
+					VCC.ConsigneeId AS IdClienteFinal,
 					COOR.id AS IdCoordinacion,
 					'Test' AS CodigoBarra,
 					'Test' AS CodigoBarraInv,
 					COOR.totalCajasCoordinacion AS CajasCoordinadas,
 					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					VCC.id AS IdClienteConsignee
+					VCC.ConsigneeId AS IdClienteConsignee
 				FROM  #idGuias guiasTemp 
 				INNER JOIN guias G WITH(NOLOCK)ON G.id = guiasTemp.idGuias
 				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
 				INNER JOIN Puertos p ON G.idPuertoOrigen = p.id
 				INNER JOIN Ciudades CD ON p.idCiudad = CD.id
-				INNER JOIN v_ClientsEntities VCC WITH(NOLOCK) ON G.ConsigneeId = VCC.Id
+				INNER JOIN v_ClientsEntities VCC WITH(NOLOCK) ON G.BillToConsigneeId = VCC.Id
 		END
 	/*Informacion de InventarioTemporal*/
 	INSERT INTO #CoordinacionesAux
