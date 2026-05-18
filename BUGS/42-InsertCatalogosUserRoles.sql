@@ -11,7 +11,6 @@ IF NOT EXISTS (
       FROM [dbo].[Catalogos]
       WHERE [codigo] = 'UserRoles' 
       AND [identificador] IN (
-            'AGENCIA_CARGA_TYPE',
             'BROKER_TYPE',
             'EMPLEADO_TYPE',
             'EXPORTADOR_TYPE',
@@ -20,49 +19,6 @@ IF NOT EXISTS (
 )
 BEGIN
     DECLARE @IdNew INT;
-    SELECT @IdNew = MAX([IdNew]) + 1
-    FROM [dbo].[Catalogos];
-
-    INSERT INTO [dbo].[Catalogos]
-        (
-        [idEmpresa]
-        ,[nombre]
-        ,[nombreIngles]
-        ,[codigo]
-        ,[tipo]
-        ,[descripcion]
-        ,[status]
-        ,[nota]
-        ,[fechaCambio]
-        ,[identificador]
-        ,[clase]
-        ,[codigoRelacion]
-        ,[orden]
-        ,[oculto]
-        ,[idCatalgoPadre]
-        ,[idRegistroVinculado]
-        ,[IdNew]
-        )
-    VALUES
-        (
-        NULL
-        ,'AGENCIA DE CARGA'
-        ,'CARGO AGENCY'
-        ,'UserRoles'
-        ,'ENUMERACION'
-        ,'User role type for listing'
-        ,'ACTIVO'
-        ,NULL
-        ,GETDATE()
-        ,'AGENCIA_CARGA_TYPE'
-        ,NULL
-        ,NULL
-        ,1
-        ,0
-        ,NULL
-        ,NULL
-        ,@IdNew
-        );
 
     SELECT @IdNew = MAX([IdNew]) + 1
     FROM [dbo].[Catalogos];
@@ -100,7 +56,7 @@ BEGIN
         ,'BROKER_TYPE'
         ,NULL
         ,NULL
-        ,2
+        ,1
         ,0
         ,NULL
         ,NULL
@@ -143,7 +99,7 @@ BEGIN
         ,'EMPLEADO_TYPE'
         ,NULL
         ,NULL
-        ,4
+        ,2
         ,0
         ,NULL
         ,NULL
@@ -186,7 +142,7 @@ BEGIN
         ,'EXPORTADOR_TYPE'
         ,NULL
         ,NULL
-        ,5
+        ,3
         ,0
         ,NULL
         ,NULL
@@ -230,7 +186,7 @@ BEGIN
         ,'CLIENTE_TYPE'
         ,NULL
         ,NULL
-        ,6
+        ,4
         ,0
         ,NULL
         ,NULL,
