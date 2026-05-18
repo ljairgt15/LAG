@@ -480,62 +480,62 @@ BEGIN TRY
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '5F1DA7E5-F719-4837-915A-99C6B6303021' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'5F1DA7E5-F719-4837-915A-99C6B6303021',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA
+    VALUES (@Id,'5F1DA7E5-F719-4837-915A-99C6B6303021', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '03A2D783-21D4-4020-A719-165C1B299760' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'03A2D783-21D4-4020-A719-165C1B299760',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA AMSTERDAN
+    VALUES (@Id,'03A2D783-21D4-4020-A719-165C1B299760', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA AMSTERDAN
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '7F5E1F24-E31A-4DDD-944B-6B7502484FF1' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'7F5E1F24-E31A-4DDD-944B-6B7502484FF1',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA BOGOTA
+    VALUES (@Id,'7F5E1F24-E31A-4DDD-944B-6B7502484FF1', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA BOGOTA
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '166E7C6B-3A90-414E-8FD7-73C84B0ACAD3' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'166E7C6B-3A90-414E-8FD7-73C84B0ACAD3',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA GUATEMALA
+    VALUES (@Id,'166E7C6B-3A90-414E-8FD7-73C84B0ACAD3', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA GUATEMALA
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '942F12F8-ECBA-440A-925C-42F1C0878B07' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'942F12F8-ECBA-440A-925C-42F1C0878B07',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA MEDELLIN
+    VALUES (@Id,'942F12F8-ECBA-440A-925C-42F1C0878B07', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA MEDELLIN
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '51F22256-B133-466B-9535-46EDF5E215B3' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'51F22256-B133-466B-9535-46EDF5E215B3',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA MIAMI
+    VALUES (@Id,'51F22256-B133-466B-9535-46EDF5E215B3', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA MIAMI
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '530E12CD-8E40-4CB4-99A9-4A4D94950ACC' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'530E12CD-8E40-4CB4-99A9-4A4D94950ACC',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA PO
+    VALUES (@Id,'530E12CD-8E40-4CB4-99A9-4A4D94950ACC', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- COMERCIALIZADORA PO
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '1e4125bf-7866-4fa0-837d-43a1df2a0fd7' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'1e4125bf-7866-4fa0-837d-43a1df2a0fd7',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR
+    VALUES (@Id,'1e4125bf-7866-4fa0-837d-43a1df2a0fd7', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'E955AF16-586F-4A52-9DA6-61209809F9D9' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'E955AF16-586F-4A52-9DA6-61209809F9D9',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR COLOMBIA
+    VALUES (@Id,'E955AF16-586F-4A52-9DA6-61209809F9D9', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR COLOMBIA
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'B0FBA674-93FA-4849-9480-51F9BD5FBA91' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'B0FBA674-93FA-4849-9480-51F9BD5FBA91',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR COSTA RICA
+    VALUES (@Id,'B0FBA674-93FA-4849-9480-51F9BD5FBA91', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR COSTA RICA
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'C92790AE-1FB9-4EB7-953C-A53064635E81' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'C92790AE-1FB9-4EB7-953C-A53064635E81',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR ESTADOS UNIDOS
+    VALUES (@Id,'C92790AE-1FB9-4EB7-953C-A53064635E81', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR ESTADOS UNIDOS
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'DBF21744-1A75-41E9-B445-4DE816192101' AND [CatalogosId] = @CatExporter)
     BEGIN EXEC dbo.pro_General_GenerarIdUnico @tabla = 'RolesActors', @IdUnico = @Id OUTPUT;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'DBF21744-1A75-41E9-B445-4DE816192101',@CatExportador,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR GUATEMALA
+    VALUES (@Id,'DBF21744-1A75-41E9-B445-4DE816192101', @CatExporter,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- EXPORTADOR GUATEMALA
 
     -- =============================================
     -- BROKER (1 rol)
