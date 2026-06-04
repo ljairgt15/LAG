@@ -1,8 +1,9 @@
 ALTER   PROCEDURE [dbo].[Ac_pro_GetRelatedClients360]
 (
 	@idUsuario VARCHAR(16),
-	@subCustomer VARCHAR(128) --NOMBRE
-
+	@subCustomer VARCHAR(128), --NOMBRE
+	@UserType VARCHAR(16),
+	@EntityId VARCHAR(16)
 )
 AS
 BEGIN
@@ -20,7 +21,15 @@ BEGIN TRY
 		@RangoFecha = DATEADD(MM, -3, GETDATE()),	
 		@fechaDestinoComodin = DATEADD(MM, -1, GETDATE())
 		
-	
+	CREATE TABLE #EntityClients(
+	Id [VARCHAR](16),  
+	IdCliente [VARCHAR](16),  
+	BillToConsigneeId [VARCHAR](16),  
+	BillToId [VARCHAR](16),  
+	ConsigneeId [VARCHAR](16),  
+	BillToName [VARCHAR](256),  
+	[Name] [VARCHAR](256)  
+	)	
 
 	CREATE TABLE #ClientesRelacionados(
 		[idClienteB] [VARCHAR](16)
