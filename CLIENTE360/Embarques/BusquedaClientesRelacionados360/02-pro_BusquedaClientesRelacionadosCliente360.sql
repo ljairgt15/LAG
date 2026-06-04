@@ -1,7 +1,7 @@
 ALTER   PROCEDURE [dbo].[pro_BusquedaClientesRelacionadosCliente360]
 (
 	@idUsuario VARCHAR(16),
-	@subCustomer VARCHAR(128)
+	@subCustomer VARCHAR(128) --NOMBRE
 )
 AS
 BEGIN
@@ -57,7 +57,7 @@ BEGIN TRY
 				idGrupoCliente = @IdCliente
 		END
 
-
+--ORIGEN
 	INSERT INTO #allClients
 	SELECT  DISTINCT
 		ISNULL(gmaster.idCliente,g.idCliente)   AS idClienteConsolidador,
