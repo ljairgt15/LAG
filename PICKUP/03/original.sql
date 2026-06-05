@@ -1,33 +1,33 @@
-USE [alliance_desa]
+USE [alliance_testing]
 GO
-/****** Object:  StoredProcedure [dbo].[pro_modulo_DespachoPickup]    Script Date: 27/03/2026 09:23:07 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[pro_modulo_DespachoPickup]    Script Date: 17/05/2026 09:27:40 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 /*
-VERSION		AUTOR				FECHA			HU			CAMBIO
-1			Jesús Yandún		11/01/2021					Extrae información para modulo de pickup
-2			Jonathan Merino		09/04/2021					se modifica listado para devolver TipoManifiesto en base al parametro del cliente Consignee
-3			Jonathan Merino		10/06/2021					se retorna documentoDes.modificado para validar manifiesto modificado y pintar de color rojo la nube
-4			Luchin				05/08/2021					No agrupar por totales, house, idGuiaHouse - No hacer join con DocumentoDespacho - No hacer join con Usuarios - Remover campos no usados
-5			Jonathan Merino		25/08/2021			  		modificacion del listado para mostrar en pendientes piezas que no tengan manifiesto o cuyo manifiesto no se EPOD
-6			Jonathan Merino		01/10/2021			  		modificacion para filtrar informacion por pallet
-7			Jonathan Merino		04/11/2021			  		modificacion para agrupar por orden de venta y total de picking para estado sold
-8			Saul Mendez			27/12/2021	  				se agrega los campos de carrier
-9			Saul Mendez			30/12/2021		  			Mostrar Bodega de acuerdo con la ubicación de la pieza
-10			Luchin				15/04/2022		  			Mostrar Bodega de acuerdo con la ubicación de la pieza
-11			Luchin / Paty		27/12/2022		15337		Mejoras SP
-12			Jose Ganchozo		30/05/2023		25674		Agregar columnas despachadoDestino y totalPickingLoading
-13          Jean Martillo		24/11/2023      29121		Agregar a la suma de piezas cuando es lost y short
-14			Jose Ganchozo		27/11/2023		33811		Cambiar el filtro a la primera consulta tabla #TMP_PROGRAM de numero po
-15			Oscar Yunda			19/12/2023		CC33054		Se modifica el listado para obtener el idTE de ProgramacionTE y el IdPais de Cliente y IdPais Cliente Final
-16			Fernando Ordoñez	13/09/2024		HU 41334	Agregar inventario
-17			Jose Ganchozo		29-11-2024		Bug-46654	Se corrige la logica para las piezas que son de inventario
-18			Ismael Flores		06-12-2024		HU 41334	Se aplica OUTER APPLY para la consulta de idDocumento = 'DOC052395'
+VERSION		MODIFIEDBY			MODIFIEDDATE	HU			MODIFICATION
+1			Jesús Yandún		2021-01-11		NA			Extrae información para modulo de pickup
+2			Jonathan Merino		2021-04-09		NA			se modifica listado para devolver TipoManifiesto en base al parametro del cliente Consignee
+3			Jonathan Merino		2021-06-10		NA			se retorna documentoDes.modificado para validar manifiesto modificado y pintar de color rojo la nube
+4			Luchin				2021-08-05		NA			No agrupar por totales, house, idGuiaHouse - No hacer join con DocumentoDespacho - No hacer join con Usuarios - Remover campos no usados
+5			Jonathan Merino		2021-08-25		NA	  		modificacion del listado para mostrar en pendientes piezas que no tengan manifiesto o cuyo manifiesto no se EPOD
+6			Jonathan Merino		2021-10-01		NA	  		modificacion para filtrar informacion por pallet
+7			Jonathan Merino		2021-11-04		NA	  		modificacion para agrupar por orden de venta y total de picking para estado sold
+8			Saul Mendez			2021-12-27	  	NA			se agrega los campos de carrier
+9			Saul Mendez			2021-12-30		NA 			Mostrar Bodega de acuerdo con la ubicación de la pieza
+10			Luchin				2022-04-15		NA 			Mostrar Bodega de acuerdo con la ubicación de la pieza
+11			Luchin / Paty		2022-12-27		15337		Mejoras SP
+12			Jose Ganchozo		2023-05-30		25674		Agregar columnas despachadoDestino y totalPickingLoading
+13			Jean Martillo		2023-11-24      29121		Agregar a la suma de piezas cuando es lost y short
+14			Jose Ganchozo		2023-11-27		33811		Cambiar el filtro a la primera consulta tabla #TMP_PROGRAM de numero po
+15			Oscar Yunda			2023-12-19		CC33054		Se modifica el listado para obtener el idTE de ProgramacionTE y el IdPais de Cliente y IdPais Cliente Final
+16			Fernando Ordoñez	2024-09-13		HU 41334	Agregar inventario
+17			Jose Ganchozo		2024-11-29		Bug-46654	Se corrige la logica para las piezas que son de inventario
+18			Ismael Flores		2024-12-06		HU 41334	Se aplica OUTER APPLY para la consulta de idDocumento = 'DOC052395'
+19			PCHICAIZA 			2026-03-19		NA			Add new parameters with @V for improving performance
 */
-ALTER   PROCEDURE [dbo].[pro_modulo_DespachoPickup]
-(
+ALTER PROCEDURE [dbo].[pro_modulo_DespachoPickup]
     @nroDocument VARCHAR(32) = NULL,
     @po VARCHAR(64) = NULL,
     @Consignee NVARCHAR(512) = NULL,
@@ -39,16 +39,25 @@ ALTER   PROCEDURE [dbo].[pro_modulo_DespachoPickup]
     @consulta INT,
 	@fechaDesde INT,
 	@palletLabel VARCHAR(16) = NULL
-)
 AS
 BEGIN
 	BEGIN TRY
-		DECLARE @fechaDespaho DATETIME = DATEADD(MM, -@fechaDesde, GETDATE()),
-				@idParametroDelivery VARCHAR(16),
-				@idParametroTipo VARCHAR(16)
+		DECLARE
+		@VnroDocument VARCHAR(32) = @nroDocument,
+		@Vpo VARCHAR(64) = @po,
+		@VConsignee NVARCHAR(512) = @Consignee,
+		@Vstatus VARCHAR(32) = @status,
+		@VnroManifiesto VARCHAR(32) = @nroManifiesto,
+		@Vbarcode VARCHAR(32) = @barcode,
+		@Vsupplier NVARCHAR(512) = @supplier,
+		@VidEmpresa VARCHAR(16) = @idEmpresa,
+		@Vconsulta INT = @consulta,		
+		@VpalletLabel VARCHAR(16) = @palletLabel,
+		@fechaDespacho DATETIME = DATEADD(MM, -@fechaDesde, GETDATE()),
+		@idParametroDelivery VARCHAR(16),
+		@idParametroTipo VARCHAR(16)
 
-		CREATE TABLE #TablaAgrupacionGuiasPickUp
-		(
+		CREATE TABLE #TablaAgrupacionGuiasPickUp(
 			idManifiesto		UNIQUEIDENTIFIER,
 			nroManifiesto		VARCHAR(32),	
 			idClienteFinal		VARCHAR(32),
@@ -76,332 +85,316 @@ BEGIN
 			idPaisCliente		VARCHAR(16),
 			idPaisAlt			VARCHAR(16),
 			idTEGuid			UNIQUEIDENTIFIER NULL,
-			esInventario		BIT
-		);  
+			esInventario		BIT)
 
 		SELECT @idParametroDelivery = id 
-		FROM ParametrosLista parametroLista WITH (NOLOCK) 
-		WHERE parametroLista.codigo = 'EsDelivery'
-			AND parametroLista.idEmpresa = @idEmpresa;
+		FROM ParametrosLista PL WITH (NOLOCK) 
+		WHERE PL.codigo = 'EsDelivery'
+		AND PL.idEmpresa = @VidEmpresa;
 
 		SELECT @idParametroTipo = id 
-		FROM ParametrosLista parametroLista WITH (NOLOCK) 
-		WHERE parametroLista.codigo = 'TipoManifiestoDespacho'
-			AND parametroLista.idEmpresa = @idEmpresa;
+		FROM ParametrosLista PL WITH (NOLOCK) 
+		WHERE PL.codigo = 'TipoManifiestoDespacho'
+		AND PL.idEmpresa = @VidEmpresa;
 
 		SELECT C.idEntidad, C.codigo
 		INTO #TMP_CodigosRelacionSistemas
 		FROM CodigosRelacionSistemas C WITH (NOLOCK) 
 		WHERE C.tipoEntidad = 'CARRIER' 
-			AND C.idSistemaEntidad = 100;
+		AND C.idSistemaEntidad = 100;
 
-		SELECT pc.id,
-		t.id idCarrier,
-		pc.fechaDespacho,
-		t.nombre nombreTransporte,
-		ghd.id idGuiaHouseDetalle,
-		ghd.idGuiaHouse,
-		ghd.idPoDetalle,
-		ghd.codigoBarra,
-		ghd.estadoPieza,
-		ghd.idClienteFinal,
-		ghd.truckId,
-		ghd.despachadoDestino,
-		pc.idUsuarioLogPicking,
-		te.idTE
+		SELECT 
+		PC.id,
+		T.id idCarrier,
+		PC.fechaDespacho,
+		T.nombre nombreTransporte,
+		GHD.id idGuiaHouseDetalle,
+		GHD.idGuiaHouse,
+		GHD.idPoDetalle,
+		GHD.codigoBarra,
+		GHD.estadoPieza,
+		GHD.idClienteFinal,
+		GHD.truckId,
+		GHD.despachadoDestino,
+		PC.idUsuarioLogPicking,
+		TE.idTE
 		INTO #TMP_PROGRAM
-		FROM ProgramacionCarrier pc WITH (NOLOCK) 		
-			INNER JOIN Transportes t WITH (NOLOCK) ON pc.idCarrier = t.id
-			INNER JOIN ParametrosCatalogos parametro WITH (NOLOCK) ON t.idTransportePrincipal = parametro.idEntidad AND parametro.idParametroLista = @idParametroDelivery AND parametro.valor = 'NO'
-			INNER JOIN GuiasHouseDetalles ghd WITH (NOLOCK) ON ghd.id = pc.idGuiaHouseDetalle
-			LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON pc.id = te.idProgramacionCarrier  
-		WHERE pc.fechaDespacho > @fechaDespaho
-			AND (@po IS NULL OR ghd.po LIKE @po + '%')
+		FROM ProgramacionCarrier PC WITH (NOLOCK) 		
+		INNER JOIN Transportes T WITH (NOLOCK) ON pc.idCarrier = t.id
+		INNER JOIN ParametrosCatalogos P WITH (NOLOCK) ON t.idTransportePrincipal = P.idEntidad AND P.idParametroLista = @idParametroDelivery AND P.valor = 'NO'
+		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON ghd.id = pc.idGuiaHouseDetalle
+		LEFT JOIN ProgramacionTe TE WITH (NOLOCK) ON pc.id = te.idProgramacionCarrier  
+		WHERE PC.fechaDespacho > @fechaDespacho
+		AND (@Vpo IS NULL OR ghd.po LIKE @Vpo + '%')
 	
-		IF(@nroDocument IS NULL AND @po IS NULL AND @Consignee IS NULL AND @nroManifiesto IS NULL AND @supplier IS NULL AND @barcode IS NULL AND @PalletLabel IS NULL)
+		IF(@VnroDocument IS NULL AND @Vpo IS NULL AND @VConsignee IS NULL AND @VnroManifiesto IS NULL AND @Vsupplier IS NULL AND @Vbarcode IS NULL AND @VpalletLabel IS NULL)
 		BEGIN
-
-			INSERT INTO #TablaAgrupacionGuiasPickUp 
+			INSERT INTO #TablaAgrupacionGuiasPickUp -- with nulls
 			SELECT 
-			manifiesto.id, 
-			manifiesto.nroManifiesto,
-			progra.idClienteFinal, 
-			ISNULL (cl.nombreClienteFinal, cl.nombre) NombreClienteFinal,
-			ISNULL(ub.idBodega, house.idBodega) idBodega, 
-			ISNULL(bodegaPieza.nombre, bodegaGuia.nombre) nombreBodega,
-			progra.idCarrier, 		
-			progra.truckId, 
-			progra.fechaDespacho ,
-			parametroCat.valor, 
-			COUNT(progra.estadoPieza),
-			SUM(IIF(progra.estadoPieza = 'DISPATCHED WH', 1, 0)),
-			SUM(IIF(progra.estadoPieza = 'STANDBY', 1, 0)),
-			SUM(IIF(progra.estadoPieza = 'HOLD', 1, 0)),
-			SUM(IIF(progra.estadoPieza = 'PENDING', 1, 0)),
-			SUM(IIF(progra.estadoPieza = 'RECEIVED WH', 1, 0)),
-			SUM(IIF(progra.estadoPieza IN ('SHORT', 'LOST'), 1, 0)),
+			MD.id, 
+			MD.nroManifiesto,
+			PR.idClienteFinal, 
+			ISNULL (CL.nombreClienteFinal, CL.nombre) NombreClienteFinal,
+			ISNULL(UB.idBodega, H.idBodega) idBodega, 
+			ISNULL(BP.nombre, BG.nombre) nombreBodega,
+			PR.idCarrier, 		
+			PR.truckId, 
+			PR.fechaDespacho ,
+			PCA.valor, 
+			COUNT(PR.estadoPieza),
+			SUM(IIF(PR.estadoPieza = 'DISPATCHED WH', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'STANDBY', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'HOLD', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'PENDING', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'RECEIVED WH', 1, 0)),
+			SUM(IIF(PR.estadoPieza IN ('SHORT', 'LOST'), 1, 0)),
 			ISNULL(dcd.esPOD,0),
-			svc.nroOrden,
-			SUM(IIF(svc.picking = 1, 1, 0)),
-			svc.id,
-			progra.nombreTransporte,
+			SVC.nroOrden,
+			SUM(IIF(SVC.picking = 1, 1, 0)),
+			SVC.id,
+			PR.nombreTransporte,
 			T1.codigo,
-			SUM(IIF(progra.idUsuarioLogPicking IS NOT NULL, 1, 0)) totalPickingLoading,
-			paisClInfoFinal.id idPaisCliente,
-			paCl.id idPaisAlt,
-			progra.idTE idTEGuid,
+			SUM(IIF(PR.idUsuarioLogPicking IS NOT NULL, 1, 0)) totalPickingLoading,
+			PCF.id idPaisCliente,
+			PAC.id idPaisAlt,
+			PR.idTE idTEGuid,
 			CASE 
-				WHEN svc.tipoVenta < 4 THEN 1 
-				WHEN svc.tipoVenta = 5 AND svc.tipoPieza = 1  THEN 1 
+				WHEN SVC.tipoVenta < 4 THEN 1 
+				WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1  THEN 1 
 				ELSE 0
 			END esInventario
-			FROM #TMP_PROGRAM progra		
-				INNER JOIN #TMP_CodigosRelacionSistemas T1  ON progra.idCarrier = T1.idEntidad
-				INNER JOIN GuiasHouse gh WITH (NOLOCK) ON progra.idGuiaHouse = gh.id
-				INNER JOIN Clientes cl WITH (NOLOCK) ON progra.idClienteFinal = cl.id
-				INNER JOIN dbo.Paises paCl ON cl.idPais = paCl.id  
-				CROSS APPLY 
-				(   
-					SELECT G.idCliente, idBodega
-					FROM GuiasHouse G WITH (NOLOCK)
-					WHERE progra.idGuiaHouse  = G.id 
-				) house  
-				LEFT JOIN ParametrosCatalogos parametroCat WITH (NOLOCK) ON parametroCat.idEntidad = house.idCliente AND parametroCat.idParametroLista = @idParametroTipo
-				LEFT JOIN ProgramacionManifiesto progMani WITH (NOLOCK) ON progra.id = progMani.idProgramacionCarrier
-				LEFT JOIN ManifiestosDespacho manifiesto WITH (NOLOCK) ON progMani.idManifiestoDespacho = manifiesto.id
-				--LEFT JOIN DocumentosDespacho dcd WITH (NOLOCK) ON manifiesto.id = dcd.idManifiesto AND dcd.idDocumento = 'DOC052395'
-				OUTER APPLY (
-					SELECT TOP 1 DD.EsPod
-					FROM DocumentosDespacho DD WITH (NOLOCK)
-					WHERE DD.idManifiesto = manifiesto.id 
-					AND DD.idDocumento = 'DOC052395'
-					ORDER BY EsPod DESC
-				) dcd
-				LEFT JOIN UbicacionPiezas ubicacionPiezas WITH (NOLOCK) ON progra.idGuiaHouseDetalle = ubicacionPiezas.idGuiaHouseDetalle
-				LEFT JOIN Ubicaciones ubicaciones WITH (NOLOCK) ON ubicacionPiezas.idUbicacion = ubicaciones.id
-				LEFT JOIN UbicacionesBodega ub WITH (NOLOCK) ON ubicaciones.idUbicacionBodega = ub.id
-				LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON house.idBodega = bodegaGuia.id
-				LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ub.idBodega = bodegaPieza.id
-				LEFT JOIN 
-				(		
-					SELECT progra.idGuiaHouseDetalle,
-					solicitud.id, solicitud.nroOrden, 
-					svd.picking,
-					solicitud.fechaSolicitud ,
-					ROW_NUMBER() OVER (PARTITION BY progra.idGuiaHouseDetalle ORDER BY solicitud.fechaSolicitud DESC) rown,
-					solicitud.tipoVenta,
-					svd.tipoPieza
-					FROM #TMP_PROGRAM progra 
-					INNER JOIN SolicitudDeVentaDetalles svd WITH (NOLOCK) ON progra.idGuiaHouseDetalle = svd.idGuiaHouseDetalle
-					INNER JOIN SolicitudDeVenta solicitud WITH (NOLOCK) ON solicitud.id = svd.idSolicitud 
-				) svc ON progra.idGuiaHouseDetalle = svc.idGuiaHouseDetalle AND svc.rown = 1
-				LEFT JOIN InformacionClienteFinal infoClFinal ON cl.id = infoClFinal.id       
-				LEFT JOIN Paises paisClInfoFinal ON infoClFinal.idPais = paisClInfoFinal.id
-			WHERE @idEmpresa IS NULL OR gh.idEmpresa = @idEmpresa
+			FROM #TMP_PROGRAM PR		
+				INNER JOIN #TMP_CodigosRelacionSistemas T1  ON PR.idCarrier = T1.idEntidad
+				INNER JOIN GuiasHouse GH WITH (NOLOCK) ON PR.idGuiaHouse = gh.id
+				INNER JOIN Clientes CL WITH (NOLOCK) ON PR.idClienteFinal = CL.id
+				INNER JOIN Paises PAC ON CL.idPais = PAC.id  
+				CROSS APPLY (	SELECT G.idCliente, idBodega
+								FROM GuiasHouse G WITH (NOLOCK)
+								WHERE PR.idGuiaHouse  = G.id ) H  
+				LEFT JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON PCA.idEntidad = H.idCliente AND PCA.idParametroLista = @idParametroTipo
+				LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PR.id = PM.idProgramacionCarrier
+				LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id				
+				OUTER APPLY (	SELECT TOP 1 DD.EsPod
+								FROM DocumentosDespacho DD WITH (NOLOCK)
+								WHERE DD.idManifiesto = MD.id 
+								AND DD.idDocumento = 'DOC052395'
+								ORDER BY EsPod DESC) DCD
+				LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON PR.idGuiaHouseDetalle = UP.idGuiaHouseDetalle
+				LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
+				LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
+				LEFT JOIN Bodegas BG WITH (NOLOCK) ON H.idBodega = BG.id
+				LEFT JOIN Bodegas BP WITH (NOLOCK) ON UB.idBodega = BP.id
+				LEFT JOIN (	SELECT PR.idGuiaHouseDetalle,
+							SV.id, 
+							SV.nroOrden, 
+							SVD.picking,
+							SV.fechaSolicitud ,
+							ROW_NUMBER() OVER (PARTITION BY PR.idGuiaHouseDetalle ORDER BY SV.fechaSolicitud DESC) rown,
+							SV.tipoVenta,
+							SVD.tipoPieza
+							FROM #TMP_PROGRAM PR 
+							INNER JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON PR.idGuiaHouseDetalle = SVD.idGuiaHouseDetalle
+							INNER JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SV.id = SVD.idSolicitud ) SVC ON PR.idGuiaHouseDetalle = SVC.idGuiaHouseDetalle AND SVC.rown = 1
+				LEFT JOIN InformacionClienteFinal ICF ON CL.id = ICF.id       
+				LEFT JOIN Paises PCF ON ICF.idPais = PCF.id
+			WHERE @VidEmpresa IS NULL OR gh.idEmpresa = @VidEmpresa
 			GROUP BY 
-				manifiesto.id, 
-				manifiesto.nroManifiesto, 
-				progra.idClienteFinal, 
-				ISNULL (cl.nombreClienteFinal,cl.nombre) ,
-				ISNULL(ub.idBodega, house.idBodega) , 
-				ISNULL(bodegaPieza.nombre, bodegaGuia.nombre) ,
-				progra.idCarrier, 
-				progra.truckId, 
-				progra.fechaDespacho, 
-				parametroCat.valor,
-				dcd.esPOD,
-				svc.nroOrden,
-				svc.id,
-				PROGRA.nombreTransporte,
-				T1.codigo,
-				progra.despachadoDestino,
-				progra.idUsuarioLogPicking,
-				paisClInfoFinal.id,
-				paCl.id,
-				progra.idTE,
-				CASE 
-					WHEN svc.tipoVenta < 4 THEN 1 
-					WHEN svc.tipoVenta = 5 AND svc.tipoPieza = 1  THEN 1 
-					ELSE 0 
-				END;
+			MD.id, 
+			MD.nroManifiesto, 
+			PR.idClienteFinal, 
+			ISNULL (CL.nombreClienteFinal,CL.nombre) ,
+			ISNULL(UB.idBodega, H.idBodega) , 
+			ISNULL(BP.nombre, BG.nombre) ,
+			PR.idCarrier, 
+			PR.truckId, 
+			PR.fechaDespacho, 
+			PCA.valor,
+			dcd.esPOD,
+			SVC.nroOrden,
+			SVC.id,
+			PR.nombreTransporte,
+			T1.codigo,
+			PR.despachadoDestino,
+			PR.idUsuarioLogPicking,
+			PCF.id,
+			PAC.id,
+			PR.idTE,
+			CASE 
+				WHEN SVC.tipoVenta < 4 THEN 1 
+				WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1  THEN 1 
+				ELSE 0 
+			END;
 		END
 		ELSE
 		BEGIN
-			INSERT INTO #TablaAgrupacionGuiasPickUp 
+			INSERT INTO #TablaAgrupacionGuiasPickUp -- without nulls
 			SELECT 
-				manifiesto.id, 
-				manifiesto.nroManifiesto,
-				progra.idClienteFinal, 
-				ISNULL (cl.nombreClienteFinal, cl.nombre) NombreClienteFinal,
-				ISNULL(ub.idBodega, house.idBodega) idBodega, 
-				ISNULL(bodegaPieza.nombre, bodegaGuia.nombre) nombreBodega,
-				progra.idCarrier, 		
-				progra.truckId, 
-				progra.fechaDespacho ,
-				parametroCat.valor, 
-				COUNT(progra.estadoPieza),
-				SUM(IIF(progra.estadoPieza = 'DISPATCHED WH', 1, 0)),
-				SUM(IIF(progra.estadoPieza = 'STANDBY', 1, 0)),
-				SUM(IIF(progra.estadoPieza = 'HOLD', 1, 0)),
-				SUM(IIF(progra.estadoPieza = 'PENDING', 1, 0)),
-				SUM(IIF(progra.estadoPieza = 'RECEIVED WH', 1, 0)),
-				SUM(IIF(progra.estadoPieza IN ('SHORT', 'LOST'), 1, 0)),		
-				ISNULL(dcd.esPOD,0),
-				svc.nroOrden,
-				SUM(IIF(svc.picking = 1, 1, 0)),
-				svc.id,
-				PROGRA.nombreTransporte,
-				T1.codigo, 
-				SUM(IIF(progra.idUsuarioLogPicking IS NOT  NULL, 1, 0)) totalPickingLoading,
-				paisClInfoFinal.id idPaisCliente,
-				paCl.id idPaisAlt,
-				progra.idTE idTEGuid,
-				CASE 
-					WHEN svc.tipoVenta < 4 THEN 1 
-					WHEN svc.tipoVenta = 5 AND svc.tipoPieza = 1  THEN 1
-					ELSE 0 
-				END esInventario
-			FROM #TMP_PROGRAM progra		
-				INNER JOIN #TMP_CodigosRelacionSistemas T1 ON progra.idCarrier = T1.idEntidad
-				INNER JOIN GuiasHouse gh WITH (NOLOCK) ON progra.idGuiaHouse = gh.id
-				INNER JOIN Clientes cl WITH (NOLOCK) ON progra.idClienteFinal = cl.id	
-				INNER JOIN dbo.Paises paCl ON cl.idPais = paCl.id   
-				CROSS APPLY 
-				(   
-					SELECT G.idCliente, idBodega, idExportador, nroGuia
-					FROM GuiasHouse G WITH (NOLOCK)
-					WHERE progra.idGuiaHouse  = G.id 
-				) house  
-				LEFT JOIN dbo.PalletsDetalles pld WITH (NOLOCK) ON progra.idGuiaHouseDetalle = pld.idGuiasHouseDetalle
-				LEFT JOIN dbo.Pallets pal WITH (NOLOCK) ON pld.idPallet = pal.id
-				LEFT JOIN ParametrosCatalogos parametroCat WITH (NOLOCK) ON parametroCat.idEntidad = house.idCliente AND parametroCat.idParametroLista = @idParametroTipo
-				LEFT JOIN ProgramacionManifiesto progMani WITH (NOLOCK) ON progra.id = progMani.idProgramacionCarrier
-				LEFT JOIN manifiestosDespacho manifiesto WITH (NOLOCK) ON progMani.idManifiestoDespacho = manifiesto.id
-				--LEFT JOIN DocumentosDespacho dcd WITH (NOLOCK) ON manifiesto.id = dcd.idManifiesto AND dcd.idDocumento = 'DOC052395'
-				OUTER APPLY (
-					SELECT TOP 1 DD.EsPod
-					FROM DocumentosDespacho DD WITH (NOLOCK)
-					WHERE DD.idManifiesto = manifiesto.id 
-					AND DD.idDocumento = 'DOC052395'
-					ORDER BY EsPod DESC
-				) dcd
-				LEFT JOIN UbicacionPiezas ubicacionPiezas WITH (NOLOCK) ON progra.idGuiaHouseDetalle = ubicacionPiezas.idGuiaHouseDetalle
-				LEFT JOIN Ubicaciones ubicaciones WITH (NOLOCK) ON ubicacionPiezas.idUbicacion = ubicaciones.id
-				LEFT JOIN UbicacionesBodega ub WITH (NOLOCK) ON ubicaciones.idUbicacionBodega = ub.id
-				LEFT JOIN Bodegas bodegaGuia WITH (NOLOCK) ON house.idBodega = bodegaGuia.id
-				LEFT JOIN Bodegas bodegaPieza WITH (NOLOCK) ON ub.idBodega = bodegaPieza.id
-				LEFT JOIN 
-				(		
-					SELECT progra.idGuiaHouseDetalle,
-					solicitud.id, solicitud.nroOrden, 
-					solicitudDetalle.picking,
-					solicitud.fechaSolicitud ,
-					ROW_NUMBER() OVER (PARTITION BY progra.idGuiaHouseDetalle ORDER BY solicitud.fechaSolicitud DESC) AS rown,
-					solicitud.tipoVenta,
-					tipoPieza
-					FROM #TMP_PROGRAM progra 
-					INNER JOIN SolicitudDeVentaDetalles solicitudDetalle WITH (NOLOCK) ON progra.idGuiaHouseDetalle = solicitudDetalle.idGuiaHouseDetalle
-					INNER JOIN SolicitudDeVenta solicitud WITH (NOLOCK) ON solicitud.id = solicitudDetalle.idSolicitud 
-				) svc ON progra.idGuiaHouseDetalle = svc.idGuiaHouseDetalle AND svc.rown = 1
-				LEFT JOIN dbo.InformacionClienteFinal infoClFinal ON cl.id = infoClFinal.id    
-				LEFT JOIN dbo.Paises paisClInfoFinal ON infoClFinal.idPais = paisClInfoFinal.id
-			WHERE (@idEmpresa IS NULL OR gh.idEmpresa = @idEmpresa)
-				AND (@barcode IS NULL OR progra.codigoBarra LIKE '%' + @barcode + '%')
-				AND (@nroDocument IS NULL OR house.nroGuia LIKE '%' + @nroDocument + '%')
-				AND (@Consignee IS NULL OR house.idCliente IN ( SELECT id FROM Clientes WITH (NOLOCK) WHERE nombre LIKE '%' + @Consignee + '%' ))
-				AND (@supplier IS NULL OR house.idExportador IN ( SELECT id FROM Exportadores WITH (NOLOCK) WHERE nombre LIKE '%' + @supplier + '%' ))
-				AND (@palletLabel IS NULL OR pal.pallet LIKE '%' + @palletLabel + '%')
-				AND (@nroManifiesto IS NULL OR manifiesto.nroManifiesto LIKE '%' + @nroManifiesto + '%')
+			MD.id, 
+			MD.nroManifiesto,
+			PR.idClienteFinal, 
+			ISNULL (CL.nombreClienteFinal, CL.nombre) NombreClienteFinal,
+			ISNULL(UB.idBodega, H.idBodega) idBodega, 
+			ISNULL(BP.nombre, BG.nombre) nombreBodega,
+			PR.idCarrier, 		
+			PR.truckId, 
+			PR.fechaDespacho ,
+			PCA.valor, 
+			COUNT(PR.estadoPieza),
+			SUM(IIF(PR.estadoPieza = 'DISPATCHED WH', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'STANDBY', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'HOLD', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'PENDING', 1, 0)),
+			SUM(IIF(PR.estadoPieza = 'RECEIVED WH', 1, 0)),
+			SUM(IIF(PR.estadoPieza IN ('SHORT', 'LOST'), 1, 0)),		
+			ISNULL(dcd.esPOD,0),
+			SVC.nroOrden,
+			SUM(IIF(SVC.picking = 1, 1, 0)),
+			SVC.id,
+			PR.nombreTransporte,
+			T1.codigo, 
+			SUM(IIF(PR.idUsuarioLogPicking IS NOT  NULL, 1, 0)) totalPickingLoading,
+			PCF.id idPaisCliente,
+			PAC.id idPaisAlt,
+			PR.idTE idTEGuid,
+			CASE 
+				WHEN SVC.tipoVenta < 4 THEN 1 
+				WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1  THEN 1
+				ELSE 0 
+			END esInventario
+			FROM #TMP_PROGRAM PR		
+				INNER JOIN #TMP_CodigosRelacionSistemas T1 ON PR.idCarrier = T1.idEntidad
+				INNER JOIN GuiasHouse GH WITH (NOLOCK) ON PR.idGuiaHouse = gh.id
+				INNER JOIN Clientes CL WITH (NOLOCK) ON PR.idClienteFinal = CL.id	
+				INNER JOIN Paises PAC ON CL.idPais = PAC.id   
+				CROSS APPLY (	SELECT G.idCliente, idBodega, idExportador, nroGuia
+								FROM GuiasHouse G WITH (NOLOCK)
+								WHERE PR.idGuiaHouse  = G.id ) H  
+				LEFT JOIN PalletsDetalles pld WITH (NOLOCK) ON PR.idGuiaHouseDetalle = pld.idGuiasHouseDetalle
+				LEFT JOIN Pallets pal WITH (NOLOCK) ON pld.idPallet = pal.id
+				LEFT JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON PCA.idEntidad = H.idCliente AND PCA.idParametroLista = @idParametroTipo
+				LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PR.id = PM.idProgramacionCarrier
+				LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id				
+				OUTER APPLY (	SELECT TOP 1 DD.EsPod
+								FROM DocumentosDespacho DD WITH (NOLOCK)
+								WHERE DD.idManifiesto = MD.id 
+								AND DD.idDocumento = 'DOC052395'
+								ORDER BY EsPod DESC) DCD
+				LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON PR.idGuiaHouseDetalle = UP.idGuiaHouseDetalle
+				LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
+				LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
+				LEFT JOIN Bodegas BG WITH (NOLOCK) ON H.idBodega = BG.id
+				LEFT JOIN Bodegas BP WITH (NOLOCK) ON UB.idBodega = BP.id
+				LEFT JOIN (	SELECT PR.idGuiaHouseDetalle,
+							SV.id, 
+							SV.nroOrden, 
+							SVD.picking,
+							SV.fechaSolicitud ,
+							ROW_NUMBER() OVER (PARTITION BY PR.idGuiaHouseDetalle ORDER BY SV.fechaSolicitud DESC) AS rown,
+							SV.tipoVenta,
+							tipoPieza
+							FROM #TMP_PROGRAM PR 
+							INNER JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON PR.idGuiaHouseDetalle = SVD.idGuiaHouseDetalle
+							INNER JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SV.id = SVD.idSolicitud ) SVC ON PR.idGuiaHouseDetalle = SVC.idGuiaHouseDetalle AND SVC.rown = 1
+				LEFT JOIN InformacionClienteFinal ICF ON CL.id = ICF.id    
+				LEFT JOIN Paises PCF ON ICF.idPais = PCF.id
+			WHERE   (@VidEmpresa IS NULL OR gh.idEmpresa = @VidEmpresa)
+				AND (@Vbarcode IS NULL OR PR.codigoBarra LIKE '%' + @Vbarcode + '%')
+				AND (@VnroDocument IS NULL OR H.nroGuia LIKE '%' + @VnroDocument + '%')
+				AND (@VConsignee IS NULL OR H.idCliente IN ( SELECT id FROM Clientes WITH (NOLOCK) WHERE nombre LIKE '%' + @VConsignee + '%' ))
+				AND (@Vsupplier IS NULL OR H.idExportador IN ( SELECT id FROM Exportadores WITH (NOLOCK) WHERE nombre LIKE '%' + @Vsupplier + '%' ))
+				AND (@VpalletLabel IS NULL OR pal.pallet LIKE '%' + @VpalletLabel + '%')
+				AND (@VnroManifiesto IS NULL OR MD.nroManifiesto LIKE '%' + @VnroManifiesto + '%')
 			GROUP BY 
-				manifiesto.id, 
-				manifiesto.nroManifiesto, 
-				progra.idClienteFinal, 
-				ISNULL (cl.nombreClienteFinal, cl.nombre),
-				ISNULL(ub.idBodega, house.idBodega), 
-				ISNULL(bodegaPieza.nombre, bodegaGuia.nombre),
-				progra.idCarrier, 
-				progra.truckId, 
-				progra.fechaDespacho, 
-				parametroCat.valor,
-				dcd.esPOD,
-				svc.nroOrden,
-				svc.id,
-				PROGRA.nombreTransporte,
-				T1.codigo,
-				progra.idUsuarioLogPicking,
-				paisClInfoFinal.id,
-				paCl.id,
-				progra.idTE,
-				CASE 
-					WHEN svc.tipoVenta < 4 THEN 1 
-					WHEN svc.tipoVenta = 5 AND svc.tipoPieza = 1  THEN 1 
-					ELSE 0 
-				END;
+			MD.id, 
+			MD.nroManifiesto, 
+			PR.idClienteFinal, 
+			ISNULL (CL.nombreClienteFinal, CL.nombre),
+			ISNULL(UB.idBodega, H.idBodega), 
+			ISNULL(BP.nombre, BG.nombre),
+			PR.idCarrier, 
+			PR.truckId, 
+			PR.fechaDespacho, 
+			PCA.valor,
+			dcd.esPOD,
+			SVC.nroOrden,
+			SVC.id,
+			PR.nombreTransporte,
+			T1.codigo,
+			PR.idUsuarioLogPicking,
+			PCF.id,
+			PAC.id,
+			PR.idTE,
+			CASE 
+				WHEN SVC.tipoVenta < 4 THEN 1 
+				WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1  THEN 1 
+				ELSE 0 
+			END;
 		END
-			SELECT      
-				NEWID() id,
-				guiasAgrupado.idManifiesto,
-				guiasAgrupado.nroManifiesto,
-				guiasAgrupado.idClienteFinal,		
-				guiasAgrupado.fechaDespacho,
-				guiasAgrupado.idBodega,
-				guiasAgrupado.nombreBodega,		
-				guiasAgrupado.nombreClienteFinal,
-				guiasAgrupado.idCarrier,
-				guiasAgrupado.truckId,		
-				guiasAgrupado.valor,
-				SUM(guiasAgrupado.totalPiezas) TotalPiezas,
-				SUM(guiasAgrupado.totalDespachado) TotalDespachado,
-				SUM(guiasAgrupado.totalStandBy) TotalStandBy,
-				SUM(guiasAgrupado.totalHold) TotalHold,
-				SUM(guiasAgrupado.totalPending) TotalPending,
-				SUM(guiasAgrupado.totalRecibido) TotalRecibido,
-				SUM(guiasAgrupado.totalShort) TotalShort,	
-				guiasAgrupado.EsPod,	
-				NULL mailEnviado,
-				NULL tipoNubeDocs,
-				NULL modificado,
-				ordenVenta,
-				SUM(guiasAgrupado.totalPicking) TotalPicking,
-				idOrdenVenta,		
-				guiasAgrupado.nombreCarrier,
-				guiasAgrupado.codigoCarrier,
-				NULL validarDiferenciaPiezas,
-				SUM(guiasAgrupado.totalPickingLoading) TotalPickingLoading ,
-				guiasAgrupado.idPaisCliente,
-				guiasAgrupado.idPaisAlt,
-				guiasAgrupado.idTEGuid,
-				guiasAgrupado.esInventario
-			FROM #TablaAgrupacionGuiasPickUp guiasAgrupado	
-			GROUP BY 
-				guiasAgrupado.idManifiesto,
-				guiasAgrupado.nroManifiesto,
-				guiasAgrupado.idClienteFinal,		
-				guiasAgrupado.fechaDespacho,
-				guiasAgrupado.idBodega,
-				guiasAgrupado.nombreBodega,		
-				guiasAgrupado.nombreClienteFinal,
-				guiasAgrupado.idCarrier,
-				guiasAgrupado.truckId,		
-				guiasAgrupado.valor,
-				guiasAgrupado.ordenVenta,
-				guiasAgrupado.idOrdenventa,
-				guiasAgrupado.nombreCarrier,
-				guiasAgrupado.codigoCarrier,
-				guiasAgrupado.EsPod,
-				guiasAgrupado.idPaisCliente,
-				guiasAgrupado.idPaisAlt,
-				guiasAgrupado.idTEGuid,
-				guiasAgrupado.esInventario
+
+		SELECT      
+			NEWID() id,
+			RES.idManifiesto,
+			RES.nroManifiesto,
+			RES.idClienteFinal,		
+			RES.fechaDespacho,
+			RES.idBodega,
+			RES.nombreBodega,		
+			RES.nombreClienteFinal,
+			RES.idCarrier,
+			RES.truckId,		
+			RES.valor,
+			SUM(RES.totalPiezas) TotalPiezas,
+			SUM(RES.totalDespachado) TotalDespachado,
+			SUM(RES.totalStandBy) TotalStandBy,
+			SUM(RES.totalHold) TotalHold,
+			SUM(RES.totalPending) TotalPending,
+			SUM(RES.totalRecibido) TotalRecibido,
+			SUM(RES.totalShort) TotalShort,	
+			RES.EsPod,	
+			NULL mailEnviado,
+			NULL tipoNubeDocs,
+			NULL modificado,
+			ordenVenta,
+			SUM(RES.totalPicking) TotalPicking,
+			idOrdenVenta,		
+			RES.nombreCarrier,
+			RES.codigoCarrier,
+			NULL validarDiferenciaPiezas,
+			SUM(RES.totalPickingLoading) TotalPickingLoading ,
+			RES.idPaisCliente,
+			RES.idPaisAlt,
+			RES.idTEGuid,
+			RES.esInventario
+		FROM #TablaAgrupacionGuiasPickUp RES	
+		GROUP BY 
+			RES.idManifiesto,
+			RES.nroManifiesto,
+			RES.idClienteFinal,		
+			RES.fechaDespacho,
+			RES.idBodega,
+			RES.nombreBodega,		
+			RES.nombreClienteFinal,
+			RES.idCarrier,
+			RES.truckId,		
+			RES.valor,
+			RES.ordenVenta,
+			RES.idOrdenventa,
+			RES.nombreCarrier,
+			RES.codigoCarrier,
+			RES.EsPod,
+			RES.idPaisCliente,
+			RES.idPaisAlt,
+			RES.idTEGuid,
+			RES.esInventario
 	END TRY
 	BEGIN CATCH
 		EXEC [dbo].[pro_LogError];
 	END CATCH;
 END
 /*
-	pro_modulo_DespachoPickup null, null, null, null, null, null, null, 'EMP014', 1, 3, null
-	pro_modulo_DespachoPickup null, null, null, null, null, '22333931453', null, 'EMP014', 2, 3, null
-	pro_modulo_DespachoPickup null, null, 'ALIS LUXURY BQTS CORP', null, null, null, null, 'EMP014', 1, 3, null
-	pro_modulo_DespachoPickup null, null, 'ALIS LUXURY BQTS CORP', null, null, null, 'LOPEZ ANDRADE MARIA ANABEL', 'EMP014', 1, 3, null
-	pro_modulo_DespachoPickup '8552', null, null, null, null, null, null, 'EMP014', 1, 3, null
+EXEC pro_modulo_DespachoPickup NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'EMP014', 1, 3, NULL
+EXEC pro_modulo_DespachoPickup NULL, NULL, NULL, NULL, NULL, '22333931453', NULL, 'EMP014', 2, 3, NULL
+EXEC pro_modulo_DespachoPickup NULL, NULL, 'ALIS LUXURY BQTS CORP', NULL, NULL, NULL, NULL, 'EMP014', 1, 3, NULL
+EXEC pro_modulo_DespachoPickup NULL, NULL, 'ALIS LUXURY BQTS CORP', NULL, NULL, NULL, 'LOPEZ ANDRADE MARIA ANABEL', 'EMP014', 1, 3, NULL
+EXEC pro_modulo_DespachoPickup '8552', NULL, NULL, NULL, NULL, NULL, NULL, 'EMP014', 1, 3, NULL
 */

@@ -38,11 +38,13 @@ BEGIN
             @WildcardDestinationDate = DATEADD(DAY, -90, @DateTo)
 
         CREATE TABLE #TMP_RelatedClients (
-        [Id]      VARCHAR(16),
-        [IdCliente]     VARCHAR(16),
-        [BillToConsigneeId] VARCHAR(16),
-        [BilltoId]     VARCHAR(16),
-        [ConsigneeId]     VARCHAR(16)
+            [Id]                VARCHAR(16),
+            [IdCliente]         VARCHAR(16),
+            [BillToConsigneeId] VARCHAR(16),
+            [BillToId]          VARCHAR(16),
+            [ConsigneeId]       VARCHAR(16),
+            [BillToName]        VARCHAR(256),
+            [Name]              VARCHAR(256)
         )
         
         CREATE TABLE #TMP_FinalClients ( 
@@ -86,7 +88,7 @@ BEGIN
         FROM Documentos 
         WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId)
+        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
         EXEC [dbo].[AC_pro_GetClientsEntities]
              @EntityId = @EntityId,
              @UserType = @UserType 
@@ -147,7 +149,7 @@ BEGIN
                 FROM ProgramacionCarrier T WITH(NOLOCK)
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 
                     AND GHD.FechaCreacion BETWEEN @WildcardDestinationDate AND @DateTo
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHD.ShipToId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHD.ShipToId
                 INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.Id = GHD.IdGuiaHouse
                 WHERE T.FechaDespacho BETWEEN @DateFrom AND @DateTo
             END
@@ -177,7 +179,7 @@ BEGIN
                     GH.IdGuia AS GuideId, 
                     GH.IdExportador AS ExporterId
                 FROM GuiasHouse GH WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GH.ConsigneeId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GH.ConsigneeId
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON T.IdGuiaHouseDetalle = GHD.Id 
                     AND T.FechaDespacho BETWEEN @DateFrom AND @DateTo
@@ -209,7 +211,7 @@ BEGIN
                     GH.IdGuia AS GuideId, 
                     GH.IdExportador AS ExporterId
                 FROM GuiasHouse GHO WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHO.ConsigneeId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHO.ConsigneeId
                 INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.IdGuia = GHO.IdGuia
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON T.IdGuiaHouseDetalle = GHD.Id 
@@ -264,7 +266,7 @@ BEGIN
                     GH.IdGuia AS GuideId, 
                     GH.IdExportador AS ExporterId
                 FROM GuiasHouseDetalles GHD WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHD.ShipToId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHD.ShipToId
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 
                     AND T.FechaDespacho BETWEEN @DateFrom AND @DateTo
                 INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.Id = GHD.IdGuiaHouse
@@ -303,7 +305,7 @@ BEGIN
                     GH.IdGuia AS GuideId, 
                     GH.IdExportador AS ExporterId
                 FROM GuiasHouse GH WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GH.ConsigneeId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GH.ConsigneeId
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 
                     AND T.FechaDespacho BETWEEN @DateFrom AND @DateTo
@@ -344,7 +346,7 @@ BEGIN
                     GH.IdGuia AS GuideId, 
                     GH.IdExportador AS ExporterId
                 FROM GuiasHouse GHO WITH(NOLOCK)
-                INNER JOIN #TMP_RelatedClients REL ON REL.EntityId = GHO.ConsigneeId
+                INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GHO.ConsigneeId
                 INNER JOIN GuiasHouse GH WITH(NOLOCK) ON GH.IdGuia = GHO.IdGuia
                 INNER JOIN GuiasHouseDetalles GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
                 INNER JOIN ProgramacionCarrier T WITH(NOLOCK) ON GHD.Id = T.IdGuiaHouseDetalle 

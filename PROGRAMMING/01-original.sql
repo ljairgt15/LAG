@@ -1,9 +1,10 @@
-/*
-VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
-1			Jair Gomez      	2026-04-29		  57747			 Based on pro_ReporteProgramacion_ListarInformacion
+/*  
+  VERSION		AUTOR					FECHA			  HU			CAMBIO                                                                                   
+  1			Rogger Lindao			23-10-2022			21014  		Codigo inicial para listar informacion de reporte programacion    
+  2			Cristhian Cuichan		27-03-2024			37016		Se añade las dimensiones de las piezas
 */
 
-CREATE OR ALTER PROCEDURE [dbo].[01-Ac_pro_GetProgrammingAnalyticsReport]
+ALTER         PROCEDURE [dbo].[pro_ReporteProgramacion_ListarInformacion]
     @IdGuias VARCHAR(MAX),
 	@GuiaConsolidada BIT
 AS
@@ -20,10 +21,8 @@ BEGIN
 		FechaEmbarque DATETIME NULL,
 		Origin VARCHAR(16),
 		ShipmentNr VARCHAR(32),
-		--name
 		Consignatario VARCHAR(512),
 		ShipTo VARCHAR(256),
-		--
 		FB DECIMAL(18,3) NULL,
 		Carrier VARCHAR(512),
 		ShippingDate DATETIME NULL,
@@ -38,18 +37,14 @@ BEGIN
 		FbWh DECIMAL(18,3) NULL,
 		IdCodigoBarra VARCHAR(16),
 		EsInventarioTemporal BIT NULL,
-		--Es coordinacion (Lo que se espera) o es Inventario (Lo que esta fisicamente)
 		CabeceraCoordinacion BIT NULL,
-		--No programable difiere de las otras tabla subsiguientes, por que esto viene de INVTEMPORAL para adelante 
-		-- ahi si hay ese campo que sirve para identificar si se debe calcular el carrier o no
-		-- cuando solo es coordinacion no hay esa distinción, por eso se deja en NULL y ni se crea ese campo en la tabla #InfoGuiaCoord
 		Largo DECIMAL(9,3),
 		Alto DECIMAL(9,3),
 		Ancho DECIMAL(9,3),
 		IdClienteConsignee VARCHAR(16),
 		TipoPieza VARCHAR(8)
 	)
-	
+
 	CREATE TABLE #CoordinacionesAux
 	(
 		Id VARCHAR(16),
@@ -113,7 +108,7 @@ BEGIN
 		IdClienteConsignee VARCHAR(16),
 		TipoPieza VARCHAR(8)
 	)
-	-- deserailizamos el json de guias para obtener un formato tabular y poder hacer los joins correspondientes
+
 	INSERT INTO #idGuias
 		(
 			idGuias
@@ -149,30 +144,29 @@ BEGIN
 				IdClienteConsignee
 			)
 				SELECT 
-					G.id AS Id,
-					GC.id AS IdGuiaConsolidada,
-					G.fechaEmbarque AS FechaEmbarque,
-					CD.codigoIATA AS Origin,
-					GC.nroGuia AS ShipmentNr,
-					VCC.nombre AS Consignatario,
-					--mismo dato
-					VCC.nombre AS ShipTo, 
-					G.idEmpresa AS IdEmpresa,
-					VCC.ConsigneeId AS IdClienteFinal,
-					COOR.id AS IdCoordinacion,
+					g.id AS Id,
+					gc.id AS IdGuiaConsolidada,
+					g.fechaEmbarque AS FechaEmbarque,
+					cd.codigoIATA AS Origin,
+					gc.nroGuia AS ShipmentNr,
+					cl.nombre AS Consignatario,
+					ISNULL(cl.nombreClienteFinal,cl.nombre) AS ShipTo, 
+					g.idEmpresa AS IdEmpresa,
+					cl.id AS IdClienteFinal,
+					coor.id AS IdCoordinacion,
 					'Test' AS CodigoBarra,
 					'Test' AS CodigoBarraInv,
-					COOR.totalCajasCoordinacion AS CajasCoordinadas,
-					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
+					coor.totalCajasCoordinacion AS CajasCoordinadas,
+					coor.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					VCC.ConsigneeId AS IdClienteConsignee
+					cl.id AS IdClienteConsignee
 				FROM #idGuias guiasTemp 
-				INNER JOIN Guias G WITH(NOLOCK) ON G.idGuiaConsolidada = guiasTemp.idGuias
-				INNER JOIN Guias GC WITH(NOLOCK) ON G.idGuiaConsolidada = GC.id
-				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
-				INNER JOIN Puertos p ON G.idPuertoOrigen = p.id
-				INNER JOIN Ciudades CD ON p.idCiudad = CD.id
-				INNER JOIN v_ClientsEntities VCC ON G.BillToConsigneeId = VCC.Id
+				INNER JOIN Guias g WITH(NOLOCK) ON g.idGuiaConsolidada = guiasTemp.idGuias
+				INNER JOIN Guias gc WITH(NOLOCK) ON g.idGuiaConsolidada = gc.id
+				INNER JOIN Coordinaciones coor WITH(NOLOCK) ON g.id = coor.idGuia
+				INNER JOIN Puertos p ON g.idPuertoOrigen = p.id
+				INNER JOIN Ciudades cd ON p.idCiudad = cd.id
+				INNER JOIN Clientes cl WITH(NOLOCK) ON g.idCliente = cl.id
 		END
 	ELSE
 		BEGIN
@@ -196,30 +190,29 @@ BEGIN
 				IdClienteConsignee
 			)
 				SELECT 
-					G.id AS Id,
-					G.fechaEmbarque AS FechaEmbarque,
-					CD.codigoIATA AS Origin,
-					G.nroGuia AS ShipmentNr,
-					VCC.nombre AS Consignatario,
-					--mismo dato
-					VCC.nombre AS ShipTo,
-					G.idEmpresa AS IdEmpresa,
-					VCC.ConsigneeId AS IdClienteFinal,
-					COOR.id AS IdCoordinacion,
+					g.id AS Id,
+					g.fechaEmbarque AS FechaEmbarque,
+					cd.codigoIATA AS Origin,
+					g.nroGuia AS ShipmentNr,
+					cl.nombre AS Consignatario,
+					ISNULL(cl.nombreClienteFinal,cl.nombre) AS ShipTo,
+					g.idEmpresa AS IdEmpresa,
+					cl.id AS IdClienteFinal,
+					coor.id AS IdCoordinacion,
 					'Test' AS CodigoBarra,
 					'Test' AS CodigoBarraInv,
-					COOR.totalCajasCoordinacion AS CajasCoordinadas,
-					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
+					coor.totalCajasCoordinacion AS CajasCoordinadas,
+					coor.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					VCC.ConsigneeId AS IdClienteConsignee
+					cl.id AS IdClienteConsignee
 				FROM  #idGuias guiasTemp 
-				INNER JOIN guias G WITH(NOLOCK)ON G.id = guiasTemp.idGuias
-				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
-				INNER JOIN Puertos p ON G.idPuertoOrigen = p.id
-				INNER JOIN Ciudades CD ON p.idCiudad = CD.id
-				INNER JOIN v_ClientsEntities VCC WITH(NOLOCK) ON G.BillToConsigneeId = VCC.Id
+				INNER JOIN guias g WITH(NOLOCK)ON g.id = guiasTemp.idGuias
+				INNER JOIN Coordinaciones coor WITH(NOLOCK) ON g.id = coor.idGuia
+				INNER JOIN Puertos p ON g.idPuertoOrigen = p.id
+				INNER JOIN Ciudades cd ON p.idCiudad = cd.id
+				INNER JOIN Clientes cl WITH(NOLOCK) ON g.idCliente = cl.id
 		END
-	/*Informacion de InventarioTemporal*/
+	/*Informeacion de InventarioTemporal*/
 	INSERT INTO #CoordinacionesAux
 	(
 		Id,
@@ -258,12 +251,12 @@ BEGIN
 		coordTemp.Origin,
 		coordTemp.ShipmentNr,
 		coordTemp.Consignatario,
-		ISNULL(VCS.nombre, coordTemp.ShipTo) AS ShipTo,
+		ISNULL(clf.nombreClienteFinal, ISNULL(clf.nombre, coordTemp.ShipTo)) AS ShipTo,
 		tp.equivalencia AS FB,
 		tr.nombre AS Carrier,
 		inv.fecha_transportador AS ShippingDate,
 		coordTemp.idEmpresa,
-		ISNULL(VCS.ConsigneeId, coordTemp.IdClienteFinal) AS IdClienteFinal,
+		ISNULL(clf.id, coordTemp.IdClienteFinal) AS IdClienteFinal,
 		coordTemp.IdCoordinacion,
 		cb.codigoBarra AS CodigoBarra,
 		inv.codigoPieza AS CodigoBarraInv,
@@ -286,10 +279,10 @@ BEGIN
 	LEFT JOIN CodigosDeBarra cb WITH(NOLOCK) ON inv.idCoordinacion = cb.idCoordinacion AND inv.codigoPieza = cb.codigoBarra
 	LEFT JOIN CodigosRelacionSistemas crs WITH(NOLOCK) ON crs.tipoEntidad='CARRIER' AND crs.idSistemaEntidad=100 AND inv.caja_transportador = crs.codigo  
 	LEFT JOIN Transportes tr WITH(NOLOCK) ON crs.idEntidad = tr.id
-	LEFT JOIN CodigosRelacionSistemas crss WITH(NOLOCK) ON crss.tipoEntidad='CLIENTE'  AND crss.idSistemaEntidad=100 AND inv.codigoCliente = crss.codigo
-	LEFT JOIN V_ClientsEntities VCS WITH(NOLOCK) ON crss.EntityRelation = VCS.Id 
+	LEFT JOIN CodigosRelacionSistemas crss WITH(NOLOCK) ON crss.tipoEntidad='CLIENTE'  AND crss.idSistemaEntidad=100 AND inv.codigoCliente = crss.codigo 
+	LEFT JOIN Clientes clf WITH(NOLOCK) ON crss.idEntidad = clf.id
 
-	/*Informacion de CodigosBarras*/
+	/*Informeacion de CodigosBarras*/
 	INSERT INTO #InfoCBTemporal
 	(
 		Id,
@@ -328,12 +321,12 @@ BEGIN
 		coordTemp.Origin,
 		coordTemp.ShipmentNr,
 		coordTemp.Consignatario,
-		ISNULL(VCS.nombre, coordTemp.ShipTo) AS ShipTo,
+		ISNULL(clf.nombreClienteFinal, ISNULL(clf.nombre, coordTemp.ShipTo)) AS ShipTo,
 		tp.equivalencia AS FB,
 		tr.nombre AS Carrier,
 		cb.caja_fecha_transportador AS ShippingDate,
 		coordTemp.idEmpresa,
-		ISNULL(VCS.ConsigneeId, coordTemp.IdClienteFinal) AS IdClienteFinal,
+		ISNULL(clf.id,coordTemp.IdClienteFinal) AS IdClienteFinal,
 		coordTemp.IdCoordinacion,
 		cb.codigoBarra AS CodigoBarra,
 		inv.codigoPieza AS CodigoBarraInv,
@@ -357,19 +350,13 @@ BEGIN
 	LEFT JOIN CodigosRelacionSistemas crs WITH(NOLOCK) ON crs.tipoEntidad='CARRIER' AND crs.idSistemaEntidad=100 AND crs.codigo = cb.caja_transportador  
 	LEFT JOIN Transportes tr WITH(NOLOCK) ON crs.idEntidad = tr.id
 	LEFT JOIN CodigosRelacionSistemas crss WITH(NOLOCK) ON crss.tipoEntidad='CLIENTE' AND crss.idSistemaEntidad=100 AND crss.codigo = cb.codigoCliente  
-	LEFT JOIN V_ClientsEntities VCS WITH(NOLOCK) ON crss.EntityRelation = VCS.Id 
+	LEFT JOIN Clientes clf WITH(NOLOCK) ON crss.idEntidad = clf.id
 
 	IF((SELECT COUNT(1) FROM #InfoCBTemporal)>0)
 	BEGIN
 		DELETE FROM coordTemp 
 		FROM #CoordinacionesAux coordTemp
 		INNER JOIN #InfoCBTemporal cbTemp ON coordTemp.IdInventarioTemp = cbTemp.IdInventarioTemp
-		/*EQUIVALENTE
-		DELETE FROM #CoordinacionesAux
-		WHERE IdInventarioTemp IN (
-			SELECT IdInventarioTemp FROM #InfoCBTemporal
-		)
-		*/
 
 	INSERT INTO #CoordinacionesAux
 		(Id,
