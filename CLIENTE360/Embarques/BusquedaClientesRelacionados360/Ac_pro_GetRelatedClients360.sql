@@ -39,35 +39,17 @@ BEGIN TRY
 		[idClienteFinal] [VARCHAR](16)
 	)
 
-	
+	INSERT INTO #EntityClients
 	SELECT 
-		@IdCliente = CL.id,
-		@tipoCliente = cat.identificador 
-	FROM 
-		Usuarios us
-		INNER JOIN Clientes CL ON CL.id = US.idEntidad
-		INNER JOIN dbo.DetalleEntidades DetI ON DetI.idEntidad = CL.id
-		INNER JOIN dbo.Catalogos cat ON cat.id = DetI.idCatalogo
-	WHERE 
-		US.id = @IdUsuario
+		Id,
+		IdCliente,
+		BillToConsigneeId,
+		BillToId,
+		ConsigneeId,
+		BillToName,
+		[Name]
+	FROM dbo.f_GetClientsEntities(@UserType, @EntityId)
 
-	IF @tipoCliente = 'CLIENTE'
-		BEGIN 
-			INSERT INTO #ClientesRelacionados (idClienteB) 
-			VALUES(@IdCliente)
-
-		END
-	ELSE
-		BEGIN 
-			
-			INSERT INTO #ClientesRelacionados (idClienteB) 
-			SELECT 
-				idCliente 
-			FROM 
-				dbo.GrupoClientes 
-			WHERE 
-				idGrupoCliente = @IdCliente
-		END
 
 --ORIGEN
 	INSERT INTO #allClients
@@ -76,7 +58,7 @@ BEGIN TRY
 		ISNULL(GDIST.idCliente, G.idCliente)AS idClienteFinal		
 	FROM 
 		Guias g  WITH (NOLOCK)
-		INNER JOIN #ClientesRelacionados CL ON CL.idClienteB = G.idCliente
+		INNER JOIN #EntityClients CL ON CL.BillToConsigneeId = G.BillToConsigneeId
 		LEFT JOIN Guias gdist  WITH (NOLOCK) ON gdist.idGuiaConsolidada = G.id
 		LEFT JOIN Guias gmaster  WITH (NOLOCK) ON gmaster.ID = g.idGuiaConsolidada 
 	WHERE 
