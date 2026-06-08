@@ -25,7 +25,8 @@ BEGIN
                         REPLACE(T.Descripcion, '[COSTUMER]', '[CONSIGNEE]'),
                         'Customer', 'Consignee'
                       ),
-        FechaCambio = GETDATE()
+        FechaCambio = GETDATE(),
+		idUsuarioLog='qVYus9gi'
     FROM [dbo].[OpcionesRetraso] T
     WHERE T.Id = 'ORT0140';
 
