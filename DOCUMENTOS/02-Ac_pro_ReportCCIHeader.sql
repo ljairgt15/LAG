@@ -32,7 +32,7 @@ BEGIN
 		EE.codigoISO CodigoEstadoExportador, 
 		PE.nombre PaisExportador, 
 		E.codigozip CodigoZipExportador, 
-		CC.id IdConsigneeDistribucion, 
+		CC.billtoconsigneeid IdConsigneeDistribucion, 
 		CC.nombre NombreConsigneeDistribucion, 
 		CC.direccion DireccionConsigneeDistribucion, 
 		CC.codigozip CodigoZipConsigneeDistribucion, 
