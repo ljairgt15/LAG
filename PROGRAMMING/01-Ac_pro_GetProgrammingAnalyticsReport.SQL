@@ -3,7 +3,7 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-04-29		  57747			 Based on pro_ReporteProgramacion_ListarInformacion
 */
 
-CREATE OR ALTER PROCEDURE [dbo].[01-Ac_pro_GetProgrammingAnalyticsReport]
+CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_GetProgrammingAnalyticsReport]
     @IdGuias VARCHAR(MAX),
 	@GuiaConsolidada BIT
 AS
@@ -47,6 +47,7 @@ BEGIN
 		Alto DECIMAL(9,3),
 		Ancho DECIMAL(9,3),
 		IdClienteConsignee VARCHAR(16),
+		BillToConsigneeId VARCHAR(16),
 		TipoPieza VARCHAR(8)
 	)
 	
@@ -79,6 +80,7 @@ BEGIN
 		Alto DECIMAL(9,3),
 		Ancho DECIMAL(9,3),
 		IdClienteConsignee VARCHAR(16),
+		BillToConsigneeId VARCHAR(16),
 		TipoPieza VARCHAR(8)
 	)
 
@@ -111,6 +113,7 @@ BEGIN
 		Alto DECIMAL(9,3),
 		Ancho DECIMAL(9,3),
 		IdClienteConsignee VARCHAR(16),
+		BillToConsigneeId VARCHAR(16),
 		TipoPieza VARCHAR(8)
 	)
 	-- deserailizamos el json de guias para obtener un formato tabular y poder hacer los joins correspondientes
@@ -146,7 +149,8 @@ BEGIN
 				CajasCoordinadas,
 				PiezasCoordinadas,
 				CabeceraCoordinacion,
-				IdClienteConsignee
+				IdClienteConsignee,
+				BillToConsigneeId
 			)
 				SELECT 
 					G.id AS Id,
@@ -165,7 +169,8 @@ BEGIN
 					COOR.totalCajasCoordinacion AS CajasCoordinadas,
 					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					VCC.ConsigneeId AS IdClienteConsignee
+					VCC.ConsigneeId AS IdClienteConsignee,
+					VCC.Id AS BillToConsigneeId
 				FROM #idGuias guiasTemp 
 				INNER JOIN Guias G WITH(NOLOCK) ON G.idGuiaConsolidada = guiasTemp.idGuias
 				INNER JOIN Guias GC WITH(NOLOCK) ON G.idGuiaConsolidada = GC.id
@@ -193,7 +198,8 @@ BEGIN
 				CajasCoordinadas,
 				PiezasCoordinadas,
 				CabeceraCoordinacion,
-				IdClienteConsignee
+				IdClienteConsignee,
+				BillToConsigneeId
 			)
 				SELECT 
 					G.id AS Id,
@@ -211,7 +217,8 @@ BEGIN
 					COOR.totalCajasCoordinacion AS CajasCoordinadas,
 					COOR.totalPiezasCoordinacion AS PiezasCoordinadas,
 					1 AS CabeceraCoordinacion,
-					VCC.ConsigneeId AS IdClienteConsignee
+					VCC.ConsigneeId AS IdClienteConsignee,
+					VCC.Id AS BillToConsigneeId
 				FROM  #idGuias guiasTemp 
 				INNER JOIN guias G WITH(NOLOCK)ON G.id = guiasTemp.idGuias
 				INNER JOIN Coordinaciones COOR WITH(NOLOCK) ON G.id = COOR.idGuia
@@ -249,6 +256,7 @@ BEGIN
 		Alto,
 		Ancho,
 		IdClienteConsignee,
+		BillToConsigneeId,
 		TipoPieza
 	)
 	SELECT
@@ -279,6 +287,7 @@ BEGIN
 		(cb.alto/2.54) AS Alto,
 		(cb.ancho/2.54) AS Ancho,
 		coordTemp.IdClienteConsignee AS IdClienteConsignee,
+		coordTemp.BillToConsigneeId,
 		ISNULL(inv.empaque,cb.tipoPiezaInventario) AS TipoPieza
 	FROM #InfoGuiaCoord coordTemp
 	INNER JOIN InventarioTemporalCliente inv WITH(NOLOCK) ON coordTemp.IdCoordinacion = inv.idCoordinacion
@@ -319,6 +328,7 @@ BEGIN
 		Alto,
 		Ancho,
 		IdClienteConsignee,
+		BillToConsigneeId,
 		TipoPieza
 	)
 	SELECT
@@ -349,6 +359,7 @@ BEGIN
 		(cb.alto/2.54) AS Alto,
 		(cb.ancho/2.54) AS Ancho,
 		coordTemp.IdClienteConsignee AS IdClienteConsignee,
+		coordTemp.BillToConsigneeId,
 		cb.tipoPiezaInventario AS TipoPieza
 	FROM #InfoGuiaCoord coordTemp
 	INNER JOIN CodigosDeBarra cb WITH(NOLOCK) ON coordTemp.IdCoordinacion = cb.idCoordinacion
@@ -399,6 +410,7 @@ BEGIN
 		Alto,
 		Ancho,
 		IdClienteConsignee,
+		BillToConsigneeId,
 		TipoPieza)
 	SELECT 
 		Id,
@@ -428,6 +440,7 @@ BEGIN
 		Alto,
 		Ancho,
 		IdClienteConsignee,
+		BillToConsigneeId,
 		TipoPieza
 	FROM #InfoCBTemporal
 	END
@@ -461,6 +474,7 @@ BEGIN
 		ISNULL(Alto,0) AS Alto,
 		ISNULL(Ancho,0) AS Ancho,
 		IdClienteConsignee,
+		BillToConsigneeId,
 		TipoPieza
 	FROM #CoordinacionesAux
 	UNION
@@ -493,6 +507,7 @@ BEGIN
 		ISNULL(Alto,0) AS Alto,
 		ISNULL(Ancho,0) AS Ancho,
 		IdClienteConsignee,
+		BillToConsigneeId,
 		TipoPieza
 	FROM #InfoGuiaCoord
 
