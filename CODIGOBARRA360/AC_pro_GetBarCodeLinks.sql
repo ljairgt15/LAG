@@ -1,8 +1,8 @@
 /*
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Fernando Ordoñez	2026-01-26		  57725			 Initial code base on pro_ConsultarCodigoBarrasLinks
+2			Jair Gomez      	2026-06-26		  57742			 Added pending/completed filter logic for Delivery Dispatch view based on POD status and piece dispatch status
 */
-
 ALTER   PROCEDURE [dbo].[AC_pro_GetBarCodeLinks]
 ( 
 	@idEmpresa					VARCHAR(16),
@@ -58,7 +58,8 @@ ALTER   PROCEDURE [dbo].[AC_pro_GetBarCodeLinks]
 	@supplierName				VARCHAR(256) = NULL,
 	@carrierName				VARCHAR(512) = NULL,
 	@billToName					VARCHAR(512) = NULL,
-	@supplierId					VARCHAR(16) = NULL
+	@supplierId					VARCHAR(16) = NULL,
+	@IsDispatchedWithPod		BIT = NULL
 )
 AS
 BEGIN
@@ -448,6 +449,16 @@ BEGIN
 				END, 
 				' JOIN ManifiestosDespacho md WITH(NOLOCK) ON pm.idManifiestoDespacho = md.id',
 				CASE 
+					WHEN @IsDispatchedWithPod IS NOT NULL THEN 
+					' OUTER APPLY (
+						SELECT TOP 1 1 AS TienePodEnviado
+						FROM DocumentosDespacho docPOD WITH(NOLOCK)
+						WHERE docPOD.idManifiesto = md.id
+						AND docPOD.nombreArchivo LIKE ''POD%''
+						AND docPOD.mailEnviado = 1
+					) AS statusPOD '
+				END,
+				CASE 
 					WHEN @esVenta = 1 THEN 
 						' 
 						OUTER APPLY (
@@ -604,6 +615,15 @@ BEGIN
 				CASE WHEN @camion IS NOT  NULL THEN ' AND ve.placa = @camion' END,
 				CASE WHEN @idNotificacion IS NOT  NULL THEN ' AND ntP.id = @idNotificacion' END,	
 				CASE WHEN @idGrupoCliente IS NOT NULL THEN ' AND vst.id IN (SELECT id FROM #idClientes)' END,
+				CASE 
+					WHEN @IsDispatchedWithPod IS NOT NULL THEN
+						CASE 
+							WHEN @IsDispatchedWithPod = 0 THEN ' AND statusPOD.TienePodEnviado IS NULL'
+							WHEN @IsDispatchedWithPod = 1 THEN ' AND statusPOD.TienePodEnviado = 1 AND ghd.estadoPieza = ''DISPATCHED WH'''
+							ELSE ''
+						END
+					ELSE ''
+				END,
 				CASE WHEN @tipoInventario = 1 THEN 
 					' AND ci.idEmpresa = @idEmpresa 
 					 AND ci.numero = @numeroChequeoInventario 
