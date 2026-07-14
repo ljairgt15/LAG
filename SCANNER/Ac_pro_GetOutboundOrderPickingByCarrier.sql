@@ -2,7 +2,7 @@
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-04-29		  58788			 Based on pro_GetOutboundOrderPickingByCarrier
 */
-ALTER     PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPickingByCarrier]
+CREATE OR ALTER     PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPickingByCarrier]
 (
 	@idBodega VARCHAR(16),
 	@idCarrier VARCHAR(16),
@@ -18,21 +18,22 @@ BEGIN
 				@valorEsDelivery VARCHAR(16)
 
 		CREATE TABLE #TMP_GUIAS(
-			id [UNIQUEIDENTIFIER],
-			idGuiaHouse [UNIQUEIDENTIFIER],
-			idClienteFinal [VARCHAR](16),
-			idCliente [VARCHAR](16),
-			nroGuia [VARCHAR](64),
-			estadoPieza [VARCHAR](32),
-			idTipoDePieza [VARCHAR](16), 
-			esPOD [BIT],
-			po [VARCHAR](64), 
-			idProgramacionCarrier [UNIQUEIDENTIFIER],
-			fechaDespacho [DATETIME],
-			idCarrier [VARCHAR](16),
-			idUsuarioLogPicking [VARCHAR](16),
-			idBodega [VARCHAR](16),
-			idCatalogoAccion [UNIQUEIDENTIFIER]
+			Id [UNIQUEIDENTIFIER],
+			IdGuiaHouse [UNIQUEIDENTIFIER],
+			ShipToId [VARCHAR](16),
+			ConsigneeId [VARCHAR](16),
+            BillToConsigneeId [VARCHAR](16),            
+			NroGuia [VARCHAR](64),
+			EstadoPieza [VARCHAR](32),
+			IdTipoDePieza [VARCHAR](16), 
+			EsPOD [BIT],
+			Po [VARCHAR](64), 
+			IdProgramacionCarrier [UNIQUEIDENTIFIER],
+			FechaDespacho [DATETIME],
+			IdCarrier [VARCHAR](16),
+			IdUsuarioLogPicking [VARCHAR](16),
+			IdBodega [VARCHAR](16),
+			IdCatalogoAccion [UNIQUEIDENTIFIER]
 		)
 
 		CREATE TABLE #CatalogosAccion(
@@ -43,8 +44,9 @@ BEGIN
 		SELECT
 			GHD.id,
 			GHD.idGuiaHouse,
-			GHD.idClienteFinal,
-			GH.idCliente,
+			GHD.ShipToId,
+			GH.ConsigneeId,
+            GH.BillToConsigneeId,
 			gh.nroGuia,
 			GHD.estadoPieza,
 			GHD.idTipoDePieza,
@@ -96,8 +98,9 @@ BEGIN
 		SELECT 
 			GHD.id,
 			GHD.idGuiaHouse,
-			GHD.idCliente AS idClienteConsignee,
-			GHD.idClienteFinal,
+			GHD.ConsigneeId AS idClienteConsignee,
+			GHD.ShipToId AS idClienteFinal,
+            GHD.BillToConsigneeId,
 			GHD.estadoPieza,
 			GHD.esPOD,
 			GHD.idTipoDePieza, 
