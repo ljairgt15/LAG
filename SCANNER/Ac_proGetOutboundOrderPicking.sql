@@ -165,7 +165,7 @@ BEGIN
 
 		SELECT 
 			G.idCarrier,
-			G.idClienteFinal,
+			G.ShipToId,
 			G.nroManifiesto,
 			G.total,
 			G.picked,
@@ -180,7 +180,7 @@ BEGIN
 		(
 			SELECT 
 				G.idCarrier,
-				G.ShipToId AS IdClienteFinal,
+				G.ShipToId,
 				COUNT(G.ShipToId) AS total, 
 				SUM(G.piecesManifest) as hasManifest, 
 				SUM(IIF(G.estadoPieza = 'DISPATCHED WH',1,0)) totalDispatched,
