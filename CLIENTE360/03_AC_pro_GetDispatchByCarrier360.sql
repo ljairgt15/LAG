@@ -70,7 +70,7 @@ BEGIN
 
         INSERT INTO #TMP_RelatedClients (ConsigneeId)
         SELECT ConsigneeId
-        FROM dbo.fn_GetClientsEntities(@EntityId, @UserType);
+        FROM f_GetClientsEntities(@UserType ,@EntityId);
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)

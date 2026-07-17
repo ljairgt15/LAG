@@ -85,7 +85,7 @@ BEGIN
 
         INSERT INTO #TMP_RelatedClients (ConsigneeId)
         SELECT ConsigneeId
-        FROM dbo.fn_GetClientsEntities(@EntityId, @UserType);
+        FROM f_GetClientsEntities(@UserType, @EntityId);
 
         
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
@@ -441,7 +441,7 @@ BEGIN
             TRA.Id AS IdCarrier, 
             TRA.Nombre AS NombreCarrier, 
             '' AS CodigoCarrier,
-            TMP.ConsigneeClientId AS IdClienteConsignee, 
+            TMP.ConsigneeClientId AS ConsigneeId, 
             VCC.Nombre AS NombreClienteConsignee, 
             '' AS IdPaisConsignee,
             '' AS NombrePaisConsignee,
@@ -454,7 +454,7 @@ BEGIN
             PAS.CodigoISO AS CodigoIsoPaisAlt, 
             ESS.Id AS IdEstadoAlt, 
             ESS.CodigoISO AS CodigoIsoEstadoAlt, 
-            TMP.ShipToId AS IdClienteFinal, 
+            TMP.ShipToId AS ShipToId, 
             VCS.Nombre AS NombreClienteFinal, 
             PAS.Id AS IdPais,  
             PAS.Nombre AS NombrePais, 

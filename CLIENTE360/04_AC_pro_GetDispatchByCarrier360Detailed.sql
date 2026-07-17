@@ -85,7 +85,7 @@ BEGIN
 
         INSERT INTO #TMP_RelatedClients (ConsigneeId)
         SELECT ConsigneeId
-        FROM dbo.fn_GetClientsEntities(@EntityId, @UserType);
+        FROM f_GetClientsEntities(@UserType, @EntityId);
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)
@@ -441,7 +441,7 @@ BEGIN
             TRA.Id AS IdCarrier, 
             TRA.Nombre AS NombreCarrier, 
             COR.Codigo AS CodigoCarrier, 
-            '' AS IdClienteConsignee, 
+            '' AS ConsigneeId, 
             VCC.Nombre AS NombreClienteConsignee,  
             '' AS IdPaisConsignee,
             '' AS NombrePaisConsignee,
@@ -454,7 +454,7 @@ BEGIN
             '' AS CodigoIsoPaisAlt, 
             ES.Id AS IdEstadoAlt, 
             ES.CodigoISO AS CodigoIsoEstadoAlt, 
-            TMP.ShipToId AS IdClienteFinal, 
+            TMP.ShipToId AS ShipToId, 
             VCS.Nombre AS NombreClienteFinal, 
             P.Id AS IdPais, 
             P.Nombre AS NombrePais,  
