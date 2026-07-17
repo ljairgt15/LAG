@@ -36,16 +36,11 @@ BEGIN
         SELECT 
             @IsPendingStatus         = CASE WHEN @IsPending = 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END,
             @WildcardDestinationDate = DATEADD(DAY, -90, @DateTo)
-        CREATE TABLE #TMP_RelatedClients (
-            [Id]                VARCHAR(16),
-            [IdCliente]         VARCHAR(16),
-            [BillToConsigneeId] VARCHAR(16),
-            [BillToId]          VARCHAR(16),
-            [ConsigneeId]       VARCHAR(16),
-            [BillToName]        VARCHAR(256),
-            [Name]              VARCHAR(256)
-        )
-        
+
+        CREATE TABLE #TMP_RelatedClients
+        (
+            ConsigneeId VARCHAR(16)
+        );
 
         CREATE TABLE #TMP_FinalClients ( 
             [ShipToId] VARCHAR(16) 
@@ -82,10 +77,9 @@ BEGIN
         FROM Documentos 
         WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
-        EXEC [dbo].[AC_pro_GetClientsEntities]
-             @EntityId = @EntityId,
-             @UserType = @UserType 
+        INSERT INTO #TMP_RelatedClients (ConsigneeId)
+        SELECT ConsigneeId
+        FROM dbo.fn_GetClientsEntities(@EntityId, @UserType);
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)
