@@ -1,6 +1,6 @@
 /*
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
-1			Jair Gomez      	2026-04-29		  58788			 Based on pro_GetOutboundOrderPickingByShipTo
+1			Jair Gomez      	2026-07-25		  58788			 Based on pro_GetOutboundOrderPickingByShipTo
 */
 CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPickingByShipTo]
 (
