@@ -4,10 +4,10 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 */
 ALTER    PROCEDURE [dbo].[Ac_pro_PieceCounterDispatchDelivery]
 (
-	@idClienteFinal VARCHAR(16),
-	@idCarrier VARCHAR(16),
-	@idBodega VARCHAR(16),
-	@fechaDespacho DATETIME
+	@IdClienteFinal VARCHAR(16),
+	@IdCarrier VARCHAR(16),
+	@IdBodega VARCHAR(16),
+	@FechaDespacho DATETIME
 )
 AS
 BEGIN
@@ -16,46 +16,46 @@ BEGIN
 	BEGIN TRY
 
 		select 
-		temp.id, 
-		temp.idClienteFinal, 
-		temp.nroGuia,
+		TMP.id, 
+		TMP.ShipToId AS IdClienteFinal, 
+		TMP.nroGuia,
 		maniDespacho.nroManifiesto, 
-		temp.estadoPieza, 
-		temp.fechaDespacho, 
-		temp.idCarrier,
+		TMP.estadoPieza, 
+		TMP.fechaDespacho, 
+		TMP.idCarrier,
 		encabezaDes.idVehiculo,
-		temp.codigoBarra,
-		temp.idBodega
+		TMP.codigoBarra,
+		TMP.idBodega
 		from (
 			select
-			GH.id, 
-			GH.idClienteFinal, 
-			house.nroGuia, 
-			GH.estadoPieza, 
-			progra.fechaDespacho, 
-			progra.idCarrier,
-			transporte.idTransportePrincipal,
-			house.idEmpresa,
-			progra.id idProgramacion,
-			GH.fechaCambio,
-			GH.fechaRecepcion,
-			GH.codigoBarra,
-			house.idBodega
-			from GuiasHouse house WITH(NOLOCK)
-			inner join GuiasHouseDetalles GH WITH(NOLOCK) on house.id = GH.idGuiaHouse
-			inner join ProgramacionCarrier progra WITH(NOLOCK) on GH.id = progra.idGuiaHouseDetalle
-			inner join Transportes transporte on progra.idCarrier = transporte.id
-			where GH.idClienteFinal = @idClienteFinal
-			and progra.fechaDespacho = @fechaDespacho
-		) temp
-		left join ProgramacionManifiesto prograMani WITH(NOLOCK) on temp.idProgramacion = prograMani.idProgramacionCarrier
+			GHD.id, 
+			GHD.ShipToId, 
+			GH.nroGuia, 
+			GHD.estadoPieza, 
+			PRO.fechaDespacho, 
+			PRO.idCarrier,
+			TRA.idTransportePrincipal,
+			GH.idEmpresa,
+			PRO.id idProgramacion,
+			GHD.fechaCambio,
+			GHD.fechaRecepcion,
+			GHD.codigoBarra,
+			GH.idBodega
+			from GuiasHouse GH WITH(NOLOCK)
+			inner join GuiasHouseDetalles GHD WITH(NOLOCK) on GH.id = GHD.idGuiaHouse
+			inner join ProgramacionCarrier PRO WITH(NOLOCK) on GHD.id = PRO.idGuiaHouseDetalle
+			inner join Transportes TRA on PRO.idCarrier = TRA.id
+			where GHD.ShipToId = @idClienteFinal
+			and PRO.fechaDespacho = @fechaDespacho
+		) TMP
+		left join ProgramacionManifiesto prograMani WITH(NOLOCK) on TMP.idProgramacion = prograMani.idProgramacionCarrier
 		left join DocumentosDespacho despacho WITH(NOLOCK) on prograMani.idManifiestoDespacho = despacho.id AND despacho.idDocumento = 'DOC052395'
 		left join ManifiestosDespacho maniDespacho WITH(NOLOCK) on prograMani.idManifiestoDespacho = maniDespacho.id
-		left join DetalleDespacho detalleDes WITH(NOLOCK) on temp.id = detalleDes.idGuiaHouseDetalle
+		left join DetalleDespacho detalleDes WITH(NOLOCK) on TMP.id = detalleDes.idGuiaHouseDetalle
 		left join EncabezadoDespacho encabezaDes WITH(NOLOCK) on detalleDes.idEncabezadoDespacho = encabezaDes.id
-		where ((temp.estadoPieza = 'DISPATCHED WH' AND (despacho.esPOD = 0 OR despacho.esPOD IS NULL))
-		  OR (temp.estadoPieza = 'RECEIVED WH' AND (despacho.esPOD = 0 OR despacho.esPOD IS NULL))
-		  OR (temp.estadoPieza = 'PENDING'));
+		where ((TMP.estadoPieza = 'DISPATCHED WH' AND (despacho.esPOD = 0 OR despacho.esPOD IS NULL))
+		  OR (TMP.estadoPieza = 'RECEIVED WH' AND (despacho.esPOD = 0 OR despacho.esPOD IS NULL))
+		  OR (TMP.estadoPieza = 'PENDING'));
 
   END TRY
     BEGIN CATCH
