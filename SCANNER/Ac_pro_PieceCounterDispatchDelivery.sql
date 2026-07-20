@@ -1,11 +1,8 @@
-
+/*
+VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
+1			Jair Gomez      	2026-07-25		  58788			 Based on pro_DespachoDeliveryPiezasContador
+*/
 ALTER    PROCEDURE [dbo].[Ac_pro_PieceCounterDispatchDelivery]
-(
-	@idClienteFinal VARCHAR(16),
-	@idCarrier VARCHAR(16),
-	@idBodega VARCHAR(16),
-	@fechaDespacho DATETIME
-)
 (
 	@idClienteFinal VARCHAR(16),
 	@idCarrier VARCHAR(16),
