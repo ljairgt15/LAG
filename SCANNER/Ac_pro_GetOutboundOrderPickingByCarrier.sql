@@ -4,11 +4,11 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 */
 CREATE OR ALTER     PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPickingByCarrier]
 (
-	@idBodega VARCHAR(16),
-	@idCarrier VARCHAR(16),
-	@fechaDespacho DATETIME,
-	@idEmpresa VARCHAR(16),
-	@isPending BIT
+	@IdBodega VARCHAR(16),
+	@IdCarrier VARCHAR(16),
+	@FechaDespacho DATETIME,
+	@IdEmpresa VARCHAR(16),
+	@IsPending BIT
 )
 AS
 BEGIN
