@@ -22,7 +22,6 @@ BEGIN
 			@TotalPiecesDispatched INT,
 			@ManifiestoDespacho VARCHAR(32),
 			@IdEmpresa VARCHAR(16),
-			@IdClienteConsignee VARCHAR(16),
 			@ValorEsDelivery VARCHAR(16),
 			@BillToId VARCHAR(16),
 			@Actualizar VARCHAR(8) = 'NO'
