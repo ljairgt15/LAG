@@ -24,6 +24,7 @@ BEGIN
 			@IdEmpresa VARCHAR(16),
 			@IdClienteConsignee VARCHAR(16),
 			@ValorEsDelivery VARCHAR(16),
+			@BillToId VARCHAR(16),
 			@Actualizar VARCHAR(8) = 'NO'
 
 		CREATE TABLE #TMP_GUIAS(
@@ -73,8 +74,7 @@ BEGIN
 		CREATE TABLE #CatalogosAccion(
 			Id [UNIQUEIDENTIFIER]
 		)
-		DECLARE @BillToId VARCHAR(16)
-
+		
 		INSERT INTO #CatalogosAccion
 		SELECT id
 		FROM   Catalogos
