@@ -80,7 +80,7 @@ BEGIN
 		WHERE  CodigoRelacion IN ('WAITING CUSTOMS CLEARANCE', 'WAITING INSPECTION')
 				AND IdEmpresa IS NULL
 	
-		SELECT  @NombreCarrier = nombre
+		SELECT  @NombreCarrier = Nombre
 		FROM  Transportes 
 		WHERE ID = @IdCarrier
 		
