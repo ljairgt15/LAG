@@ -277,3 +277,8 @@ BEGIN
 	DROP TABLE #GuiasHouseDetalles
 	DROP TABLE #TMP_GUIAS
 END
+/*exec Ac_pro_GetOutboundOrderPicking
+	@fechaDespacho='2026-05-02 00:00:00',
+	@idBodega=N'LXgyot5M',
+	@isPending=1,
+	@idEmpresa=N'EMP014'
