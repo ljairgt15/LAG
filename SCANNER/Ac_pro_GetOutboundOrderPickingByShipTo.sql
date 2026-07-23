@@ -17,7 +17,7 @@ CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPickingByShipTo]
 AS
 BEGIN
 	BEGIN TRY
-		DECLARE  @nombreCarrier VARCHAR(128),
+		DECLARE  @NombreCarrier VARCHAR(128),
 			@TotalPiecesByClient INT,
 			@TotalPiecesDispatched INT,
 			@ManifiestoDespacho VARCHAR(32),
@@ -81,24 +81,24 @@ BEGIN
 		WHERE  codigoRelacion IN ('WAITING CUSTOMS CLEARANCE', 'WAITING INSPECTION')
 				AND idEmpresa IS NULL
 	
-		SELECT  @nombreCarrier = nombre
+		SELECT  @NombreCarrier = nombre
 		FROM  Transportes 
-		WHERE ID = @idCarrier
+		WHERE ID = @IdCarrier
 		
-		SELECT  @valorEsDelivery = PC.Valor 
+		SELECT  @ValorEsDelivery = PC.Valor 
 		FROM ParametrosCatalogos PC
 		INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.codigo = 'EsDelivery'
-		WHERE PC.IdEntidad = @idCarrier
+		WHERE PC.IdEntidad = @IdCarrier
 			AND PC.valor = 'NO'
 			AND PL.Actor IN ('CARRIER', 'TERRESTRE')
 
-		IF @valorEsDelivery IS NULL
+		IF @ValorEsDelivery IS NULL
 		BEGIN
-			SELECT @valorEsDelivery = PC.Valor
+			SELECT @ValorEsDelivery = PC.Valor
 			FROM  Transportes T
 			INNER JOIN ParametrosCatalogos PC ON T.idTransportePrincipal = PC.IdEntidad
 			INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.codigo = 'EsDelivery'
-			WHERE  T.id = @idCarrier
+			WHERE  T.id = @IdCarrier
 				AND PC.valor = 'NO'
 				AND PL.Actor IN ('CARRIER', 'TERRESTRE')
 		END 
@@ -125,12 +125,12 @@ BEGIN
 			GH.idEmpresa,
 			GHD.idCatalogoAccion
 		FROM ProgramacionCarrier PC  WITH (NOLOCK)		
-		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.ID = PC.idGuiaHouseDetalle AND  GHD.ShipToId = @idClienteFinal
+		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.ID = PC.idGuiaHouseDetalle AND  GHD.ShipToId = @IdClienteFinal
 		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse
 		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.idGuiaHouseDetalle = GHD.id
 		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.idSolicitud = SV.id 
-		WHERE  PC.idCarrier = @idCarrier 
-			   AND PC.fechaDespacho = @fechaDespacho
+		WHERE  PC.idCarrier = @IdCarrier 
+			   AND PC.fechaDespacho = @FechaDespacho
 			   AND CASE 
 					WHEN SVD.id IS NULL THEN 1
 					WHEN SV.tipoVenta = 4 THEN 1
@@ -188,7 +188,7 @@ BEGIN
 			GHD.idEmpresa,
 			GHD.ConsigneeId,
 			CASE 
-				WHEN @valorEsDelivery = 'NO' THEN 0
+				WHEN @ValorEsDelivery = 'NO' THEN 0
 				ELSE 1 
 			END AS esDelivery
 		FROM #TMP_GUIAS GHD 
@@ -209,24 +209,24 @@ BEGIN
 					) 
 			)
 			AND GHD.esPOD <> 1
-			AND ISNULL(UB1.idBodega, GHD.idBodega) =  @idBodega
-			AND (@nroGuia IS NULL OR GHD.nroGuia = @nroGuia)
-			AND (@nroManifiesto IS NULL OR MD.nroManifiesto = @nroManifiesto)
-			AND (@nroPo IS NULL OR GHD.po = @nroPo)
+			AND ISNULL(UB1.idBodega, GHD.idBodega) =  @IdBodega
+			AND (@NroGuia IS NULL OR GHD.nroGuia = @NroGuia)
+			AND (@NroManifiesto IS NULL OR MD.nroManifiesto = @NroManifiesto)
+			AND (@NroPo IS NULL OR GHD.po = @NroPo)
 
-		SELECT TOP 1 @idEmpresa = GHD.idEmpresa 
+		SELECT TOP 1 @IdEmpresa = GHD.idEmpresa 
 		FROM #GuiasHouseDetalles GHD
 		
 
-		SELECT TOP 1 @BillToId = er.EntityTypeId
-		FROM EntityRelations er WITH (NOLOCK)
-		WHERE er.Id = @BillToConsigneeId
+		SELECT TOP 1 @BillToId = ER.EntityTypeId
+		FROM EntityRelations ER WITH (NOLOCK)
+		WHERE ER.Id = @BillToConsigneeId
 		
-		SELECT TOP 1 @manifiestoDespacho = pc.valor
+		SELECT TOP 1 @ManifiestoDespacho = pc.valor
 		FROM ParametrosLista AS pl WITH (NOLOCK)
 		JOIN ParametrosCatalogos AS pc WITH (NOLOCK) ON pc.idParametroLista = pl.id
 		WHERE pl.codigo = 'TipoManifiestoDespacho'
-			AND pl.idEmpresa = @idEmpresa
+			AND pl.idEmpresa = @IdEmpresa
 			AND pc.idEntidad IN (@BillToConsigneeId, @BillToId)
 			AND LTRIM(RTRIM(ISNULL(pc.valor,''))) <> ''
 		ORDER BY CASE WHEN pc.idEntidad = @BillToConsigneeId THEN 0 ELSE 1 END
@@ -261,7 +261,7 @@ BEGIN
 				G.nroManifiesto
 		) G
 	
-		IF @valorEsDelivery = 'NO'
+		IF @ValorEsDelivery = 'NO'
 		BEGIN
 			
 			IF (SELECT TOP 1 'SI' FROM #GroupData WHERE picked = total) = 'SI'
@@ -273,7 +273,7 @@ BEGIN
 			END 
 		END 
 	
-		IF @isPending = 1
+		IF @IsPending = 1
 		BEGIN
 			SELECT 
 			ROW_NUMBER() OVER (ORDER BY GHD.barCode) AS id, 
@@ -287,10 +287,10 @@ BEGIN
 			isPallet
 			FROM #GuiasHouseDetalles GHD
 			WHERE (
-					( @nroPo IS NULL AND @manifiestoDespacho = 'PO' AND  GHD.nroPo = '' )
-					OR ( @nroPo IS NULL AND (@manifiestoDespacho != 'PO' OR @manifiestoDespacho IS NULL) )
+					( @NroPo IS NULL AND @ManifiestoDespacho = 'PO' AND  GHD.nroPo = '' )
+					OR ( @NroPo IS NULL AND (@ManifiestoDespacho != 'PO' OR @ManifiestoDespacho IS NULL) )
 				)
-				OR GHD.nroPo = @nroPo 
+				OR GHD.nroPo = @NroPo 
 			GROUP BY  barCode,
 				[location],
 				dock,
@@ -304,8 +304,8 @@ BEGIN
 		ELSE
 		BEGIN 
 			SELECT  
-				@totalPiecesByClient =COUNT(1),
-				@totalPiecesDispatched = SUM(IIF(estadoPieza = 'DISPATCHED WH',1,0)) 
+				@TotalPiecesByClient =COUNT(1),
+				@TotalPiecesDispatched = SUM(IIF(estadoPieza = 'DISPATCHED WH',1,0)) 
 			FROM #GuiasHouseDetalles
 
 			;WITH TempResp AS(
@@ -342,7 +342,7 @@ BEGIN
 			HAVING 
 				SUM(GHD.totalPieces) = SUM(GHD.piecesPicked)
 				AND SUM(GHD.totalPieces) = SUM(GHD.piecesManifest)
-				AND @totalPiecesDispatched <> @totalPiecesByClient
+				AND @TotalPiecesDispatched <> @TotalPiecesByClient
 		END
 	
 	END TRY
