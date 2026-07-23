@@ -74,12 +74,12 @@ BEGIN
 		CREATE TABLE #CatalogosAccion(
 			Id [UNIQUEIDENTIFIER]
 		)
-		
+
 		INSERT INTO #CatalogosAccion
-		SELECT id
+		SELECT Id
 		FROM   Catalogos
-		WHERE  codigoRelacion IN ('WAITING CUSTOMS CLEARANCE', 'WAITING INSPECTION')
-				AND idEmpresa IS NULL
+		WHERE  CodigoRelacion IN ('WAITING CUSTOMS CLEARANCE', 'WAITING INSPECTION')
+				AND IdEmpresa IS NULL
 	
 		SELECT  @NombreCarrier = nombre
 		FROM  Transportes 
@@ -87,134 +87,134 @@ BEGIN
 		
 		SELECT  @ValorEsDelivery = PC.Valor 
 		FROM ParametrosCatalogos PC
-		INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.codigo = 'EsDelivery'
+		INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.Codigo = 'EsDelivery'
 		WHERE PC.IdEntidad = @IdCarrier
-			AND PC.valor = 'NO'
+			AND PC.Valor = 'NO'
 			AND PL.Actor IN ('CARRIER', 'TERRESTRE')
 
 		IF @ValorEsDelivery IS NULL
 		BEGIN
 			SELECT @ValorEsDelivery = PC.Valor
 			FROM  Transportes T
-			INNER JOIN ParametrosCatalogos PC ON T.idTransportePrincipal = PC.IdEntidad
-			INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.codigo = 'EsDelivery'
-			WHERE  T.id = @IdCarrier
-				AND PC.valor = 'NO'
+			INNER JOIN ParametrosCatalogos PC ON T.IdTransportePrincipal = PC.IdEntidad
+			INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.Codigo = 'EsDelivery'
+			WHERE  T.Id = @IdCarrier
+				AND PC.Valor = 'NO'
 				AND PL.Actor IN ('CARRIER', 'TERRESTRE')
 		END 
 
 
 		INSERT INTO #TMP_GUIAS
 		SELECT
-			GHD.id,
-			GHD.idGuiaHouse,
+			GHD.Id,
+			GHD.IdGuiaHouse,
 			GHD.ShipToId,
 			GH.ConsigneeId,
-			GH.nroGuia,
-			GHD.codigoBarra,
-			GHD.estadoPieza,
-			GHD.gate,
-			GHD.idTipoDePieza,
-			GHD.esPOD,
-			GHD.po,
-			PC.id AS idProgramacionCarrier,
-			PC.fechaDespacho,
-			PC.idCarrier,
-			ISNULL(IIF(SVD.picking = 1, '1', NULL), PC.idUsuarioLogPicking) AS idUsuarioLogPicking,
-			GH.idBodega,
-			GH.idEmpresa,
-			GHD.idCatalogoAccion
+			GH.NroGuia,
+			GHD.CodigoBarra,
+			GHD.EstadoPieza,
+			GHD.Gate,
+			GHD.IdTipoDePieza,
+			GHD.EsPOD,
+			GHD.Po,
+			PC.Id AS IdProgramacionCarrier,
+			PC.FechaDespacho,
+			PC.IdCarrier,
+			ISNULL(IIF(SVD.Picking = 1, '1', NULL), PC.IdUsuarioLogPicking) AS IdUsuarioLogPicking,
+			GH.IdBodega,
+			GH.IdEmpresa,
+			GHD.IdCatalogoAccion
 		FROM ProgramacionCarrier PC  WITH (NOLOCK)		
-		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.ID = PC.idGuiaHouseDetalle AND  GHD.ShipToId = @IdClienteFinal
-		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse
-		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.idGuiaHouseDetalle = GHD.id
-		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.idSolicitud = SV.id 
-		WHERE  PC.idCarrier = @IdCarrier 
-			   AND PC.fechaDespacho = @FechaDespacho
+		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.Id = PC.IdGuiaHouseDetalle AND  GHD.ShipToId = @IdClienteFinal
+		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.Id = GHD.IdGuiaHouse
+		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.IdGuiaHouseDetalle = GHD.Id
+		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.IdSolicitud = SV.Id 
+		WHERE  PC.IdCarrier = @IdCarrier 
+			   AND PC.FechaDespacho = @FechaDespacho
 			   AND CASE 
-					WHEN SVD.id IS NULL THEN 1
-					WHEN SV.tipoVenta = 4 THEN 1
-					WHEN SV.tipoVenta IN (1,2,3) AND SVD.picking = 1 THEN 1
-					WHEN SV.tipoVenta IN (1,2,3) AND GHD.estadoPieza = 'DISPATCHED WH'  THEN 1 
-					WHEN SV.tipoVenta = 5  AND SVD.tipoPieza = 2 THEN 1
-					WHEN SV.tipoVenta = 5  AND SVD.tipoPieza = 1  AND SVD.picking = 1 THEN 1
-					WHEN SV.tipoVenta = 5  AND SVD.tipoPieza = 1  AND GHD.estadoPieza = 'DISPATCHED WH' THEN 1
+					WHEN SVD.Id IS NULL THEN 1
+					WHEN SV.TipoVenta = 4 THEN 1
+					WHEN SV.TipoVenta IN (1,2,3) AND SVD.Picking = 1 THEN 1
+					WHEN SV.TipoVenta IN (1,2,3) AND GHD.EstadoPieza = 'DISPATCHED WH'  THEN 1 
+					WHEN SV.TipoVenta = 5  AND SVD.TipoPieza = 2 THEN 1
+					WHEN SV.TipoVenta = 5  AND SVD.TipoPieza = 1  AND SVD.Picking = 1 THEN 1
+					WHEN SV.TipoVenta = 5  AND SVD.TipoPieza = 1  AND GHD.EstadoPieza = 'DISPATCHED WH' THEN 1
 					ELSE 0 
 				END  = 1
 		  
 		INSERT INTO #GuiasHouseDetalles
 		SELECT 
-			GHD.id,
-			GHD.idGuiaHouse,
+			GHD.Id,
+			GHD.IdGuiaHouse,
 			GHD.ShipToId,
-			GHD.estadoPieza,
-			GHD.esPOD,
-			GHD.idTipoDePieza, 
-			GHD.fechaDespacho,
-			GHD.idCarrier,
-			1 AS totalPieces,
+			GHD.EstadoPieza,
+			GHD.EsPOD,
+			GHD.IdTipoDePieza, 
+			GHD.FechaDespacho,
+			GHD.IdCarrier,
+			1 AS TotalPieces,
 			CASE
-				WHEN GHD.idUsuarioLogPicking IS NOT NULL
+				WHEN GHD.IdUsuarioLogPicking IS NOT NULL
 					THEN 1
-				WHEN GHD.estadoPieza = 'DISPATCHED WH'
+				WHEN GHD.EstadoPieza = 'DISPATCHED WH'
 					THEN 1
 				ELSE 0 
-			END AS picking,
-			ISNULL(PL.pallet, GHD.codigoBarra) AS barCode,
+			END AS Picking,
+			ISNULL(PL.Pallet, GHD.CodigoBarra) AS Barcode,
 			CASE
-				WHEN GHD.estadoPieza = 'RECEIVED WH'
-					THEN ISNULL(U.codigo, U1.codigo)
-				WHEN GHD.estadoPieza = 'DISPATCHED WH' AND PMN.id IS NOT NULL AND PMN.nota <> 'Escaner Picking'
-					THEN ISNULL(U.codigo, U1.codigo)
-				WHEN GHD.estadoPieza = 'DISPATCHED WH' AND U.codigo IS NULL AND U1.codigo IS NULL
-					THEN GHD.nroGuia
-				WHEN GHD.estadoPieza = 'DISPATCHED WH' AND PL.ID IS NOT NULL 
-					THEN ISNULL(U.codigo, '')
-				WHEN GHD.estadoPieza = 'DISPATCHED WH' AND ISNULL(U.codigo, U1.codigo) IS NOT NULL
-					THEN ISNULL(U.codigo, U1.codigo)
-				WHEN GHD.estadoPieza = 'HOLD' AND (U.codigo IS NOT NULL OR U1.codigo IS NOT NULL)
-					THEN ISNULL(U.codigo, U1.codigo)
-				ELSE GHD.nroGuia 
-			END AS [location],
-			ISNULL(ED.puerta, GHD.gate) AS dock,
-			ISNULL(MD.nroManifiesto, ''),
+				WHEN GHD.EstadoPieza = 'RECEIVED WH'
+					THEN ISNULL(U.Codigo, U1.Codigo)
+				WHEN GHD.EstadoPieza = 'DISPATCHED WH' AND PMN.Id IS NOT NULL AND PMN.Nota <> 'Escaner Picking'
+					THEN ISNULL(U.Codigo, U1.Codigo)
+				WHEN GHD.EstadoPieza = 'DISPATCHED WH' AND U.Codigo IS NULL AND U1.Codigo IS NULL
+					THEN GHD.NroGuia
+				WHEN GHD.EstadoPieza = 'DISPATCHED WH' AND PL.Id IS NOT NULL 
+					THEN ISNULL(U.Codigo, '')
+				WHEN GHD.EstadoPieza = 'DISPATCHED WH' AND ISNULL(U.Codigo, U1.Codigo) IS NOT NULL
+					THEN ISNULL(U.Codigo, U1.Codigo)
+				WHEN GHD.EstadoPieza = 'HOLD' AND (U.Codigo IS NOT NULL OR U1.Codigo IS NOT NULL)
+					THEN ISNULL(U.Codigo, U1.Codigo)
+				ELSE GHD.NroGuia 
+			END AS [Location],
+			ISNULL(ED.Puerta, GHD.Gate) AS Dock,
+			ISNULL(MD.NroManifiesto, ''),
 			CASE
-				WHEN PMN.id IS NOT NULL AND PMN.nota = 'Escaner Picking'
+				WHEN PMN.Id IS NOT NULL AND PMN.Nota = 'Escaner Picking'
 					THEN 1
 				ELSE 0
-			END AS piecesManifest,
-			IIF(PL.pallet IS NULL, 0, 1) AS isPallet,
-			ISNULL(GHD.po, ''),
-			GHD.idEmpresa,
+			END AS PiecesManifest,
+			IIF(PL.Pallet IS NULL, 0, 1) AS IsPallet,
+			ISNULL(GHD.Po, ''),
+			GHD.IdEmpresa,
 			GHD.ConsigneeId,
 			CASE 
 				WHEN @ValorEsDelivery = 'NO' THEN 0
 				ELSE 1 
-			END AS esDelivery
+			END AS EsDelivery
 		FROM #TMP_GUIAS GHD 
-		LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON UP.idGuiaHouseDetalle = GHD.id 
-		LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON PLD.idGuiasHouseDetalle = GHD.id
-		LEFT JOIN Pallets PL WITH (NOLOCK) ON PL.id = PLD.idPallet
-		LEFT JOIN Ubicaciones U ON U.ID =  PL.idUbicacion
-		LEFT JOIN Ubicaciones U1 ON U1.ID =  UP.idUbicacion
-		LEFT JOIN UbicacionesBodega UB1 ON UB1.id = U1.idUbicacionBodega
-		LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON GHD.[id] = DD.idGuiaHouseDetalle
-		LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.idEncabezadoDespacho = ED.id
-		LEFT JOIN ProgramacionManifiesto PMN WITH (NOLOCK) ON PMN.idProgramacionCarrier = GHD.idProgramacionCarrier
-		LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON MD.id =  PMN.idManifiestoDespacho
-		WHERE (GHD.estadoPieza NOT IN ('HOLD','LOST','SHORT','STANDBY')
+		LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON UP.IdGuiaHouseDetalle = GHD.Id 
+		LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON PLD.IdGuiasHouseDetalle = GHD.Id
+		LEFT JOIN Pallets PL WITH (NOLOCK) ON PL.Id = PLD.IdPallet
+		LEFT JOIN Ubicaciones U ON U.Id =  PL.IdUbicacion
+		LEFT JOIN Ubicaciones U1 ON U1.Id =  UP.IdUbicacion
+		LEFT JOIN UbicacionesBodega UB1 ON UB1.Id = U1.IdUbicacionBodega
+		LEFT JOIN DetalleDespacho DD WITH (NOLOCK) ON GHD.[Id] = DD.IdGuiaHouseDetalle
+		LEFT JOIN EncabezadoDespacho ED WITH (NOLOCK) ON DD.IdEncabezadoDespacho = ED.Id
+		LEFT JOIN ProgramacionManifiesto PMN WITH (NOLOCK) ON PMN.IdProgramacionCarrier = GHD.IdProgramacionCarrier
+		LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON MD.Id =  PMN.IdManifiestoDespacho
+		WHERE (GHD.EstadoPieza NOT IN ('HOLD','LOST','SHORT','STANDBY')
 				OR (
-						GHD.estadoPieza = 'HOLD'
-						AND GHD.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)
+						GHD.EstadoPieza = 'HOLD'
+						AND GHD.IdCatalogoAccion IN (SELECT Id FROM #CatalogosAccion)
 					) 
 			)
-			AND GHD.esPOD <> 1
-			AND ISNULL(UB1.idBodega, GHD.idBodega) =  @IdBodega
-			AND (@NroGuia IS NULL OR GHD.nroGuia = @NroGuia)
-			AND (@NroManifiesto IS NULL OR MD.nroManifiesto = @NroManifiesto)
-			AND (@NroPo IS NULL OR GHD.po = @NroPo)
+			AND GHD.EsPOD <> 1
+			AND ISNULL(UB1.IdBodega, GHD.IdBodega) =  @IdBodega
+			AND (@NroGuia IS NULL OR GHD.NroGuia = @NroGuia)
+			AND (@NroManifiesto IS NULL OR MD.NroManifiesto = @NroManifiesto)
+			AND (@NroPo IS NULL OR GHD.Po = @NroPo)
 
-		SELECT TOP 1 @IdEmpresa = GHD.idEmpresa 
+		SELECT TOP 1 @IdEmpresa = GHD.IdEmpresa 
 		FROM #GuiasHouseDetalles GHD
 		
 
@@ -222,126 +222,126 @@ BEGIN
 		FROM EntityRelations ER WITH (NOLOCK)
 		WHERE ER.Id = @BillToConsigneeId
 		
-		SELECT TOP 1 @ManifiestoDespacho = pc.valor
-		FROM ParametrosLista AS pl WITH (NOLOCK)
-		JOIN ParametrosCatalogos AS pc WITH (NOLOCK) ON pc.idParametroLista = pl.id
-		WHERE pl.codigo = 'TipoManifiestoDespacho'
-			AND pl.idEmpresa = @IdEmpresa
-			AND pc.idEntidad IN (@BillToConsigneeId, @BillToId)
-			AND LTRIM(RTRIM(ISNULL(pc.valor,''))) <> ''
-		ORDER BY CASE WHEN pc.idEntidad = @BillToConsigneeId THEN 0 ELSE 1 END
+		SELECT TOP 1 @ManifiestoDespacho = PC.Valor
+		FROM ParametrosLista AS PL WITH (NOLOCK)
+		JOIN ParametrosCatalogos AS PC WITH (NOLOCK) ON PC.IdParametroLista = PL.Id
+		WHERE PL.Codigo = 'TipoManifiestoDespacho'
+			AND PL.IdEmpresa = @IdEmpresa
+			AND PC.IdEntidad IN (@BillToConsigneeId, @BillToId)
+			AND LTRIM(RTRIM(ISNULL(PC.Valor,''))) <> ''
+		ORDER BY CASE WHEN PC.IdEntidad = @BillToConsigneeId THEN 0 ELSE 1 END
 		
 		SELECT 
 			G.ShipToId,
-			G.nroManifiesto,
-			G.total,
-			G.picked,
-			G.totalDispatched,
-			G.esDelivery,
+			G.NroManifiesto,
+			G.Total,
+			G.Picked,
+			G.TotalDispatched,
+			G.EsDelivery,
 			CASE 
-				WHEN G.esDelivery  = 0 
-					AND G.picked = G.total 
-					AND  G.nroManifiesto = ''
-				THEN G.picked
-				ELSE G.hasManifest 
-			END AS hasManifest
+				WHEN G.EsDelivery  = 0 
+					AND G.Picked = G.Total 
+					AND  G.NroManifiesto = ''
+				THEN G.Picked
+				ELSE G.HasManifest 
+			END AS HasManifest
 		INTO #GroupData
 		FROM (
 			SELECT 
 				G.ShipToId,
-				COUNT(G.ShipToId) AS total, 
-				SUM(G.piecesManifest) AS hasManifest, 
-				SUM(IIF(G.estadoPieza = 'DISPATCHED WH',1,0)) totalDispatched,
-				SUM(G.piecesPicked) AS picked,
-				G.esDelivery,
-				G.nroManifiesto
+				COUNT(G.ShipToId) AS Total, 
+				SUM(G.PiecesManifest) AS HasManifest, 
+				SUM(IIF(G.EstadoPieza = 'DISPATCHED WH',1,0)) TotalDispatched,
+				SUM(G.PiecesPicked) AS Picked,
+				G.EsDelivery,
+				G.NroManifiesto
 			FROM #GuiasHouseDetalles G
 			GROUP BY G.ShipToId, 
-				G.esDelivery,
-				G.nroManifiesto
+				G.EsDelivery,
+				G.NroManifiesto
 		) G
 	
 		IF @ValorEsDelivery = 'NO'
 		BEGIN
 			
-			IF (SELECT TOP 1 'SI' FROM #GroupData WHERE picked = total) = 'SI'
+			IF (SELECT TOP 1 'SI' FROM #GroupData WHERE Picked = Total) = 'SI'
 			BEGIN
 				UPDATE #GuiasHouseDetalles
-				SET piecesManifest = 1
-				WHERE nroManifiesto = ''
-					AND piecesPicked <> 0 
+				SET PiecesManifest = 1
+				WHERE NroManifiesto = ''
+					AND PiecesPicked <> 0 
 			END 
 		END 
 	
 		IF @IsPending = 1
 		BEGIN
 			SELECT 
-			ROW_NUMBER() OVER (ORDER BY GHD.barCode) AS id, 
-			barCode,
-			[location],
-			SUM(totalPieces) AS pieces,
-			SUM(piecesPicked) AS piecesPicked,
-			CONVERT(BIT,IIF(SUM(piecesPicked) > 0, 1, 0)) AS isPicked,
-			dock AS dock,
-			nroManifiesto,
-			isPallet
+				ROW_NUMBER() OVER (ORDER BY GHD.BarCode) AS Id,
+				BarCode,
+				[Location],
+				SUM(TotalPieces) AS Pieces,
+				SUM(PiecesPicked) AS PiecesPicked,
+				CONVERT(BIT,IIF(SUM(PiecesPicked) > 0, 1, 0)) AS IsPicked,
+				Dock,
+				NroManifiesto,
+				IsPallet AS IsPallet
 			FROM #GuiasHouseDetalles GHD
 			WHERE (
-					( @NroPo IS NULL AND @ManifiestoDespacho = 'PO' AND  GHD.nroPo = '' )
+					( @NroPo IS NULL AND @ManifiestoDespacho = 'PO' AND  GHD.NroPo = '' )
 					OR ( @NroPo IS NULL AND (@ManifiestoDespacho != 'PO' OR @ManifiestoDespacho IS NULL) )
 				)
-				OR GHD.nroPo = @NroPo 
-			GROUP BY  barCode,
-				[location],
-				dock,
-				nroManifiesto,
-				isPallet
-			HAVING  (SUM(GHD.totalPieces) > SUM(GHD.piecesPicked) 
-				AND SUM(GHD.totalPieces) >= SUM(GHD.piecesManifest))
-				OR (SUM(GHD.piecesPicked)  = SUM(GHD.totalPieces)
-				AND SUM(GHD.piecesPicked) <> SUM(GHD.piecesManifest))
+				OR GHD.NroPo = @NroPo 
+			GROUP BY  BarCode,
+				[Location],
+				Dock,
+				NroManifiesto,
+				IsPallet
+			HAVING  (SUM(GHD.TotalPieces) > SUM(GHD.PiecesPicked) 
+				AND SUM(GHD.TotalPieces) >= SUM(GHD.PiecesManifest))
+				OR (SUM(GHD.PiecesPicked)  = SUM(GHD.TotalPieces)
+				AND SUM(GHD.PiecesPicked) <> SUM(GHD.PiecesManifest))
 		END
 		ELSE
 		BEGIN 
 			SELECT  
 				@TotalPiecesByClient =COUNT(1),
-				@TotalPiecesDispatched = SUM(IIF(estadoPieza = 'DISPATCHED WH',1,0)) 
+				@TotalPiecesDispatched = SUM(IIF(EstadoPieza = 'DISPATCHED WH',1,0)) 
 			FROM #GuiasHouseDetalles
 
 			;WITH TempResp AS(
 				SELECT 
-					GHD.barCode,
-					[location],
-					totalPieces,
-					piecesPicked,
-					dock,
-					nroManifiesto,
-					isPallet,
-					piecesManifest
+					GHD.BarCode,
+					[Location],
+					TotalPieces,
+					PiecesPicked,
+					Dock,
+					NroManifiesto,
+					IsPallet,
+					PiecesManifest
 				FROM 
 					#GuiasHouseDetalles GHD
 			)
 			SELECT 
-				ROW_NUMBER() OVER (ORDER BY GHD.barCode) AS id,
-				ISNULL(barCode, '') AS barCode,
-				[location],
-				SUM(totalPieces) AS pieces,
-				SUM(piecesPicked) AS piecesPicked,
-				CONVERT(BIT,IIF(SUM(piecesPicked) > 0, 1, 0)) AS isPicked,
-				dock,
-				nroManifiesto,
-				isPallet
+				ROW_NUMBER() OVER (ORDER BY GHD.BarCode) AS Id,
+				ISNULL(BarCode, '') AS Barcode,
+				[Location],
+				SUM(TotalPieces) AS Pieces,
+				SUM(PiecesPicked) AS PiecesPicked,
+				CONVERT(BIT,IIF(SUM(PiecesPicked) > 0, 1, 0)) AS IsPicked,
+				Dock,
+				NroManifiesto,
+				IsPallet
 			FROM
 				TempResp GHD
 			GROUP BY 
-				barCode,
-				[location],
-				dock,
-				nroManifiesto,
-				isPallet
+				BarCode,
+				[Location],
+				Dock,
+				NroManifiesto,
+				IsPallet
 			HAVING 
-				SUM(GHD.totalPieces) = SUM(GHD.piecesPicked)
-				AND SUM(GHD.totalPieces) = SUM(GHD.piecesManifest)
+				SUM(GHD.TotalPieces) = SUM(GHD.PiecesPicked)
+				AND SUM(GHD.TotalPieces) = SUM(GHD.PiecesManifest)
 				AND @TotalPiecesDispatched <> @TotalPiecesByClient
 		END
 	
