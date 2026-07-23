@@ -283,7 +283,7 @@ BEGIN
 				CONVERT(BIT,IIF(SUM(PiecesPicked) > 0, 1, 0)) AS IsPicked,
 				Dock,
 				NroManifiesto,
-				IsPallet AS IsPallet
+				IsPallet
 			FROM #GuiasHouseDetalles GHD
 			WHERE (
 					( @NroPo IS NULL AND @ManifiestoDespacho = 'PO' AND  GHD.NroPo = '' )
