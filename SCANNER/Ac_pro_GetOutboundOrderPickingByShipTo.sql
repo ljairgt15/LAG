@@ -8,7 +8,7 @@ CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPickingByShipTo]
 	@IdCarrier VARCHAR(16),
 	@FechaDespacho DATETIME,
 	@IsPending BIT,
-	@IdClienteFinal VARCHAR(16),
+	@IdClienteFinal VARCHAR(16) = NULL,
 	@BillToConsigneeId VARCHAR(16),
 	@NroManifiesto VARCHAR(32) = NULL,
 	@NroPo VARCHAR(64) = NULL,
@@ -123,8 +123,13 @@ BEGIN
 			GH.IdBodega,
 			GH.IdEmpresa,
 			GHD.IdCatalogoAccion
-		FROM ProgramacionCarrier PC  WITH (NOLOCK)		
-		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.Id = PC.IdGuiaHouseDetalle AND  GHD.ShipToId = @IdClienteFinal
+		FROM ProgramacionCarrier PC  WITH (NOLOCK)
+		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) 
+            ON GHD.Id = PC.IdGuiaHouseDetalle 
+            AND (
+                GHD.ShipToId = @IdClienteFinal 
+                OR (GHD.ShipToId IS NULL AND @IdClienteFinal = '')
+            )	
 		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.Id = GHD.IdGuiaHouse
 		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.IdGuiaHouseDetalle = GHD.Id
 		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.IdSolicitud = SV.Id 
@@ -248,7 +253,7 @@ BEGIN
 		FROM (
 			SELECT 
 				G.ShipToId,
-				COUNT(G.ShipToId) AS Total, 
+				COUNT(1) AS Total, 
 				SUM(G.PiecesManifest) AS HasManifest, 
 				SUM(IIF(G.EstadoPieza = 'DISPATCHED WH',1,0)) TotalDispatched,
 				SUM(G.PiecesPicked) AS Picked,
