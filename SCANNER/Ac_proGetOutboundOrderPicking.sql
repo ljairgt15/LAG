@@ -282,3 +282,4 @@ END
 	@idBodega=N'LXgyot5M',
 	@isPending=1,
 	@idEmpresa=N'EMP014'
+*/
