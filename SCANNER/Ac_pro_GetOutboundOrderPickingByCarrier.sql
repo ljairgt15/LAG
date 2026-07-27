@@ -37,7 +37,7 @@ BEGIN
 		)
 
 		CREATE TABLE #CatalogosAccion(
-			id [UNIQUEIDENTIFIER]
+			Id [UNIQUEIDENTIFIER]
 		)
 
 		INSERT INTO #TMP_GUIAS
