@@ -13,7 +13,7 @@ AS
 BEGIN
 	BEGIN TRY	
 		DECLARE @numeroDiaSemana INT,
-				@idDiaSemana VARCHAR(16);
+				@IdDiaSemana VARCHAR(16);
 
 	   CREATE TABLE #TMP_GUIAS(
 			Id [UNIQUEIDENTIFIER],
@@ -67,7 +67,7 @@ BEGIN
 			SELECT @numeroDiaSemana = 0;
 		END
 
-		SELECT @idDiaSemana =  id
+		SELECT @IdDiaSemana =  id
 		FROM  DiasSemana 
 		WHERE numero = @numeroDiaSemana
 
@@ -224,8 +224,8 @@ BEGIN
 			FROM  #TempPickingList GHD
 			LEFT JOIN Transportes TR ON TR.ID =  GHD.id
 			LEFT JOIN Transportes TR1 ON TR1.ID =  TR.idTransportePrincipal
-			LEFT JOIN HorarioTransportes HT ON HT.idTransporte = TR.id AND HT.idDiaSemana = @idDiaSemana
-			LEFT JOIN HorarioTransportes HT1 ON HT1.idTransporte = TR1.id AND HT1.idDiaSemana = @idDiaSemana
+			LEFT JOIN HorarioTransportes HT ON HT.idTransporte = TR.id AND HT.IdDiaSemana = @IdDiaSemana
+			LEFT JOIN HorarioTransportes HT1 ON HT1.idTransporte = TR1.id AND HT1.IdDiaSemana = @IdDiaSemana
 			GROUP BY  GHD.id, 
 				TR.nombre,
 				HT.horaMaximaDespacho, 
@@ -262,8 +262,8 @@ BEGIN
 			FROM #TempPickingList GHD
 			LEFT JOIN Transportes TR ON TR.ID =  GHD.id
 			LEFT JOIN Transportes TR1 ON TR1.ID =  TR.idTransportePrincipal
-			LEFT JOIN HorarioTransportes HT ON HT.idTransporte = TR.id AND HT.idDiaSemana = @idDiaSemana
-			LEFT JOIN HorarioTransportes HT1 ON HT1.idTransporte = TR1.id AND HT1.idDiaSemana = @idDiaSemana
+			LEFT JOIN HorarioTransportes HT ON HT.idTransporte = TR.id AND HT.IdDiaSemana = @IdDiaSemana
+			LEFT JOIN HorarioTransportes HT1 ON HT1.idTransporte = TR1.id AND HT1.IdDiaSemana = @IdDiaSemana
 			GROUP BY GHD.id, 
 				TR.nombre,
 				HT.horaMaximaDespacho, 
