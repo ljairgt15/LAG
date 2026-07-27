@@ -47,7 +47,7 @@ BEGIN
 			GHD.ShipToId,
 			GH.ConsigneeId,
             GH.BillToConsigneeId,
-			gh.nroGuia,
+			GH.nroGuia,
 			GHD.estadoPieza,
 			GHD.idTipoDePieza,
 			GHD.esPOD,
@@ -136,7 +136,7 @@ BEGIN
 		WHERE (GHD.estadoPieza NOT IN ('HOLD','LOST','SHORT','STANDBY')
 				OR (
 						GHD.estadoPieza = 'HOLD'
-						AND ghd.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)
+						AND GHD.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)
 					) 
 			)
 			AND GHD.esPOD <> 1
