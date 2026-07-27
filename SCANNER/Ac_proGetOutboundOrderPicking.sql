@@ -67,12 +67,12 @@ BEGIN
 			SELECT @NumeroDiaSemana = 0;
 		END
 
-		SELECT @IdDiaSemana =  id
+		SELECT @IdDiaSemana =  Id
 		FROM  DiasSemana 
-		WHERE numero = @NumeroDiaSemana
+		WHERE Numero = @NumeroDiaSemana
 
 		INSERT INTO #CatalogosAccion
-		SELECT id
+		SELECT Id
 		FROM   Catalogos
 		WHERE  codigoRelacion IN ('WAITING CUSTOMS CLEARANCE', 'WAITING INSPECTION')
 				AND IdEmpresa IS NULL
