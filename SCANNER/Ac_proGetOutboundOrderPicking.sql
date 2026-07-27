@@ -2,12 +2,12 @@
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-05-25		  58788			 Based on pro_GetOutboundOrderPicking
 */
-CREATE OR ALTER   PROCEDURE [dbo].[Ac_pro_GetOutboundOrderPicking]
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetOutboundOrderPicking]
 (
-	@fechaDespacho DATETIME,
-	@idBodega VARCHAR(16),
-	@isPending BIT,
-	@idEmpresa VARCHAR(16)
+	@FechaDespacho DATETIME,
+	@IdBodega VARCHAR(16),
+	@IsPending BIT,
+	@IdEmpresa VARCHAR(16)
 )
 AS
 BEGIN
@@ -60,7 +60,7 @@ BEGIN
 		)
 	
 		SELECT 
-			@numeroDiaSemana = DATEPART(WEEKDAY, @fechaDespacho)
+			@numeroDiaSemana = DATEPART(WEEKDAY, @FechaDespacho)
 	
 		IF(@numeroDiaSemana = 7)
 		BEGIN
@@ -75,7 +75,7 @@ BEGIN
 		SELECT id
 		FROM   Catalogos
 		WHERE  codigoRelacion IN ('WAITING CUSTOMS CLEARANCE', 'WAITING INSPECTION')
-				AND idEmpresa IS NULL
+				AND IdEmpresa IS NULL
 
 		INSERT INTO #TMP_GUIAS
 		SELECT GHD.id,
@@ -95,8 +95,8 @@ BEGIN
 		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse
 		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.idGuiaHouseDetalle = GHD.id
 		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.idSolicitud = SV.id 
-		WHERE  PC.fechaDespacho = @fechaDespacho
-			   AND GH.idEmpresa = @idEmpresa
+		WHERE  PC.fechaDespacho = @FechaDespacho
+			   AND GH.IdEmpresa = @IdEmpresa
 			   AND CASE 
 					WHEN SVD.id IS NULL THEN 1
 					WHEN SV.tipoVenta = 4 THEN 1
@@ -160,7 +160,7 @@ BEGIN
 						AND ghd.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)
 					) 
 			)
-			AND ISNULL(UB.idBodega, GHD.idBodega) =  @idBodega	
+			AND ISNULL(UB.IdBodega, GHD.IdBodega) =  @IdBodega	
 			AND GHD.esPOD <> 1	
 
 		SELECT 
@@ -277,9 +277,9 @@ BEGIN
 	DROP TABLE #GuiasHouseDetalles
 	DROP TABLE #TMP_GUIAS
 END
-/*exec Ac_pro_GetOutboundOrderPicking
-	@fechaDespacho='2026-05-02 00:00:00',
-	@idBodega=N'LXgyot5M',
-	@isPending=1,
-	@idEmpresa=N'EMP014'
+/*exec [dbo].[AC_pro_GetOutboundOrderPicking]
+	@FechaDespacho='2026-05-02 00:00:00',
+	@IdBodega=N'LXgyot5M',
+	@IsPending=1,
+	@IdEmpresa=N'EMP014'
 */
