@@ -12,7 +12,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetOutboundOrderPicking]
 AS
 BEGIN
 	BEGIN TRY	
-		DECLARE @numeroDiaSemana INT,
+		DECLARE @NumeroDiaSemana INT,
 				@IdDiaSemana VARCHAR(16);
 
 	   CREATE TABLE #TMP_GUIAS(
@@ -60,16 +60,16 @@ BEGIN
 		)
 	
 		SELECT 
-			@numeroDiaSemana = DATEPART(WEEKDAY, @FechaDespacho)
+			@NumeroDiaSemana = DATEPART(WEEKDAY, @FechaDespacho)
 	
-		IF(@numeroDiaSemana = 7)
+		IF(@NumeroDiaSemana = 7)
 		BEGIN
-			SELECT @numeroDiaSemana = 0;
+			SELECT @NumeroDiaSemana = 0;
 		END
 
 		SELECT @IdDiaSemana =  id
 		FROM  DiasSemana 
-		WHERE numero = @numeroDiaSemana
+		WHERE numero = @NumeroDiaSemana
 
 		INSERT INTO #CatalogosAccion
 		SELECT id
