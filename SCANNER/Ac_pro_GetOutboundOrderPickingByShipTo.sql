@@ -232,7 +232,7 @@ BEGIN
 		WHERE PL.Codigo = 'TipoManifiestoDespacho'
 			AND PL.IdEmpresa = @IdEmpresa
 			AND PC.IdEntidad IN (@BillToConsigneeId, @BillToId)
-			AND LTRIM(RTRIM(ISNULL(PC.Valor,''))) <> ''
+			AND ISNULL(PC.Valor,'') <> ''
 		ORDER BY CASE WHEN PC.IdEntidad = @BillToConsigneeId THEN 0 ELSE 1 END
 		
 		SELECT 
