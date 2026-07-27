@@ -181,7 +181,7 @@ BEGIN
 			SELECT 
 				G.idCarrier,
 				G.ShipToId,
-				COUNT(1) AS total, 
+				COUNT(1) AS Total, 
 				SUM(G.piecesManifest) as hasManifest, 
 				SUM(IIF(G.estadoPieza = 'DISPATCHED WH',1,0)) totalDispatched,
 				SUM(G.piecesPicked) AS picked,
