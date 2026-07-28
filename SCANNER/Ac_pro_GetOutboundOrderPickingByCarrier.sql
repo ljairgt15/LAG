@@ -58,12 +58,11 @@ BEGIN
 			GHD.idCatalogoAccion
 		FROM ProgramacionCarrier PC  WITH (NOLOCK)		
 		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.ID = PC.idGuiaHouseDetalle
-		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse
+		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse AND GH.idEmpresa = @idEmpresa
 		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.idGuiaHouseDetalle = GHD.id
 		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.idSolicitud = SV.id 
-		WHERE PC.idCarrier = @idCarrier 
-			AND PC.fechaDespacho = @fechaDespacho
-			AND GH.idEmpresa = @idEmpresa
+		WHERE PC.fechaDespacho = @fechaDespacho
+			AND PC.idCarrier = @idCarrier 
 			AND CASE 
 				WHEN SVD.id IS NULL THEN 1
 				WHEN SV.tipoVenta = 4 THEN 1
@@ -132,10 +131,8 @@ BEGIN
 		LEFT JOIN ProgramacionManifiesto PMN WITH (NOLOCK) ON PMN.idProgramacionCarrier = GHD.idProgramacionCarrier
 		LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON MD.id =  PMN.idManifiestoDespacho
 		WHERE (GHD.estadoPieza NOT IN ('HOLD','LOST','SHORT','STANDBY')
-				OR (
-						GHD.estadoPieza = 'HOLD'
-						AND GHD.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)
-					) 
+				OR (GHD.estadoPieza = 'HOLD'
+						AND GHD.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)) 
 			)
 			AND GHD.esPOD <> 1
 			AND ISNULL(UB.idBodega, GHD.idBodega) =  @idBodega	
@@ -144,3 +141,11 @@ BEGIN
 		EXEC [dbo].[pro_LogError] 
 	END CATCH;	
 END
+/*
+exec [dbo].[AC_pro_GetOutboundOrderPickingByCarrier]
+@idBodega='LXgyot5M',
+@idCarrier='9Nlyxt0q6dGE',
+@fechaDespacho='2026-05-02 00:00:00',
+@idEmpresa='EMP014',
+@isPending=1
+*/

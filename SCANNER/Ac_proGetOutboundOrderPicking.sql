@@ -1,6 +1,6 @@
 /*
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
-1			Jair Gomez      	2026-05-25		  58788			 Based on pro_GetOutboundOrderPicking
+1			Jair Gomez      	2026-07-25		  58788			 Based on pro_GetOutboundOrderPicking
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetOutboundOrderPicking]
 (
@@ -61,15 +61,10 @@ BEGIN
 	
 		SELECT 
 			@NumeroDiaSemana = DATEPART(WEEKDAY, @FechaDespacho)
-	
-		IF(@NumeroDiaSemana = 7)
-		BEGIN
-			SELECT @NumeroDiaSemana = 0;
-		END
 
 		SELECT @IdDiaSemana =  Id
-		FROM  DiasSemana 
-		WHERE Numero = @NumeroDiaSemana
+		FROM  DiasSemana
+		WHERE Numero = IIF(@NumeroDiaSemana =7,0,@NumeroDiaSemana)
 
 		INSERT INTO #CatalogosAccion
 		SELECT Id
@@ -92,11 +87,10 @@ BEGIN
 			   GHD.idCatalogoAccion
 		FROM   ProgramacionCarrier PC WITH (NOLOCK)
 		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON  GHD.ID = PC.idGuiaHouseDetalle
-		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse
+		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.id = GHD.idGuiaHouse  AND GH.IdEmpresa = @IdEmpresa
 		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.idGuiaHouseDetalle = GHD.id
 		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.idSolicitud = SV.id 
-		WHERE  PC.fechaDespacho = @FechaDespacho
-			   AND GH.IdEmpresa = @IdEmpresa
+		WHERE  PC.fechaDespacho = @FechaDespacho			  
 			   AND CASE 
 					WHEN SVD.id IS NULL THEN 1
 					WHEN SV.tipoVenta = 4 THEN 1
@@ -155,10 +149,8 @@ BEGIN
 		LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PM.idProgramacionCarrier =  GHD.idProgramacionCarrier
 		LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON MD.id =  PM.idManifiestoDespacho
 		WHERE (GHD.estadoPieza NOT IN ('HOLD','LOST','SHORT','STANDBY')
-				OR (
-						GHD.estadoPieza = 'HOLD'
-						AND ghd.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)
-					) 
+				OR (GHD.estadoPieza = 'HOLD'
+						AND ghd.idCatalogoAccion IN (SELECT id FROM #CatalogosAccion)) 
 			)
 			AND ISNULL(UB.IdBodega, GHD.IdBodega) =  @IdBodega	
 			AND GHD.esPOD <> 1	
