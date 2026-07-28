@@ -9,7 +9,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetOutboundOrderPickingByShipTo]
 	@FechaDespacho DATETIME,
 	@IsPending BIT,
 	@IdClienteFinal VARCHAR(16) = NULL,
-	@BillToConsigneeId VARCHAR(16),
+	@BillToConsigneeId VARCHAR(16)= NULL,
 	@NroManifiesto VARCHAR(32) = NULL,
 	@NroPo VARCHAR(64) = NULL,
 	@NroGuia VARCHAR(32) = NULL
@@ -124,17 +124,14 @@ BEGIN
 			GH.IdEmpresa,
 			GHD.IdCatalogoAccion
 		FROM ProgramacionCarrier PC  WITH (NOLOCK)
-		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) 
-            ON GHD.Id = PC.IdGuiaHouseDetalle 
-            AND (
-                GHD.ShipToId = @IdClienteFinal 
-                OR (GHD.ShipToId IS NULL AND @IdClienteFinal = '')
-            )	
+		INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON GHD.Id = PC.IdGuiaHouseDetalle 
+            AND (GHD.ShipToId = @IdClienteFinal 
+                OR (GHD.ShipToId IS NULL AND @IdClienteFinal IS NULL))	
 		INNER JOIN GuiasHouse GH WITH (NOLOCK) ON  GH.Id = GHD.IdGuiaHouse
 		LEFT JOIN SolicitudDeVentaDetalles SVD WITH (NOLOCK) ON SVD.IdGuiaHouseDetalle = GHD.Id
 		LEFT JOIN SolicitudDeVenta SV WITH (NOLOCK) ON SVD.IdSolicitud = SV.Id 
-		WHERE  PC.IdCarrier = @IdCarrier 
-			   AND PC.FechaDespacho = @FechaDespacho
+		WHERE  PC.FechaDespacho = @FechaDespacho
+			   AND PC.IdCarrier = @IdCarrier 
 			   AND CASE 
 					WHEN SVD.Id IS NULL THEN 1
 					WHEN SV.TipoVenta = 4 THEN 1
@@ -207,10 +204,8 @@ BEGIN
 		LEFT JOIN ProgramacionManifiesto PMN WITH (NOLOCK) ON PMN.IdProgramacionCarrier = GHD.IdProgramacionCarrier
 		LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON MD.Id =  PMN.IdManifiestoDespacho
 		WHERE (GHD.EstadoPieza NOT IN ('HOLD','LOST','SHORT','STANDBY')
-				OR (
-						GHD.EstadoPieza = 'HOLD'
-						AND GHD.IdCatalogoAccion IN (SELECT Id FROM #CatalogosAccion)
-					) 
+				OR (GHD.EstadoPieza = 'HOLD'
+						AND GHD.IdCatalogoAccion IN (SELECT Id FROM #CatalogosAccion)) 
 			)
 			AND GHD.EsPOD <> 1
 			AND ISNULL(UB1.IdBodega, GHD.IdBodega) =  @IdBodega
@@ -355,3 +350,15 @@ BEGIN
 	END CATCH;	
 	DROP TABLE #GuiasHouseDetalles
 END
+/*
+exec [dbo].[AC_pro_GetOutboundOrderPickingByShipTo]
+@IdBodega='LXgyot5M',
+@IdCarrier='9Nlyxt0q6dGE',
+@FechaDespacho='2026-05-02 00:00:00',
+@IsPending=1,
+@IdClienteFinal='',
+@BillToConsigneeId= '',
+@NroManifiesto=NULL,
+@NroPo=NULL,
+@NroGuia=NULL
+*/
