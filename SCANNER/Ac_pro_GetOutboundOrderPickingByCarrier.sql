@@ -13,9 +13,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetOutboundOrderPickingByCarrier]
 AS
 BEGIN
 	BEGIN TRY
-		DECLARE @tipoPorDefecto VARCHAR(32),
-				@codigoTipoPorDefecto VARCHAR(64) = 'DefaultManifestType',
-				@valorEsDelivery VARCHAR(16)
+		DECLARE @ValorEsDelivery VARCHAR(16)
 
 		CREATE TABLE #TMP_GUIAS(
 			Id [UNIQUEIDENTIFIER],
@@ -77,16 +75,16 @@ BEGIN
 				ELSE 0 
 			END  = 1
 		
-		SELECT  @valorEsDelivery = PC.Valor 
+		SELECT  @ValorEsDelivery = PC.Valor 
 		FROM  ParametrosCatalogos PC
 		INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.codigo = 'EsDelivery'
 		WHERE  PC.IdEntidad = @idCarrier
 			AND PC.valor = 'NO'
 			AND PL.Actor IN ('CARRIER', 'TERRESTRE')
 
-		IF @valorEsDelivery IS NULL
+		IF @ValorEsDelivery IS NULL
 		BEGIN
-			SELECT @valorEsDelivery = PC.Valor
+			SELECT @ValorEsDelivery = PC.Valor
 			FROM  Transportes T
 			INNER JOIN ParametrosCatalogos PC ON T.idTransportePrincipal = PC.IdEntidad
 			INNER JOIN ParametrosLista PL ON PC.IdParametroLista = PL.Id AND PL.codigo = 'EsDelivery'
@@ -124,7 +122,7 @@ BEGIN
 			ISNULL(GHD.po, '') AS po,
 			ISNULL(GHD.nroGuia, '') AS nroGuia,
 			CASE 
-				WHEN @valorEsDelivery = 'NO' THEN 0
+				WHEN @ValorEsDelivery = 'NO' THEN 0
 				ELSE 1 
 			END AS esDelivery
 		FROM #TMP_GUIAS GHD WITH (NOLOCK)
