@@ -328,8 +328,7 @@ BEGIN
 				Dock,
 				NroManifiesto,
 				IsPallet
-			FROM
-				TempResp GHD
+			FROM TempResp GHD
 			GROUP BY 
 				BarCode,
 				[Location],
