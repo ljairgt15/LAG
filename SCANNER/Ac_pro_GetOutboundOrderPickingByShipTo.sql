@@ -227,8 +227,7 @@ BEGIN
 		WHERE PL.Codigo = 'TipoManifiestoDespacho'
 			AND PL.IdEmpresa = @IdEmpresa
 			AND PC.IdEntidad IN (@BillToConsigneeId, @BillToId)
-			AND ISNULL(PC.Valor,'') <> ''
-		ORDER BY CASE WHEN PC.IdEntidad = @BillToConsigneeId THEN 0 ELSE 1 END
+		ORDER BY PC.IdEntidad DESC
 		
 		SELECT 
 			G.ShipToId,
@@ -317,8 +316,7 @@ BEGIN
 					NroManifiesto,
 					IsPallet,
 					PiecesManifest
-				FROM 
-					#GuiasHouseDetalles GHD
+				FROM #GuiasHouseDetalles GHD
 			)
 			SELECT 
 				ROW_NUMBER() OVER (ORDER BY GHD.BarCode) AS Id,
@@ -356,8 +354,8 @@ exec [dbo].[AC_pro_GetOutboundOrderPickingByShipTo]
 @IdCarrier='9Nlyxt0q6dGE',
 @FechaDespacho='2026-05-02 00:00:00',
 @IsPending=1,
-@IdClienteFinal='',
-@BillToConsigneeId= '',
+@IdClienteFinal=NULL,
+@BillToConsigneeId= NULL,
 @NroManifiesto=NULL,
 @NroPo=NULL,
 @NroGuia=NULL
