@@ -1,6 +1,6 @@
-/* 
-VERSION		MODIFIEDBY			MODIFIEDDATE	HU		MODIFICATION
-1		    Jair Gomez			2026-03-30	   58719	Based on pro_OrdenesLocales_ValIdacionDatos
+/*
+VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
+1			Jair Gomez      	2026-08-17		  58719			 Based on pro_OrdenesLocales_ValidacionDatos
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_ValidateAndClassifyLocalOrders] (
     @ListaOrdenLocal VARCHAR(MAX)
