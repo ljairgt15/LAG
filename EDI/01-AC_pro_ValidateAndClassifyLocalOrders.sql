@@ -13,7 +13,7 @@ BEGIN
             UnitId VARCHAR(16),
             ShipDate DATETIME,
             Shipper VARCHAR(16),
-            Consignee VARCHAR(32),
+            BillToConsigneeId VARCHAR(32),
             Accion VARCHAR(12)
         )
 
@@ -23,8 +23,8 @@ BEGIN
             CodigoBarraBase VARCHAR(16),
             ShipperEntrada VARCHAR(16),
             ShipperBase VARCHAR(16),
-            ConsigneeEntrada VARCHAR(32),
-            ConsigneeBase VARCHAR(32),
+            BillToConsigneeEntrada VARCHAR(32),
+            BillToConsigneeBase VARCHAR(32),
             ShipDateEntrada DATETIME,
             ShipDateBase DATETIME,
             IdOrdenLocal UNIQUEIDENTIFIER,
@@ -40,19 +40,19 @@ BEGIN
             UnitId,
             Shipper,
             ShipDate,
-            Consignee
+            BillToConsigneeId
         )
         SELECT 
             UnitId,
             Shipper,
             ShipDate,
-            Consignee
+            BillToConsigneeId
         FROM OPENJSON(@ListaOrdenLocal)
         WITH (
             UnitId VARCHAR(16) '$.UnitID',
             Shipper VARCHAR(16) '$.Shipper',
             ShipDate DATETIME '$.Shipdate',
-            Consignee VARCHAR(32) '$.Consignee'
+            BillToConsigneeId VARCHAR(32) '$.BillToConsigneeId'
         )
 
         INSERT INTO @TableTemp (
@@ -60,8 +60,8 @@ BEGIN
             CodigoBarraBase,
             ShipperEntrada,
             ShipperBase,
-            ConsigneeEntrada,
-            ConsigneeBase,
+            BillToConsigneeEntrada,
+            BillToConsigneeBase,
             ShipDateEntrada,
             ShipDateBase,
             IdOrdenLocal,
@@ -77,8 +77,8 @@ BEGIN
             PD.CodigoBarra,
             TMP.Shipper,
             OL.IdExportador,
-            TMP.Consignee,
-            OL.ConsigneeId,
+            TMP.BillToConsigneeId,
+            OL.BillToConsigneeId,
             TMP.ShipDate,
             OL.FechaEntrega,
             OL.Id,
@@ -98,18 +98,18 @@ BEGIN
         SET TMP.Accion =  
             CASE 
                 WHEN CodigoBarraBase IS NULL 
-                AND ConsigneeBase IS NULL 
+                AND BillToConsigneeBase IS NULL 
                 AND ShipperBase IS NULL 
                 AND ShipDateBase IS NULL THEN 'i'
                 ELSE 
                     CASE 
-                        WHEN ConsigneeBase = ConsigneeEntrada 
+                        WHEN BillToConsigneeBase = BillToConsigneeEntrada 
                         AND ShipperBase = ShipperEntrada 
                         AND ShipDateEntrada = ShipDateBase 
                         AND EstadoPieza = 'PENDING' THEN 'u'
                         ELSE 
                             CASE 
-                                WHEN ConsigneeBase = ConsigneeEntrada 
+                                WHEN BillToConsigneeBase = BillToConsigneeEntrada 
                                 AND ShipperBase = ShipperEntrada 
                                 AND ShipDateEntrada = ShipDateBase 
                                 AND EstadoPieza <> 'PENDING' THEN 'es'
@@ -125,8 +125,8 @@ BEGIN
             CodigoBarraBase,
             ShipperEntrada,
             ShipperBase,
-            ConsigneeEntrada,
-            ConsigneeBase,
+            BillToConsigneeEntrada,
+            BillToConsigneeBase,
             ShipDateEntrada,
             ShipDateBase,
             IdOrdenLocal,
