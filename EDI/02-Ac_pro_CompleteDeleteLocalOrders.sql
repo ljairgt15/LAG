@@ -1,4 +1,8 @@
-CREATE OR ALTER   Procedure [dbo].[Ac_pro_CompleteDeleteLocalOrders](@NroOrden VARCHAR(16))
+/*
+VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
+1			Jair Gomez      	2026-08-17		  58719			 Based on pro_OrdenesLocales_EliminacionCompleta
+*/
+CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_CompleteDeleteLocalOrders](@NroOrden VARCHAR(16))
 
 AS
  
@@ -15,35 +19,35 @@ BEGIN TRY
 	--BORRAR
 	BEGIN TRAN EliminaRegistros
 	--Guardamos la programacion anterior
-					INSERT INTO DatosProgramacionAnterior (id,
-														   idGuiaHouseDetalle,
-														   idCliente,
-														   nombreCliente,
-														   idCarrier,
-														   nombreCarrier,
-														   fechaDespacho,
-														   fechaCambio,
-														   idUsuarioProgramacion,
-														   idUsuarioLog,
-														   accion,
-														   nota)
+					INSERT INTO DatosProgramacionAnterior (Id,
+														   IdGuiaHouseDetalle,
+														   IdCliente,
+														   NombreCliente,
+														   IdCarrier,
+														   NombreCarrier,
+														   FechaDespacho,
+														   FechaCambio,
+														   IdUsuarioProgramacion,
+														   IdUsuarioLog,
+														   Accion,
+														   Nota)
 					select NEWID(),
-						detalle.id, 
-						detalle.idClienteFinal as idCliente,
-                        cli.nombre as nombreCliente,
-						progra.idCarrier,
-						carrier.nombre as nombreCarrier,
-						progra.fechaDespacho,
-						GETDATE() as fechaCambio,
-						progra.idUsuarioLog,
+						GHD.Id, 
+						GHD.ShiptoId as IdCliente,
+                        CLI.nombre as NombreCliente,
+						PRO.IdCarrier,
+						TRA.nombre as NombreCarrier,
+						PRO.FechaDespacho,
+						GETDATE() as FechaCambio,
+						PRO.IdUsuarioLog,
 						NULL,
 						'E',
-						'pro_OrdenesLocales_EliminacionCompleta'
-					from GuiasHouseDetalles detalle					
-					INNER JOIN ProgramacionCarrier progra ON detalle.id = progra.idGuiaHouseDetalle
-					INNER JOIN v_ClientsEntities cli ON detalle.ShiptoId = cli.Id
-					INNER JOIN Transportes carrier ON progra.idCarrier = carrier.id
-					WHERE detalle.idGuiaHouse = @idGuiaHouse;
+						'AC_pro_OrdenesLocales_EliminacionCompleta'
+					from GuiasHouseDetalles GHD					
+					INNER JOIN ProgramacionCarrier PRO ON GHD.id = PRO.idGuiaHouseDetalle
+					INNER JOIN v_ClientsEntities CLI ON GHD.ShiptoId = CLI.Id
+					INNER JOIN Transportes TRA ON PRO.idCarrier = TRA.id
+					WHERE GHD.idGuiaHouse = @idGuiaHouse;
 	DELETE FROM ProgramacionCarrier WHERE idGuiaHouseDetalle IN (SELECT id FROM GuiasHouseDetalles WHERE idGuiaHouse = @idGuiaHouse	)
 	DELETE FROM UbicacionPiezas WHERE idGuiaHouseDetalle IN (SELECT id FROM GuiasHouseDetalles WHERE idGuiaHouse = @idGuiaHouse	)
 	DELETE FROM GuiasHouseDetalles WHERE idGuiaHouse = @idGuiaHouse
