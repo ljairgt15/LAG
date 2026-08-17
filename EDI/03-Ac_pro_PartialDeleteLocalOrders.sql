@@ -2,7 +2,7 @@
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-08-17		  58719			 Based on pro_OrdenesLocales_EliminacionParcial
 */
-CREATE OR ALTER Procedure [dbo].[AC_pro_PartialDeleteLocalOrders](@ListaCodigosBarras VARCHAR(MAX))
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_PartialDeleteLocalOrders](@ListaCodigosBarras VARCHAR(MAX))
 
 AS 
 

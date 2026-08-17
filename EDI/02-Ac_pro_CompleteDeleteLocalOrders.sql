@@ -6,15 +6,15 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_CompleteDeleteLocalOrders](@NroOrden VAR
 
 AS
  
-DECLARE @idOrden [uniqueidentifier]
-DECLARE @idPO [uniqueidentifier]
-DECLARE @idGuiaHouse [uniqueidentifier]
+DECLARE @IdOrden [uniqueidentifier]
+DECLARE @IdPO [uniqueidentifier]
+DECLARE @IdGuiaHouse [uniqueidentifier]
 
 BEGIN
 BEGIN TRY
-	SELECT @idOrden = id FROM OrdenesLocales WHERE nroOrden = @NroOrden
-	SELECT @idPO = id FROM PoEncabezado WHERE idOrdenLocal = @idOrden
-	SELECT @idGuiaHouse = id FROM GuiasHouse WHERE nroGuia = @NroOrden AND house = 'LOCAL'
+	SELECT @IdOrden = id FROM OrdenesLocales WHERE nroOrden = @NroOrden
+	SELECT @IdPO = id FROM PoEncabezado WHERE idOrdenLocal = @IdOrden
+	SELECT @IdGuiaHouse = id FROM GuiasHouse WHERE nroGuia = @NroOrden AND house = 'LOCAL'
 
 	--BORRAR
 	BEGIN TRAN EliminaRegistros
@@ -31,7 +31,7 @@ BEGIN TRY
 														   IdUsuarioLog,
 														   Accion,
 														   Nota)
-					select NEWID(),
+					SELECT NEWID(),
 						GHD.Id, 
 						GHD.ShiptoId as IdCliente,
                         CLI.nombre as NombreCliente,
@@ -43,7 +43,7 @@ BEGIN TRY
 						NULL,
 						'E',
 						'AC_pro_OrdenesLocales_EliminacionCompleta'
-					from GuiasHouseDetalles GHD					
+					FROM GuiasHouseDetalles GHD					
 					INNER JOIN ProgramacionCarrier PRO ON GHD.id = PRO.idGuiaHouseDetalle
 					INNER JOIN v_ClientsEntities CLI ON GHD.ShiptoId = CLI.Id
 					INNER JOIN Transportes TRA ON PRO.idCarrier = TRA.id
