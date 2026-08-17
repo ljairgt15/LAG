@@ -20,40 +20,35 @@ BEGIN TRY
 	BEGIN TRAN EliminaRegistros
 
 	--Guardamos la programacion anterior
-					INSERT INTO DatosProgramacionAnterior (id,
-														   idGuiaHouseDetalle,
-														   idCliente,
-														   nombreCliente,
-														   idCarrier,
-														   nombreCarrier,
-														   fechaDespacho,
-														   fechaCambio,
-														   idUsuarioProgramacion,
-														   idUsuarioLog,
-														   accion,
-														   nota)
+					INSERT INTO DatosProgramacionAnterior (Id,
+														   IdGuiaHouseDetalle,
+														   IdCliente,
+														   NombreCliente,
+														   IdCarrier,
+														   NombreCarrier,
+														   FechaDespacho,
+														   FechaCambio,
+														   IdUsuarioProgramacion,
+														   IdUsuarioLog,
+														   Accion,
+														   Nota)
 					select NEWID(),
-						detalle.id, 
-						detalle.idClienteFinal as idCliente,
-						case 
-							when cli.nombreClienteFinal is not null then
-								cli.nombreClienteFinal
-							else
-								cli.nombre
-						end as nombreCliente,
-						progra.idCarrier,
-						carrier.nombre as nombreCarrier,
-						progra.fechaDespacho,
-						GETDATE() as fechaCambio,
-						progra.idUsuarioLog,
+						GHD.id, 
+						GHD.ShipToId as IdCliente,
+						CLI.nombre as NombreCliente,
+						PRO.IdCarrier,
+						TRA.Nombre as NombreCarrier,
+						PRO.FechaDespacho,
+						GETDATE() as FechaCambio,
+						PRO.IdUsuarioLog,
 						NULL,
 						'E',
-						'pro_OrdenesLocales_EliminacionParcial'
-					from GuiasHouseDetalles detalle					
-					INNER JOIN ProgramacionCarrier progra ON detalle.id = progra.idGuiaHouseDetalle
-					INNER JOIN Clientes cli ON detalle.idClienteFinal = cli.id
-					INNER JOIN Transportes carrier ON progra.idCarrier = carrier.id
-					INNER JOIN @table tabTemp on  detalle.codigoBarra= tabTemp.codigoBarra;
+						'AC_pro_OrdenesLocales_EliminacionParcial'
+					from GuiasHouseDetalles GHD					
+					INNER JOIN ProgramacionCarrier PRO ON GHD.id = PRO.idGuiaHouseDetalle
+					INNER JOIN v_ClientsEntities CLI ON GHD.ShipToId = CLI.id
+					INNER JOIN Transportes TRA ON PRO.idCarrier = TRA.id
+					INNER JOIN @table tabTemp on  GHD.codigoBarra= tabTemp.codigoBarra;
 	
 	DELETE pc FROM ProgramacionCarrier pc
 	INNER JOIN GuiasHouseDetalles ghd on pc.idGuiaHouseDetalle = ghd.id
