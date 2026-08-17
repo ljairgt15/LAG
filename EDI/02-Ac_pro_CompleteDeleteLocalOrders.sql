@@ -2,7 +2,7 @@
 VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 1			Jair Gomez      	2026-08-17		  58719			 Based on pro_OrdenesLocales_EliminacionCompleta
 */
-CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_CompleteDeleteLocalOrders](@NroOrden VARCHAR(16))
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_CompleteDeleteLocalOrders](@NroOrden VARCHAR(16))
 
 AS
  
