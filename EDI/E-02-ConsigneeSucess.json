@@ -1,40 +1,40 @@
 {
   "OrderHeader": {
-    "Shipdate": "08/18/26",
-    "Shipper": "EQR",
-    "BarcodeAccount": "01",
-    "ShipdateOriginal": "2026-08-18T00:00:00"
+    "Shipdate": "04/09/26",
+    "Shipper": "100",
+    "BarcodeAccount": "02",
+    "ShipdateOriginal": "2026-09-04T00:00:00"
   },
   "OrderDetail": [
     {
-      "UnitID": "U400000001",
+      "UnitID": "U600000001",
       "UnitOfMeasure": "Box",
       "Measure": "Inch",
-      "FarmName": "EQR",
-      "Consignee": "7317",
-      "IdClienteFinal": "7317",
+      "FarmName": "TESTFARM",
+      "Consignee": "CLI0116846",
+      "IdClienteFinal": "CLI0116846",
       "Length": 40.0,
       "Width": 10.0,
       "Height": 8.0,
-      "Product": "9806",
+      "Product": "VER",
       "ProductDescription": "BUPLEURUM",
-      "PO": "PO-SOFIS-005",
+      "PO": "PO-SOFIS-001",
       "Command": "A",
       "Remarks": "TEST EXITO 1"
     },
     {
-      "UnitID": "U400000002",
+      "UnitID": "U600000002",
       "UnitOfMeasure": "Box",
       "Measure": "Inch",
       "FarmName": "EQR",
-      "Consignee": "7317",
-      "IdClienteFinal": null,
+      "Consignee": "CLI0116846",
+      "IdClienteFinal": "CLI0116846",
       "Length": 40.0,
       "Width": 10.0,
       "Height": 8.0,
-      "Product": "7845",
+      "Product": "TRP",
       "ProductDescription": "BOUQUET",
-      "PO": "PO-SOFIS-00",
+      "PO": "PO-SOFIS-001",
       "Command": "A",
       "Remarks": "TEST EXITO 2 - FALLBACK SHIPTO"
     }
