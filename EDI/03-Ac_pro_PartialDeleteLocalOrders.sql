@@ -107,3 +107,6 @@ BEGIN CATCH
     EXEC [dbo].[pro_LogError]
 END CATCH
 END
+/*
+EXEC AC_pro_PartialDeleteLocalOrders @ListaCodigosBarras ='[{"codigoBarra":"U300000001"}]'
+*/

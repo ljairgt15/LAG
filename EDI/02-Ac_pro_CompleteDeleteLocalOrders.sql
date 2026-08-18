@@ -63,3 +63,6 @@ BEGIN CATCH
 	EXEC [dbo].[pro_LogError] 
 END CATCH
 END
+/*
+EXEC AC_pro_CompleteDeleteLocalOrders @NroOrden ='LO01597060'
+*/
