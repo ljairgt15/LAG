@@ -1,0 +1,42 @@
+{
+  "OrderHeader": {
+    "Shipdate": "09/04/26",
+    "Shipper": "100",
+    "BarcodeAccount": "DGG",
+    "ShipdateOriginal": "2026-09-04T00:00:00"
+  },
+  "OrderDetail": [
+    {
+      "UnitID": "U600000001",
+      "UnitOfMeasure": "Box",
+      "Measure": "Inch",
+      "FarmName": "TESTFARM",
+      "Consignee": "CLI0116846",
+      "IdClienteFinal": "CLI0116846",
+      "Length": 40.0,
+      "Width": 10.0,
+      "Height": 8.0,
+      "Product": "MER0184",
+      "ProductDescription": "BUPLEURUM",
+      "PO": "PO-SOFIS-004",
+      "Command": "A",
+      "Remarks": "TEST EXITO 1"
+    },
+    {
+      "UnitID": "U600000002",
+      "UnitOfMeasure": "Box",
+      "Measure": "Inch",
+      "FarmName": "EQR",
+      "Consignee": "CLI0116846",
+      "IdClienteFinal": "CLI0116846",
+      "Length": 40.0,
+      "Width": 10.0,
+      "Height": 8.0,
+      "Product": "MER0184",
+      "ProductDescription": "BOUQUET",
+      "PO": "PO-SOFIS-004",
+      "Command": "A",
+      "Remarks": "TEST EXITO 2 - FALLBACK SHIPTO"
+    }
+  ]
+}
