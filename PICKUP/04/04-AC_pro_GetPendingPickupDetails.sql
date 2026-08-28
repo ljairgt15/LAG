@@ -1,6 +1,7 @@
 /* 
 VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_DespachoDetallePickUp
+2           Oscar Yunda		  2026-06-16      57742   Catalog Parameters Implementation Billto - Manifest Generation
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 (
@@ -121,10 +122,10 @@ BEGIN
                                               AND PCA.Valor = 'NO'
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id
-            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
+            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa   AND PLC.actor = 'BILLTO'
             INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
+            INNER JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
+            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.BillToConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
             LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
@@ -350,10 +351,10 @@ BEGIN
                                               AND PCA.Valor = 'NO'
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
-            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
+            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa  AND PLC.actor = 'BILLTO'
             INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
+            INNER JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
+            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.BillToConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
             LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
