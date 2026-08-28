@@ -1,9 +1,12 @@
 /*
-VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
-1           Ian Carlos Ortega   2026-01-26      57731   Based on dbo.pro_modulo_DespachoPickup
+VERSION     MODIFIEDBY			MODIFIEDDATE    HU      MODIFICATION
+1           Ian Ortega			2026-01-26      57731   Based on dbo.pro_modulo_DespachoPickup
+2           Oscar Yunda			2026-06-16      57742   Catalog Parameters Implementation Billto - Manifest Generation
+3			Cristhian Cuichan	2026-06-30		57742	The BilltoConsigneeId parameter is added to the query
+4           Jaime Astudillo     2026-08-26      70081   Lauser per group is added (Excel User column)
 */
 
-CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup]
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup](
     @NroDocument VARCHAR(32) = NULL,
     @Po VARCHAR(64) = NULL,
     @Consignee NVARCHAR(512) = NULL,
@@ -16,6 +19,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup]
     @Consulta INT,
     @FechaDesde INT,
     @PalletLabel VARCHAR(16) = NULL
+)
 AS
 BEGIN
     BEGIN TRY
@@ -35,7 +39,8 @@ BEGIN
             @IdParametroDelivery VARCHAR(16),
             @IdParametroTipo VARCHAR(16)
 
-        CREATE TABLE #TablaAgrupacionGuiasPickUp(
+		CREATE TABLE #TablaAgrupacionGuiasPickUp
+		(
             idManifiesto UNIQUEIDENTIFIER,
             nroManifiesto VARCHAR(32),
             ShipToName VARCHAR(512),
@@ -63,7 +68,10 @@ BEGIN
             idPaisCliente VARCHAR(16),
             idPaisAlt VARCHAR(16),
             idTEGuid UNIQUEIDENTIFIER NULL,
-            esInventario BIT)
+			esInventario BIT,
+			BilltoConsigneeId VARCHAR(16),
+			ultimoCambio VARCHAR(55)
+		);
 
         SELECT @IdParametroDelivery = id
         FROM ParametrosLista PL WITH (NOLOCK)
@@ -73,7 +81,7 @@ BEGIN
         SELECT @IdParametroTipo = id
         FROM ParametrosLista PL WITH (NOLOCK)
         WHERE PL.codigo = 'TipoManifiestoDespacho'
-            AND PL.idEmpresa = @VIdEmpresa;
+            AND PL.idEmpresa = @VIdEmpresa AND pl.actor = 'BILLTO';
 
         SELECT C.idEntidad, C.codigo
         INTO #TMP_CodigosRelacionSistemas
@@ -94,6 +102,8 @@ BEGIN
             GHD.ShipToId,
             GHD.truckId,
             GHD.despachadoDestino,
+			GHD.idUsuarioLog,
+            GHD.fechaCambio,
             PC.idUsuarioLogPicking,
             TE.idTE
         INTO #TMP_PROGRAM
@@ -162,7 +172,9 @@ BEGIN
                     WHEN SVC.tipoVenta < 4 THEN 1
                     WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1 THEN 1
                     ELSE 0
-                END esInventario
+                END esInventario,
+				gh.BillToConsigneeId,
+				MAX(CONCAT(CONVERT(CHAR(23), PR.fechaCambio, 121), '|', PR.idUsuarioLog))
             FROM #TMP_PROGRAM PR
                 INNER JOIN #TMP_CodigosRelacionSistemas T1 ON PR.idCarrier = T1.idEntidad
                 INNER JOIN GuiasHouse GH WITH (NOLOCK) ON PR.idGuiaHouse = GH.id
@@ -170,11 +182,11 @@ BEGIN
                 INNER JOIN dbo.Paises PAC ON VCE.idPais = PAC.id
                 CROSS APPLY
                 (
-                    SELECT G.ConsigneeId, idBodega
+                    SELECT G.ConsigneeId, idBodega , g.BillToConsigneeId
                     FROM GuiasHouse G WITH (NOLOCK)
                     WHERE PR.idGuiaHouse = G.id
                 ) H
-                LEFT JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON PCA.idEntidad = H.ConsigneeId 
+                LEFT JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON PCA.idEntidad = H.BillToConsigneeId 
                     AND PCA.idParametroLista = @IdParametroTipo
                 LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PR.id = PM.idProgramacionCarrier
                 LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
@@ -232,7 +244,8 @@ BEGIN
                     WHEN SVC.tipoVenta < 4 THEN 1
                     WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1 THEN 1
                     ELSE 0
-                END;
+                END,
+				GH.BillToConsigneeId;
         END
         ELSE
         BEGIN
@@ -269,7 +282,9 @@ BEGIN
                     WHEN SVC.tipoVenta < 4 THEN 1
                     WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1 THEN 1
                     ELSE 0
-                END esInventario
+                END esInventario,
+				GH.BillToConsigneeId,
+				MAX(CONCAT(CONVERT(CHAR(23), PR.fechaCambio,121), '|', PR.idUsuarioLog))
             FROM #TMP_PROGRAM PR
                 INNER JOIN #TMP_CodigosRelacionSistemas T1 ON PR.idCarrier = T1.idEntidad
                 INNER JOIN GuiasHouse GH WITH (NOLOCK) ON PR.idGuiaHouse = GH.id
@@ -283,7 +298,7 @@ BEGIN
                 ) H
                 LEFT JOIN dbo.PalletsDetalles pld WITH (NOLOCK) ON PR.idGuiaHouseDetalle = pld.idGuiasHouseDetalle
                 LEFT JOIN dbo.Pallets pal WITH (NOLOCK) ON pld.idPallet = pal.id
-                LEFT JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON PCA.idEntidad = H.ConsigneeId AND PCA.idParametroLista = @IdParametroTipo
+                LEFT JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON PCA.idEntidad = H.BillToConsigneeId AND PCA.idParametroLista = @IdParametroTipo
                 LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON PR.id = PM.idProgramacionCarrier
                 LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
                 OUTER APPLY (
@@ -346,7 +361,8 @@ BEGIN
                     WHEN SVC.tipoVenta < 4 THEN 1
                     WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1 THEN 1
                     ELSE 0
-                END;
+                END,
+				GH.BillToConsigneeId;
         END
 
         SELECT
@@ -382,7 +398,9 @@ BEGIN
             RES.idPaisCliente,
             RES.idPaisAlt,
             RES.idTEGuid,
-            RES.esInventario
+            RES.esInventario,
+			RES.BilltoConsigneeId,
+			(SELECT TOP 1 U.nombre FROM Usuarios U WITH (NOLOCK)WHERE U.id = SUBSTRING(MAX(RES.ultimoCambio), 25, 30))NombreUsuario
         FROM #TablaAgrupacionGuiasPickUp RES
         GROUP BY
             RES.idManifiesto,
@@ -403,9 +421,42 @@ BEGIN
             RES.idPaisCliente,
             RES.idPaisAlt,
             RES.idTEGuid,
-            RES.esInventario
+            RES.esInventario,
+			RES.BilltoConsigneeId
     END TRY
     BEGIN CATCH
         EXEC [dbo].[pro_LogError];
     END CATCH;
 END
+
+/*
+===== EJEMPLOS DE USO =====
+
+-- 1. Prueba basica (sin filtros)
+EXEC AC_pro_GetPendingPickup null, null, null, null, null, null, null, null, 'EMP014', 1, 1, null
+
+EXEC pro_modulo_DespachoPickup null, null, null, null, null, null, null, 'EMP014', 1, 3
+
+-- 3. Prueba con barcode
+EXEC AC_DespachoPickup_ListaPendientesClienteFinal null, null, null, null, null, null, '22333931453', null, 'EMP014', 2, 3, null
+
+-- 4. Prueba con Consignee
+EXEC AC_pro_GetPendingPickup null, null, 'ALLURE FARMS LLC INVENTORY', null, null, null, null, null, 'EMP014', 1, 3, null
+EXEC AC_pro_GetPendingPickup null, null, 'ALF DESINGS WITH ART ', null, null, null, null, null, 'EMP014', 1, 3, null
+
+EXEC pro_modulo_DespachoPickup null, null, 'ALF ALLURE FARMS', null, null, null, null, 'EMP014', 1, 1
+
+-- 4. Prueba con BillTo
+EXEC AC_pro_GetPendingPickup null, null, null, 'ALLURE FARMS LLC INVENTORY', null, null, null, null, 'EMP014', 1, 3, null
+
+-- 5. Prueba combinada
+EXEC AC_DespachoPickup_ListaPendientesClienteFinal null, null, 'ALIS LUXURY BQTS CORP', null, null, null, null, 'LOPEZ ANDRADE MARIA ANABEL', 'EMP014', 1, 3, null
+
+-- 6. Prueba con nro de documento
+EXEC AC_DespachoPickup_ListaPendientesClienteFinal '8552', null, null, null, null, null, null, null, 'EMP014', 1, 3, null
+
+-- 7. Obtener solo 1 registro de un cliente especifico para verificar el cambio
+EXEC AC_DespachoPickup_ListaPendientesClienteFinal null, null, null, null, null, null, null, null, 'EMP014', 1, 3, null
+
+EXEC dbo.AC_DespachoPickup_ListaPendientesClienteFinal @nroDocument=NULL,@po=NULL,@consignee=N'ALF ALLURE FARMS',@billTo=NULL,@status=NULL,@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@idEmpresa=N'EMP014',@consulta=1,@fechaDesde=3,@palletLabel=NULL
+*/
