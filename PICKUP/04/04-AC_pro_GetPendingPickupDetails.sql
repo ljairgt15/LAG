@@ -160,6 +160,7 @@ BEGIN
               AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')
               AND (@IdBodega IS NULL OR ISNULL(UB.IdBodega, GH.IdBodega) = @IdBodega)
               AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
+              AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
             GROUP BY 
                 GHD.Id, 
                 GH.Id, 
