@@ -18,14 +18,12 @@ ALTER     PROCEDURE [dbo].[pro_Despacho_DespachoDetallePickUp]
 	@idEmpresa		VARCHAR(16) = NULL,
 	@idOrdenVenta	UNIQUEIDENTIFIER = NULL,
 	@esInventario	BIT = NULL
-)
 AS
 BEGIN
     BEGIN TRY
 		DECLARE @idParametroDelivery VARCHAR(16)
 
-        CREATE TABLE #TablaAgrupacionGuiasPickUp
-        (
+        CREATE TABLE #TablaAgrupacionGuiasPickUp (
             id                    UNIQUEIDENTIFIER NOT NULL,
             idGuiaHouse           UNIQUEIDENTIFIER NOT NULL,
             estadoPieza           NVARCHAR(64)     NOT NULL,
@@ -62,7 +60,7 @@ BEGIN
 			totalPickingLoading   INT,
 			idTEGuid			  UNIQUEIDENTIFIER NULL,
 			esInventario		  BIT
-        );
+        )
 
 		SELECT @idParametroDelivery = id 
 		FROM ParametrosLista parametroLista WITH (NOLOCK) 
@@ -114,27 +112,23 @@ BEGIN
 						END esInventario
                 FROM  ProgramacionCarrier PC  WITH (NOLOCK)
                      INNER JOIN Transportes T WITH (NOLOCK) ON PC.idCarrier = T.id
-					 INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
-																	 AND PCA.idParametroLista = @idParametroDelivery 
-																	 AND PCA.valor = 'NO'
+					 INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad AND PCA.idParametroLista = @idParametroDelivery AND PCA.valor = 'NO'
                      INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                      INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
-                     INNER JOIN ParametrosLista PLC WITH (NOLOCK) ON PLC.codigo = 'TipoManifiestoDespacho'
-                                    AND PLC.idEmpresa = GH.idEmpresa
+                     INNER JOIN ParametrosLista PLC WITH (NOLOCK) ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
                      INNER JOIN Clientes CLF ON GHD.idClienteFinal = CLF.id
                      INNER JOIN Clientes cli ON GH.idCliente = CLI.id
-                     LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.idEntidad = GH.idCliente
-                                   AND PCAT.idParametroLista = PLC.id
+                     LEFT JOIN ParametrosCatalogos PCAT WITH (NOLOCK) ON PCAT.idEntidad = GH.idCliente AND PCAT.idParametroLista = PLC.id
 					 LEFT JOIN ProgramacionTe te WITH (NOLOCK) ON PC.id = TE.idProgramacionCarrier  
 					 LEFT JOIN EDI ON PC.idCarrier = edi.idCarrier AND PC.fechaDespacho = edi.fechaDespacho
                      LEFT JOIN Usuarios US WITH (NOLOCK) ON edi.idUsuarioLog = US.id
                      LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.idPoDetalle = PD.id
                      LEFT JOIN PoEncabezado PE ON PD.idPo = PE.id
-                     OUTER APPLY (SELECT TOP (1) SV.id, SV.nroOrden, SVD.picking, SV.tipoVenta, SVD.tipoPieza
-                                  FROM SolicitudDeVentaDetalles SVD
-                                       LEFT JOIN SolicitudDeVenta SV ON SV.id = SVD.idSolicitud
-                                  WHERE SVD.idGuiaHouseDetalle = GHD.id
-                                  ORDER BY SV.fechaSolicitud DESC) V
+                     OUTER APPLY (	SELECT TOP (1) SV.id, SV.nroOrden, SVD.picking, SV.tipoVenta, SVD.tipoPieza
+									FROM SolicitudDeVentaDetalles SVD
+									LEFT JOIN SolicitudDeVenta SV ON SV.id = SVD.idSolicitud
+									WHERE SVD.idGuiaHouseDetalle = GHD.id
+									ORDER BY SV.fechaSolicitud DESC) V
                      LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON GHD.id = PLD.idGuiasHouseDetalle
                      LEFT JOIN Pallets PAL WITH (NOLOCK) ON PLD.idPallet = pal.id
                      LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
@@ -224,13 +218,12 @@ BEGIN
                         FROM #TablaAgrupacionGuiasPickUp APU
                              LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                              LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
-							 OUTER APPLY (
-								SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
-								FROM DocumentosDespacho DD WITH (NOLOCK)
-								WHERE DD.idManifiesto = MD.id
-								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC
-							) DD
+							 OUTER APPLY (	SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
+											FROM DocumentosDespacho DD WITH (NOLOCK)
+											WHERE DD.idManifiesto = MD.id
+											AND DD.idDocumento = 'DOC052395'
+											ORDER BY EsPod DESC, mailEnviado DESC
+										) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                              LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle 
@@ -288,13 +281,12 @@ BEGIN
                         FROM #TablaAgrupacionGuiasPickUp APU
                              LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                              LEFT JOIN ManifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
-							 OUTER APPLY (
-								SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
-								FROM DocumentosDespacho DD WITH (NOLOCK)
-								WHERE DD.idManifiesto = MD.id
-								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC
-							) DD
+							 OUTER APPLY (	SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
+											FROM DocumentosDespacho DD WITH (NOLOCK)
+											WHERE DD.idManifiesto = MD.id
+											AND DD.idDocumento = 'DOC052395'
+											ORDER BY EsPod DESC, mailEnviado DESC
+										) DD
                              LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                              LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                              LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle
@@ -357,9 +349,7 @@ BEGIN
 						   END esInventario
                     FROM ProgramacionCarrier PC  WITH (NOLOCK)
                          INNER JOIN Transportes T ON PC.idCarrier = T.id
-                         INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad 
-																	 AND PCA.idParametroLista = @idParametroDelivery 
-																	 AND PCA.valor = 'NO'
+                         INNER JOIN ParametrosCatalogos PCA WITH (NOLOCK) ON t.idTransportePrincipal = PCA.idEntidad AND PCA.idParametroLista = @idParametroDelivery AND PCA.valor = 'NO'
                          INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.idGuiaHouseDetalle = GHD.id
                          INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.idGuiaHouse = GH.id
                          INNER JOIN ParametrosLista PLC ON PLC.codigo = 'TipoManifiestoDespacho' AND PLC.idEmpresa = GH.idEmpresa
@@ -371,11 +361,11 @@ BEGIN
                          LEFT JOIN Usuarios US ON edi.idUsuarioLog = US.id
                          LEFT JOIN PoDetalles PD ON GHD.idPoDetalle = PD.id
                          LEFT JOIN PoEncabezado PE ON PD.idPo = PE.id
-                         OUTER APPLY (SELECT TOP (1) SV.id, SV.nroOrden, SVD.picking, SV.tipoVenta, SVD.tipoPieza
-                                      FROM SolicitudDeVentaDetalles SVD
-                                           LEFT JOIN SolicitudDeVenta SV ON SV.id = SVD.idSolicitud
-                                      WHERE SVD.idGuiaHouseDetalle = GHD.id
-                                      ORDER BY SV.fechaSolicitud DESC) AS V
+                         OUTER APPLY (	SELECT TOP (1) SV.id, SV.nroOrden, SVD.picking, SV.tipoVenta, SVD.tipoPieza
+										FROM SolicitudDeVentaDetalles SVD
+										LEFT JOIN SolicitudDeVenta SV ON SV.id = SVD.idSolicitud
+										  WHERE SVD.idGuiaHouseDetalle = GHD.id
+										  ORDER BY SV.fechaSolicitud DESC) AS V
                          LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON GHD.id = PLD.idGuiasHouseDetalle
                          LEFT JOIN Pallets pal WITH (NOLOCK) ON PLD.idPallet = pal.id
                          LEFT JOIN UbicacionPiezas AS UP WITH (NOLOCK) ON GHD.id = UP.idGuiaHouseDetalle
@@ -384,8 +374,8 @@ BEGIN
                          LEFT JOIN Bodegas B ON GH.idBodega = B.id
                          LEFT JOIN Bodegas B1 ON ub.idBodega = B1.id
                     WHERE PC.fechaDespacho > DATEADD(MM, -@fechaDesde, GETDATE()) 				  
-                      AND GH.idEmpresa = @idEmpresa					 
-                      AND GHD.esPOD = 0
+                    AND GH.idEmpresa = @idEmpresa					 
+                    AND GHD.esPOD = 0
                     GROUP BY GHD.id
                            , GH.id
                            , GHD.estadoPieza
@@ -463,13 +453,12 @@ BEGIN
                     FROM #TablaAgrupacionGuiasPickUp APU
                          LEFT JOIN ProgramacionManifiesto PM WITH (NOLOCK) ON APU.idProgramacionCarrier = PM.idProgramacionCarrier
                          LEFT JOIN manifiestosDespacho MD WITH (NOLOCK) ON PM.idManifiestoDespacho = MD.id
-                         OUTER APPLY (
-								SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
-								FROM DocumentosDespacho DD WITH (NOLOCK)
-								WHERE DD.idManifiesto = MD.id
-								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC
-							) DD
+                         OUTER APPLY (	SELECT TOP 1 DD.EsPod, DD.nombreArchivo, DD.mailEnviado
+										FROM DocumentosDespacho DD WITH (NOLOCK)
+										WHERE DD.idManifiesto = MD.id
+										AND DD.idDocumento = 'DOC052395'
+										ORDER BY EsPod DESC, mailEnviado DESC
+									) DD
                          LEFT JOIN Usuarios U ON MD.idUsuarioLog = U.id
                          LEFT JOIN Usuarios USH ON APU.idUsuarioLogHouse = USH.id
                          LEFT JOIN PalletsDetalles PLD WITH (NOLOCK) ON APU.id = PLD.idGuiasHouseDetalle
@@ -501,3 +490,21 @@ BEGIN
         EXEC [pro_LogError]
     END CATCH;
 END;
+/*===========================================\======================================================
+exec sp_executesql N'pro_Despacho_DespachoDetallePickUp @nroDocument, @po, @Consignee, @status, @nroManifiesto, @barcode, @supplier, @pending, @consulta, @idClienteFinal, @idCarrier,@fechaDespacho, @fechaDesde, @palletLabel, @idBodega
+',N'@nroDocument varchar(32),@po varchar(32),@Consignee varchar(100),@status nvarchar(7),@nroManifiesto varchar(50),@barcode varchar(20),@supplier varchar(100),@pending int,@consulta int,@idClienteFinal varchar(32),@idCarrier varchar(20),@fechaDespacho da
+tetime,@fechaDesde int,@palletLabel varchar(20),@idBodega varchar(8000)'
+    ,@nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=N'PENDING',@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@consulta=2,@idClienteFinal=NULL,@idCarrier=NULL,@fechaDespacho=NULL,@fechaDesde=3,@palletLabel=NULL,@idBodega=NULL
+	
+Prueba 1 idEmpresa = MIA, idCliente = null
+exec pro_Despacho_DespachoDetallePickUp @nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=NULL,@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@consulta=2,@idClienteFinal=NULL,@idCarrier=NULL,@fechaDespacho=NULL,@fechaDesde=3,@palletLabel=NUL
+L,@idBodega=NULL,@idOrdenVenta=NULL,@idEmpresa=N'EMP014'
+
+Prueba 2 idEmpresa = AMS, idCliente = null
+exec pro_Despacho_DespachoDetallePickUp @nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=NULL,@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@consulta=2,@idClienteFinal=NULL,@idCarrier=NULL,@fechaDespacho=NULL,@fechaDesde=3,@palletLabel=NULL,@idBodega=NULL,@idOrdenVenta=NULL,@idEmpresa=N'EMP015'
+
+exec sp_executesql N'pro_Despacho_DespachoDetallePickUp @nroDocument, @po, @Consignee, @status, @nroManifiesto, @barcode, @supplier, @pending, @consulta, @idClienteFinal, @idCarrier,@fechaDespacho, @fechaDesde, @palletLabel, @idBodega, @idEmpresa
+',N'@nroDocument varchar(32),@po varchar(32),@Consignee varchar(100),@status nvarchar(7),@nroManifiesto varchar(50),@barcode varchar(20),@supplier varchar(100),@pending int,@consulta int,@idClienteFinal nvarchar(10),@idCarrier nvarchar(12),@fechaDespacho 
+nvarchar(10),@fechaDesde int,@palletLabel varchar(20),@idBodega varchar(8),@idOrdenVenta uniqueidentifier,@idEmpresa nvarchar(6)',@nroDocument=NULL,@po=NULL,@Consignee=NULL,@status=N'PENDING',@nroManifiesto=NULL,@barcode=NULL,@supplier=NULL,@pending=0,@co
+nsulta=1,@idClienteFinal=N'CLI0114374',@idCarrier=N'ybOy4oex7F5E',@fechaDespacho=N'02-02-2024',@fechaDesde=3,@palletLabel=NULL,@idBodega='LXgyot5M',@idOrdenVenta=NULL,@idEmpresa=N'EMP014'
+ */

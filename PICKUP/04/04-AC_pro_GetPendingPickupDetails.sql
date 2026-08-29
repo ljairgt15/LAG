@@ -242,7 +242,7 @@ BEGIN
                     FROM DocumentosDespacho DD 
                     WHERE DD.IdManifiesto = MD.Id
                       AND DD.IdDocumento = 'DOC052395'
-                    ORDER BY DD.EsPod DESC
+                    ORDER BY DD.EsPod DESC, mailEnviado DESC
                 ) DD
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
@@ -296,7 +296,7 @@ BEGIN
                     FROM DocumentosDespacho DD
                     WHERE DD.IdManifiesto = MD.Id
                       AND DD.IdDocumento = 'DOC052395'
-                    ORDER BY DD.EsPod DESC
+                    ORDER BY DD.EsPod DESC, mailEnviado DESC
                 ) DD
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
@@ -358,7 +358,7 @@ BEGIN
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
             LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
-            LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id -- Transaccional en lista
+            LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id 
             LEFT JOIN PoEncabezado PE ON PD.IdPo = PE.Id
             OUTER APPLY (
                 SELECT TOP (1) SV.Id, SV.NroOrden, SVD.Picking, SV.TipoVenta, SVD.TipoPieza
@@ -478,7 +478,7 @@ BEGIN
                 FROM DocumentosDespacho DD
                 WHERE DD.IdManifiesto = MD.Id
                   AND DD.IdDocumento = 'DOC052395'
-                ORDER BY DD.EsPod DESC
+                ORDER BY DD.EsPod DESC, mailEnviado DESC
             ) DD
             LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
             LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
