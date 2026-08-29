@@ -195,7 +195,7 @@ BEGIN
                     FROM DocumentosDespacho DD WITH (NOLOCK)
                     WHERE DD.idManifiesto = MD.id
                     AND DD.idDocumento = 'DOC052395'
-                    ORDER BY EsPod DESC
+                    ORDER BY EsPod DESC, mailEnviado DESC
                 ) DCD
                 LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON PR.idGuiaHouseDetalle = UP.idGuiaHouseDetalle
                 LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
@@ -306,7 +306,7 @@ BEGIN
                     FROM DocumentosDespacho DD WITH (NOLOCK)
                     WHERE DD.idManifiesto = MD.id
                     AND DD.idDocumento = 'DOC052395'
-                    ORDER BY EsPod DESC
+                    ORDER BY EsPod DESC, mailEnviado DESC
                 ) DCD
                 LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON PR.idGuiaHouseDetalle = UP.idGuiaHouseDetalle
                 LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id

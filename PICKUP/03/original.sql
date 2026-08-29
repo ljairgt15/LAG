@@ -26,8 +26,9 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	HU			MODIFICATION
 17			Jose Ganchozo		2024-11-29		Bug-46654	Se corrige la logica para las piezas que son de inventario
 18			Ismael Flores		2024-12-06		HU 41334	Se aplica OUTER APPLY para la consulta de idDocumento = 'DOC052395'
 19			PCHICAIZA 			2026-03-19		NA			Add new parameters with @V for improving performance
+20			Joel Cedeno			2026-06-25      CC68709     Prioritize emailed POD in dispatch document selection
 */
-ALTER PROCEDURE [dbo].[pro_modulo_DespachoPickup]
+ALTER   PROCEDURE [dbo].[pro_modulo_DespachoPickup]
     @nroDocument VARCHAR(32) = NULL,
     @po VARCHAR(64) = NULL,
     @Consignee NVARCHAR(512) = NULL,
@@ -178,7 +179,7 @@ BEGIN
 								FROM DocumentosDespacho DD WITH (NOLOCK)
 								WHERE DD.idManifiesto = MD.id 
 								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC) DCD
+								ORDER BY EsPod DESC, mailEnviado DESC) DCD
 				LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON PR.idGuiaHouseDetalle = UP.idGuiaHouseDetalle
 				LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
 				LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
@@ -223,7 +224,7 @@ BEGIN
 				WHEN SVC.tipoVenta < 4 THEN 1 
 				WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1  THEN 1 
 				ELSE 0 
-			END;
+			END
 		END
 		ELSE
 		BEGIN
@@ -278,7 +279,7 @@ BEGIN
 								FROM DocumentosDespacho DD WITH (NOLOCK)
 								WHERE DD.idManifiesto = MD.id 
 								AND DD.idDocumento = 'DOC052395'
-								ORDER BY EsPod DESC) DCD
+								ORDER BY EsPod DESC, mailEnviado DESC) DCD
 				LEFT JOIN UbicacionPiezas UP WITH (NOLOCK) ON PR.idGuiaHouseDetalle = UP.idGuiaHouseDetalle
 				LEFT JOIN Ubicaciones U WITH (NOLOCK) ON UP.idUbicacion = U.id
 				LEFT JOIN UbicacionesBodega UB WITH (NOLOCK) ON U.idUbicacionBodega = UB.id
@@ -328,7 +329,7 @@ BEGIN
 				WHEN SVC.tipoVenta < 4 THEN 1 
 				WHEN SVC.tipoVenta = 5 AND SVC.tipoPieza = 1  THEN 1 
 				ELSE 0 
-			END;
+			END
 		END
 
 		SELECT      
