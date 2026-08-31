@@ -4,6 +4,7 @@ VERSION     MODIFIEDBY			MODIFIEDDATE    HU      MODIFICATION
 2           Oscar Yunda			2026-06-16      57742   Catalog Parameters Implementation Billto - Manifest Generation
 3			Cristhian Cuichan	2026-06-30		57742	The BilltoConsigneeId parameter is added to the query
 4           Jaime Astudillo     2026-08-26      70081   Lauser per group is added (Excel User column)
+5           Jair Gomez          2026-08-31      70112   PO filter is added in detail query 
 */
 
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup](
