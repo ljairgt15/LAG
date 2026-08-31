@@ -1,7 +1,8 @@
 /* 
 VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_DespachoDetallePickUp
-2           Oscar Yunda		  2026-06-16      57742   Catalog Parameters Implementation Billto - Manifest Generation
+2           Oscar Yunda		  2026-06-16      57742  Catalog Parameters Implementation Billto - Manifest Generation
+3           Jair Gomez        2026-08-31      70112  PO filter is added in detail query 
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 (
