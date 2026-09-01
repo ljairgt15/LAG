@@ -414,7 +414,7 @@ BEGIN
                 ,CONVERT(BIT, TMP.Procesado) AS Procesado
             FROM #TMP_HouseGuideGroupingFinal AS TMP
             INNER JOIN dbo.Bodegas B ON TMP.IdBodega = B.Id
-            INNER JOIN dbo.Usuarios U ON U.Id = TMP.IdUsuarioLog;
+            INNER JOIN dbo.Usuarios U ON U.Id = TMP.IdUsuarioLog
         END;
         ELSE
         BEGIN
@@ -458,7 +458,7 @@ BEGIN
               AND TMP.IdClienteFinal = @IdClienteFinal
               AND TMP.IdBodega = @IdBodega
               AND CONVERT(DATE, TMP.FechaPickUpEntrega) = @FechaPickUpEntrega
-              AND TMP.FechaPickUpProgramada = @FechaPickUpProgramada;
+              AND TMP.FechaPickUpProgramada = @FechaPickUpProgramada
         END;
 
         DROP TABLE #TMP_HouseGuideGrouping;
