@@ -203,6 +203,7 @@ BEGIN
                    ,APU.IdGuiaHouse
                    ,MD.Id AS IdManifiesto
                    ,DD.MailEnviado
+                   ,ISNULL(DD.EsPod, 0) AS EsPod
                    ,APU.EstadoPieza
                    ,APU.IdClienteFinal
                    ,APU.FechaDespacho
@@ -257,6 +258,7 @@ BEGIN
                    ,APU.IdGuiaHouse
                    ,MD.Id AS IdManifiesto
                    ,DD.MailEnviado
+                   ,ISNULL(DD.EsPod, 0) AS EsPod
                    ,APU.EstadoPieza
                    ,APU.IdClienteFinal
                    ,APU.FechaDespacho
@@ -303,7 +305,6 @@ BEGIN
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
                 WHERE MD.NroManifiesto = @NroManifiesto
-                AND ISNULL(DD.EsPod, 0) = 0
             END
         END
         ELSE IF (@Consulta = 2)
@@ -385,7 +386,6 @@ BEGIN
             ) AS CI
             WHERE PC.FechaDespacho > DATEADD(MM, -@FechaDesde, GETDATE())
             AND GH.IdEmpresa = @IdEmpresa                     
-            AND GHD.EsPod = 0
             AND (@Consignee IS NULL OR @Consignee = ''
                 OR GH.ConsigneeId IN (SELECT Id FROM dbo.f_SearchEntities(@Consignee, 'Consignee')))    
             AND (@BillTo IS NULL OR @BillTo = '' 
@@ -439,6 +439,7 @@ BEGIN
                ,APU.IdGuiaHouse
                ,MD.Id AS IdManifiesto
                ,DD.MailEnviado
+               ,ISNULL(DD.EsPod, 0) AS EsPod
                ,APU.EstadoPieza
                ,APU.IdClienteFinal
                ,APU.FechaDespacho
@@ -485,7 +486,6 @@ BEGIN
             LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
             LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
             WHERE (@NroManifiesto IS NULL OR MD.NroManifiesto LIKE '%' + @NroManifiesto + '%')
-              AND ISNULL(DD.EsPod, 0) = 0
         END;
 
     END TRY
