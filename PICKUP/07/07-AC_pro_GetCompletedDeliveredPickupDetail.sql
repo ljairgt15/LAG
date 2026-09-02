@@ -3,7 +3,6 @@ VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_PickUpDetalleCompleteDelivered
 2           Jair Gomez       2026-09-01      Refac   Merging the POD filter and cleaning up redundant JOINs
 */
-*/
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetCompletedDeliveredPickupDetail] 
 (
     @FechaDesde                 DATE,

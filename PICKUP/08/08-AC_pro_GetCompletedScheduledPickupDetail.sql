@@ -61,9 +61,9 @@ BEGIN
         CREATE TABLE #TMP_HouseGuideGroupingFinal 
         (
             Id                      INT IDENTITY(1, 1) NOT NULL,
-            IdClienteFinal          VARCHAR(16)        NOT NULL,
+            IdClienteFinal          VARCHAR(16)        NULL,
             NombreClienteFinal      VARCHAR(512)       NULL,
-            IdClienteConsignee      VARCHAR(16)        NOT NULL,
+            IdClienteConsignee      VARCHAR(16)        NULL,
             NombreClienteConsignee  VARCHAR(512)       NULL,
             FechaPickUpProgramada   DATETIME           NOT NULL,
             FechaPickUpEntrega      DATETIME           NOT NULL,
