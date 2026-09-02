@@ -1,4 +1,4 @@
-/* 
+/*
 VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_DespachoDetallePickUp
 2           Oscar Yunda		  2026-06-16      57742  Catalog Parameters Implementation Billto - Manifest Generation
@@ -36,19 +36,19 @@ BEGIN
             Id                    UNIQUEIDENTIFIER NOT NULL,
             IdGuiaHouse           UNIQUEIDENTIFIER NOT NULL,
             EstadoPieza           NVARCHAR(64)     NOT NULL,
-            IdClienteFinal        VARCHAR(16)      NOT NULL,
+            IdClienteFinal        VARCHAR(16)      NULL,
             FechaDespacho         DATETIME         NOT NULL,
             NombreBodega          NVARCHAR(512)    NULL,
             IdBodega              VARCHAR(16)      NOT NULL,
             IdCarrier             VARCHAR(16)      NOT NULL,
             IdProgramacionCarrier UNIQUEIDENTIFIER NOT NULL,
-            NombreClienteFinal    VARCHAR(256)     NOT NULL,
+            NombreClienteFinal    VARCHAR(256)     NULL,
             NroGuia               VARCHAR(32)      NOT NULL,
             NroPo                 VARCHAR(50)      NULL,
             IdPaisCliente         VARCHAR(16)      NULL,
             TruckId               VARCHAR(10)      NULL,
             NombreConsignee       VARCHAR(512)     NULL,
-            IdConsignee           VARCHAR(16)      NOT NULL,
+            IdConsignee           VARCHAR(16)      NULL,
             IdUsuarioLogEdi       VARCHAR(16)      NULL,
             IdUsuarioLogHouse     VARCHAR(16)      NULL,
             NombreUsuario         NVARCHAR(64)     NULL,
@@ -124,8 +124,8 @@ BEGIN
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id
             INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa   AND PLC.actor = 'BILLTO'
-            INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
+            LEFT JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
+            LEFT JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
             LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.BillToConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
@@ -355,8 +355,8 @@ BEGIN
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
             INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa  AND PLC.actor = 'BILLTO'
-            INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
+            LEFT JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
+            LEFT JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
             LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.BillToConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho

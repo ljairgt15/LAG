@@ -6,7 +6,7 @@ VERSION     MODIFIEDBY			MODIFIEDDATE    HU      MODIFICATION
 4           Jaime Astudillo     2026-08-26      70081   Lauser per group is added (Excel User column)
 */
 
-CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup](
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup2](
     @NroDocument VARCHAR(32) = NULL,
     @Po VARCHAR(64) = NULL,
     @Consignee NVARCHAR(512) = NULL,
@@ -178,8 +178,8 @@ BEGIN
             FROM #TMP_PROGRAM PR
                 INNER JOIN #TMP_CodigosRelacionSistemas T1 ON PR.idCarrier = T1.idEntidad
                 INNER JOIN GuiasHouse GH WITH (NOLOCK) ON PR.idGuiaHouse = GH.id
-                INNER JOIN v_ClientsEntities VCE WITH (NOLOCK) ON VCE.id = PR.ShipToId
-                INNER JOIN dbo.Paises PAC ON VCE.idPais = PAC.id
+                LEFT JOIN v_ClientsEntities VCE WITH (NOLOCK) ON VCE.id = PR.ShipToId
+                LEFT JOIN dbo.Paises PAC ON VCE.idPais = PAC.id
                 CROSS APPLY
                 (
                     SELECT G.ConsigneeId, idBodega , g.BillToConsigneeId
