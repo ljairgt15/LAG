@@ -415,7 +415,7 @@ BEGIN
                 CLF.IdPais,
                 GHD.TruckId, 
                 CGN.Nombre, 
-                CGN.Id, 
+                CGN.ConsigneeId, 
                 EDI.IdUsuarioLog, 
                 GH.IdUsuarioLog,
                 US.Nombre, 
