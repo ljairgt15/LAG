@@ -6,7 +6,7 @@ VERSION     MODIFIEDBY			MODIFIEDDATE    HU      MODIFICATION
 4           Jaime Astudillo     2026-08-26      70081   Lauser per group is added (Excel User column)
 */
 
-CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup2](
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickup](
     @NroDocument VARCHAR(32) = NULL,
     @Po VARCHAR(64) = NULL,
     @Consignee NVARCHAR(512) = NULL,
