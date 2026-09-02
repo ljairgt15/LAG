@@ -2,7 +2,8 @@
 VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_DespachoDetallePickUp
 2           Oscar Yunda		  2026-06-16      57742  Catalog Parameters Implementation Billto - Manifest Generation
-3           Jair Gomez        2026-08-31      70112  PO filter is added in detail query 
+3           Fernando Ordoñez  2026-08-31      57725  Change BillToConsigneeId to consigneeId
+4           Jair Gomez        2026-08-31      70112  PO filter is added in detail query 
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 (
@@ -95,7 +96,7 @@ BEGIN
                ,CLF.IdPais
                ,GHD.TruckId
                ,CGN.Nombre
-               ,CGN.Id
+               ,CGN.ConsigneeId
                ,EDI.IdUsuarioLog
                ,GH.IdUsuarioLog
                ,US.Nombre
@@ -178,7 +179,7 @@ BEGIN
                 CLF.IdPais,
                 GHD.TruckId, 
                 CGN.Nombre, 
-                CGN.Id, 
+                CGN.ConsigneeId, 
                 EDI.IdUsuarioLog, 
                 GH.IdUsuarioLog,
                 US.Nombre, 
@@ -265,7 +266,7 @@ BEGIN
                    ,APU.NombreBodega
                    ,APU.IdBodega
                    ,ISNULL(ISNULL(APU.IdUsuarioLogEdi, MD.IdUsuarioLog), APU.IdUsuarioLogHouse) AS IdUsuarioLog
-                   ,CASE
+                    ,CASE
                        WHEN APU.IdUsuarioLogEdi IS NOT NULL THEN APU.NombreUsuario
                        WHEN MD.IdUsuarioLog IS NOT NULL THEN U.Nombre
                        ELSE USH.Nombre
@@ -326,7 +327,7 @@ BEGIN
                ,CLF.IdPais
                ,GHD.TruckId
                ,CGN.Nombre
-               ,CGN.Id
+               ,CGN.ConsigneeId
                ,EDI.IdUsuarioLog
                ,GH.IdUsuarioLog
                ,US.Nombre
