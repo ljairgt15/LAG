@@ -32,5 +32,5 @@ END
 GO
 
 /*
-EXEC [dbo].[Ac_Pro_DesactiveExpiredAgreements];
+EXEC [dbo].[AC_Pro_DesactiveExpiredAgreements];
 */
