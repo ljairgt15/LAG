@@ -1,13 +1,10 @@
 /*
 VERSION		MODIFIEDBY				MODIFIEDDATE	HU			MODIFICATION
-1		Paul Castillo			2012-03-13	N/A			Listar los convenios en base a criterios
-2		Rogger Lindao			2026-08-24	AC 64492	Se agrega consulta para bandera TODOSACTIVOS
-3		jgonzalez				2026-08-31	N/A			Estandarizacion: prefijo AC_pro_, TRY/CATCH, parametros en Pascal Case, alias, reservadas en mayusculas, ejemplo de ejecucion
+1		    Paul Castillo			2012-03-13	    N/A			Listar los convenios en base a criterios
+2		    Rogger Lindao			2026-08-24	    64492	    Se agrega consulta para bandera TODOSACTIVOS
+3		    Jairo Gonzales			2026-08-31	    N/A			Estandarizacion: prefijo AC_pro_, TRY/CATCH, parametros en Pascal Case, alias, reservadas en mayusculas, ejemplo de ejecucion
+4           Jair Gómez              2026-09-21      64492       Eliminar filtro para definir vigencia o caducado
 */
-
-SET NOCOUNT ON;
-GO
-
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_RentabilidadConvenios]
 	@IdAerolinea char(4),
 	@IdConsignatario char(13),
@@ -126,7 +123,6 @@ BEGIN
 			RC.cedularesponsable
 			FROM	RentabilidadConvenios RC
 			WHERE	RC.activo = 1
-			AND		CONVERT(date, RC.fechahasta) >= CONVERT(date, GETDATE())
 			ORDER BY RC.fechadesde DESC
 			RETURN
 		END
