@@ -1,9 +1,9 @@
 /*
 VERSION     MODIFIEDBY      MODIFIEDDATE    HU      MODIFICATION
-1           Jair Gomez     2026-09-23       64492   Deactivates agreements that have been past their expiration date by more than 6 months
+1           Jair Gomez      2026-09-23      64492   Deactivates agreements that have been past their expiration date by more than 6 months
 */
 
-CREATE PROCEDURE [dbo].[AC_Pro_DesactiveExpiredAgreements]
+CREATE OR ALTER PROCEDURE [dbo].[AC_Pro_DesactiveExpiredAgreements]
 AS
 BEGIN
     BEGIN TRY
