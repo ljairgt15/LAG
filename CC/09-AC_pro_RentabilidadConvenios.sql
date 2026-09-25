@@ -65,7 +65,7 @@ BEGIN
 			RETURN
 		END
 
-		IF (@Bandera IN ('TODOS', 'ACTIVOS', 'INACTIVOS'))
+		IF (@Bandera = 'TODOS')
 		BEGIN
 			SELECT
 			RC.id, 
@@ -91,10 +91,68 @@ BEGIN
 			RC.campo3
 			FROM RentabilidadConvenios RC
 			LEFT JOIN empleados EMP ON RC.cedularesponsable = EMP.cedula
-			WHERE 
-				(@Bandera = 'TODOS') OR
-				(@Bandera = 'ACTIVOS' AND RC.activo = 1) OR
-				(@Bandera = 'INACTIVOS' AND RC.activo = 0)
+			ORDER BY RC.fechadesde DESC
+			RETURN
+		END
+
+		IF (@Bandera = 'ACTIVOS')
+		BEGIN
+			SELECT
+			RC.id, 
+			RC.activo, 
+			LTRIM(RTRIM(RC.tipoconvenio)) AS TipoConvenio, 
+			LTRIM(RTRIM(RC.idAerolinea)) AS IdAerolinea,
+			LTRIM(RTRIM(RC.idConsignatario)) AS IdConsignatario, 
+			LTRIM(RTRIM(RC.idPagador)) AS IdPagador, 
+			LTRIM(RTRIM(RC.idMercancia)) AS IdMercancia,
+			LTRIM(RTRIM(RC.origen)) AS Origen, 
+			LTRIM(RTRIM(RC.destino)) AS Destino, 
+			LTRIM(RTRIM(RC.codigoempresa)) AS CodigoEmpresa,
+			RC.prepaid, 
+			RC.fechadesde, 
+			ISNULL(RC.fechahasta, '12/31/2099') AS FechaHasta, 
+			RC.formula, 
+			LTRIM(RTRIM(RC.diferenciatarifas)) AS Tarifa,
+			RC.cedularesponsable, 
+			LTRIM(RTRIM(EMP.nombres)) + ' ' + LTRIM(RTRIM(EMP.apellidos)) AS NombreEmpleado, 
+			RC.fechamodificacion,
+			RC.campo1, 
+			RC.campo2, 
+			RC.campo3
+			FROM RentabilidadConvenios RC
+			LEFT JOIN empleados EMP ON RC.cedularesponsable = EMP.cedula
+			WHERE RC.activo = 1
+			ORDER BY RC.fechadesde DESC
+			RETURN
+		END
+
+		IF (@Bandera = 'INACTIVOS')
+		BEGIN
+			SELECT
+			RC.id, 
+			RC.activo, 
+			LTRIM(RTRIM(RC.tipoconvenio)) AS TipoConvenio, 
+			LTRIM(RTRIM(RC.idAerolinea)) AS IdAerolinea,
+			LTRIM(RTRIM(RC.idConsignatario)) AS IdConsignatario, 
+			LTRIM(RTRIM(RC.idPagador)) AS IdPagador, 
+			LTRIM(RTRIM(RC.idMercancia)) AS IdMercancia,
+			LTRIM(RTRIM(RC.origen)) AS Origen, 
+			LTRIM(RTRIM(RC.destino)) AS Destino, 
+			LTRIM(RTRIM(RC.codigoempresa)) AS CodigoEmpresa,
+			RC.prepaid, 
+			RC.fechadesde, 
+			ISNULL(RC.fechahasta, '12/31/2099') AS FechaHasta, 
+			RC.formula, 
+			LTRIM(RTRIM(RC.diferenciatarifas)) AS Tarifa,
+			RC.cedularesponsable, 
+			LTRIM(RTRIM(EMP.nombres)) + ' ' + LTRIM(RTRIM(EMP.apellidos)) AS NombreEmpleado, 
+			RC.fechamodificacion,
+			RC.campo1, 
+			RC.campo2, 
+			RC.campo3
+			FROM RentabilidadConvenios RC
+			LEFT JOIN empleados EMP ON RC.cedularesponsable = EMP.cedula
+			WHERE RC.activo = 0 
 			ORDER BY RC.fechadesde DESC
 			RETURN
 		END
