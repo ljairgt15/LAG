@@ -1,4 +1,4 @@
-/*    
+/*
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_LiquidacionAerolineasGuardar
 */
@@ -104,6 +104,7 @@ CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar]
    ,@banderas varchar(30)	
 AS
 BEGIN
+BEGIN TRY
 	DECLARE @contarguia int
 	set @contarguia = 0
 	IF @banderas = 'SISTEMA'
@@ -303,4 +304,114 @@ BEGIN
 		isnull(devolucion,0) <> @devolucion
 		RETURN
 	END
+	END TRY
+		BEGIN CATCH
+		EXEC [dbo].[pro_LogError]
+	END CATCH
 END
+GO
+
+/*
+-- EJEMPLO DE EJECUCI�N
+
+EXEC [dbo].[AC_pro_LiquidacionAerolineasGuardar]
+    @id = '',
+    @nroguia = '12345678901',
+    @idaerolinea = '1234',
+    @cass = 'S',
+    @destino = 'UIO',
+    @fechaembarque = '20260801',
+    @prepaid = 1,
+    @valorprepaid = 0,
+    @fletetotalreal = 100,
+    @fletetotalcorte = 100,
+    @pesobruto = 10,
+    @pesocargable = 10,
+    @fletenetoreal = 100,
+    @tarifareal = '10',
+    @fletenetocorte = 100,
+    @tarifacorte = '10',
+    @fechacontable = '20260801',
+    @cca = '',
+    @reclamo = 0,
+    @descuento = 0,
+    @cargosaerolinea = 0,
+    @manejo = 0,
+    @costosmanejo = 0,
+    @costootros = 0,
+    @utilidadmanejo = 0,
+    @comision = 0,
+    @overcomision = 0,
+    @overcomision2 = 0,
+    @diferenciatarifas = 0,
+    @cliente = 'CLIENTE PRUEBA',
+    @consignatario = 'CONSIGNATARIO PRUEBA',
+    @origen = 'GYE',
+    @codigoempresas = '001',
+    @transaccion = 'S',
+    @observaciones = 'PRUEBA ESTANDARIZACION',
+    @pagar = 0,
+    @cobrar = 0,
+    @textopagarcobrar = '',
+    @tarifafsc = 0,
+    @tarifassc = 0,
+    @combustible = 0,
+    @seguridad = 0,
+    @fechaover = NULL,
+    @versionfila = 1,
+    @fechamanejo = NULL,
+    @fechacomision = NULL,
+    @fechadescuento = NULL,
+    @fechaovercomision = NULL,
+    @fechaovercomision2 = NULL,
+    @fechadiferenciatarifas = NULL,
+    @fechareclamo = NULL,
+    @cierre = 'ABIERTA',
+    @diferenciacass = 0,
+    @statuscass = 0,
+    @comisioncliente = 0,
+    @reclamocliente = 0,
+    @descuentocliente = 0,
+    @overcomisioncliente = 0,
+    @overcomision2cliente = 0,
+    @diferenciatarifascliente = 0,
+    @devolucion = 0,
+    @devolucioncliente = 0,
+    @cargosagencia = 0,
+    @transporteacuerdogg = 0,
+    @oagg = 0,
+    @oacliente = 0,
+    @empresa = '001',
+    @urn = '',
+    @cantidadfitos = 0,
+    @cantidadcertificadosorigen = 0,
+    @producto = '',
+    @cajasvoladas = 0,
+    @region = '',
+    @retencioniva = 0,
+    @tarifaconvenio = 0,
+    @fletenetoconvenio = 0,
+    @biaconvenio = 0,
+    @feaconvenio = 0,
+    @fletetotalconvenio = 0,
+    @tipoVuelo = '',
+    @codigoContable = '',
+    @idCliente = '',
+    @idMercancia = '',
+    @maa = 0,
+    @paa = 0,
+    @tra = 0,
+    @acuerdosComerciales = 0,
+    @reclamos = 0,
+    @bfa = 0,
+    @tarifacompra = 0,
+    @tarifaventa = 0,
+    @tarifamargen = 0,
+    @ingresoxtarifa = 0,
+    @ingresoxtarifaxkilo = 0,
+    @ingresoneto = 0,
+    @margensinbia = 0,
+    @ingresosinbia = 0,
+    @retencionfuente = 0,
+    @banderas = 'SISTEMA'
+*/
