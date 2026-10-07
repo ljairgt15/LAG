@@ -1,4 +1,4 @@
-/*    
+/*
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_Convenios001Traer
 */
@@ -12,6 +12,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_Convenios001Traer]
 	@IdConsignatario char(13)
 AS
 BEGIN
+	BEGIN TRY
 		SELECT
 		CC01.idaerolineas,
 		CC01.codigofacturador,
@@ -29,6 +30,10 @@ BEGIN
 		AND		CC01.fechainicial <= @FechaInicial
 		AND		CC01.vigente = 1
 		ORDER BY CC01.fechainicial DESC
+	END TRY
+	BEGIN CATCH
+		EXEC [dbo].[pro_LogError]
+	END CATCH
 END
 /*
 EXEC [dbo].[AC_pro_Convenios001Traer]
