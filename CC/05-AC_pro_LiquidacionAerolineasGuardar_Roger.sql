@@ -1,7 +1,6 @@
-/*
-VERSION     MODIFIEDBY       MODIFIEDDATE    HU          MODIFICATION
-1           Paul Castillo    2012-03-19      N/A         Initial code - Save airline settlement data
-2           Rogger Lindao    2026-08-31      AC 64492    Standardization according to database development guidelines
+/*    
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Roger Lindao        2026-08-31          64492           Based on pro_LiquidacionAerolineasGuardar
 */
 CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar] 
 	@id varchar(13)
