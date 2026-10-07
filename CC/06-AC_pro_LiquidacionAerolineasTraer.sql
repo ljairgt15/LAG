@@ -1,4 +1,4 @@
-/*    
+/*
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_LiquidacionAerolineasTraer
 */
@@ -14,6 +14,7 @@ ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasTraer]
 	@Banderas char(30)
 AS
 BEGIN
+BEGIN TRY
 	IF @Banderas = 'TRANSACCION'
 	BEGIN
 
@@ -1326,4 +1327,21 @@ else
 		FROM   cas WHERE nroguia = @nroguia		
 		RETURN
 	END
+	END TRY
+	BEGIN CATCH
+		EXEC [dbo].[pro_LogError]
+	END CATCH
 END
+GO
+/*
+EXEC [dbo].[AC_pro_LiquidacionAerolineasTraer]
+    @Id = '',
+    @NroGuia = '12345678901',
+    @Transaccion = 'S',
+    @FechaDesde = '20260801',
+    @FechaHasta = '20260831',
+    @CodigoEmpresas = '001',
+    @IdAerolinea = '1234',
+    @Prepaid = '',
+    @Banderas = 'TRANSACCION'
+*/
