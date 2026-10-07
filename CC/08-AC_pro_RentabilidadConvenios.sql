@@ -1,10 +1,8 @@
-/*
-VERSION		MODIFIEDBY				MODIFIEDDATE	HU			MODIFICATION
-1		    Paul Castillo			2012-03-13	    N/A			Listar los convenios en base a criterios
-2		    Rogger Lindao			2026-08-24	    64492	    Se agrega consulta para bandera TODOSACTIVOS
-3		    Jairo Gonzales			2026-08-31	    N/A			Estandarizacion: prefijo AC_pro_, TRY/CATCH, parametros en Pascal Case, alias, reservadas en mayusculas, ejemplo de ejecucion
-4           Jair Gómez              2026-09-21      64492       Eliminar filtro para definir vigencia o caducado
-5           Jair Gómez              2026-09-25      64492     Optimización de filtros desde BD (TODOS, ACTIVOS, INACTIVOS)
+/*    
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Roger Lindao        2026-08-31          64492           Based on pro_RentabilidadConvenios
+2           Roger Lindao        2026-09-10          64492           Add flag TODOSACTIVOS
+3           Jair Gómez          2026-09-21          64492           Remove the filter for validity or expiration status and fix flags
 */
 CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_RentabilidadConvenios]
 	@IdAerolinea char(4),
