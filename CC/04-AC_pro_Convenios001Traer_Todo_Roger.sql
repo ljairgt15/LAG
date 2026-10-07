@@ -1,7 +1,6 @@
-/*
-VERSION		MODIFIEDBY				MODIFIEDDATE	HU			MODIFICATION
-1		Rogger Lindao			2026-08-24	AC 64492	Lista todos los convenios sin parametros de entrada
-2		jgonzalez				2026-08-31	N/A			Estandarizacion: prefijo AC_pro_, TRY/CATCH, alias, reservadas en mayusculas, ejemplo de ejecucion
+/*    
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Roger Lindao        2026-08-31          64492           Based on pro_Convenios001Traer_Todo
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_Convenios001Traer_Todo]
 AS

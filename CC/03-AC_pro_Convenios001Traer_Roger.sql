@@ -1,9 +1,6 @@
-/*
-VERSION		MODIFIEDBY				MODIFIEDDATE	HU			MODIFICATION
-1		Paul Castillo			2008-02-26	N/A			Traer que Pagadores tienen el Convenio 001
-2		FT						2010-07-05	N/A			Aumento de campos Notas y Tipo
-3		Rogger Lindao			2026-08-24	AC 64492	Lista todas las ciudades y paises
-4		jgonzalez				2026-08-31	N/A			Estandarizacion: prefijo AC_pro_, TRY/CATCH, parametros en Pascal Case, alias, reservadas en mayusculas, ejemplo de ejecucion
+/*    
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Roger Lindao        2026-08-31          64492           Based on pro_Convenios001Traer
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_Convenios001Traer]
 	@IdAerolineas char(11),

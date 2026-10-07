@@ -1,6 +1,6 @@
 /*    
-VERSION     MODIFIEDBY          MODIFIEDDATE    HU          MODIFICATION
-1           Jair Gómez          2026-09-23      64492       Based on pro_RentabilidadConveniosGuardar
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Roger Lindao        2026-08-31          64492           Based on pro_CiudadesTraer_Todo
 */
 
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_CiudadesTraer_Todo]
