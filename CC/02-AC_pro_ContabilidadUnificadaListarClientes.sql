@@ -1,4 +1,4 @@
-/*    
+/*
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_ContabilidadUnificadaListarClientes
 */
@@ -8,6 +8,7 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_ContabilidadUnificadaListarClientes]
 	@codigoempresa varchar(3)	
 AS
 BEGIN
+BEGIN TRY
 	IF(@banderas='CLIENTERELACION')
 	BEGIN
 		/*
@@ -87,4 +88,15 @@ BEGIN
 		FROM consignatariosrelacioncass
 		order by nombre1
 	END
+	END TRY
+	BEGIN CATCH
+		EXEC [dbo].[pro_LogError]
+	END CATCH
 END
+GO
+/*
+EXEC [dbo].[AC_pro_ContabilidadUnificadaListarClientes]
+    @Banderas = 'BUSCACLIENTE',
+    @CodigoCliente = 'CLI0000000001',
+    @CodigoEmpresa = '001'
+*/
