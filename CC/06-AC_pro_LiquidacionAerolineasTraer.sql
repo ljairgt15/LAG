@@ -2,7 +2,7 @@
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_LiquidacionAerolineasTraer
 */
-ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasTraer]
+CREATE ORALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasTraer]
 	@id varchar(13),
 	@nroguia varchar(13),
 	@transaccion varchar(25),
