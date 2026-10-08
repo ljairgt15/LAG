@@ -1,0 +1,1 @@
+SELECT 'DROP TRIGGER ' + NAME FROM sys.triggers
