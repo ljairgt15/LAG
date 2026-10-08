@@ -1,20 +1,14 @@
-USE [alliance_desa]
-GO
-/****** Object:  StoredProcedure [dbo].[pro_EtiquetaClienteBoca]    Script Date: 08/10/2026 01:18:51 p. m. ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 /*    
-VERSION  AUTOR            FECHA       HU        CAMBIO  
-1        Luis De Andrade  06/07/2019  ----      Creacion de sp pro_EtiquetaClienteBoca para etiqueta de cliente Boca  
-2        Verónica Vicente 25/09/2020  ----      Se agreaga el Codigo de producto en la tabla CodigoBarraInfoAdicional, para que imprima de esta tabla cuando ingresa por XML  
-3        Rogger Lindao    16/10/20220 ----      Se cambia el orden como se generan los CB ahora lo hace por sufijo de codigo barra y pagina de forma ascendente  
-4        Alex Rivera      11/05/2023  26555     Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional  
-5        Jean Martillo    04/09/2024  43727     Modificacion de campos [itemNo],[codigoProducto],[tipoPieza],[codigoShipTo] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores  
+VERSION  AUTOR             FECHA        HU        CAMBIO  
+1        Luis De Andrade   06/07/2019   ----      Creacion de sp pro_EtiquetaClienteBoca para etiqueta de cliente Boca  
+2        Verónica Vicente  25/09/2020   ----      Se agreaga el Codigo de producto en la tabla CodigoBarraInfoAdicional, para que imprima de esta tabla cuando ingresa por XML  
+3        Rogger Lindao     16/10/20220  ----      Se cambia el orden como se generan los CB ahora lo hace por sufijo de codigo barra y pagina de forma ascendente  
+4        Alex Rivera       11/05/2023   26555     Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional  
+5        Jean Martillo     04/09/2024   43727     Modificacion de campos [itemNo],[codigoProducto],[tipoPieza],[codigoShipTo] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores  
+6        Jair Gomez        08/10/2026   73041     Se modifica la longitud del campo nota (BoxCode / shipTo) de 6 a 5 caracteres para evitar ruptura en el diseño de la etiqueta Telerik.
 */  
   
-ALTER   PROCEDURE [dbo].[pro_EtiquetaClienteBoca]   
+CREATE OR ALTER PROCEDURE [dbo].[pro_EtiquetaClienteBoca]   
 	(@codigos AS XML)  
 AS  
 BEGIN  
@@ -96,7 +90,7 @@ BEGIN
 	CB.caja_transportador,  
 	IIF(CB.caja_fecha_transportador IS NULL,'', UPPER(FORMAT(CB.caja_fecha_transportador,'ddd','en-us'))),  
 	EX.mid,  
-	LEFT(CBI.nota, 6) AS shipTo,  
+	LEFT(CBI.nota, 5) AS shipTo,  
 	SUBSTRING(CB.codigoBarra, 4, 6),  
 	SUBSTRING(CB.codigoBarra, 9, 4)  
 	FROM dbo.CodigosDeBarra CB WITH (NOLOCK)  
@@ -159,7 +153,7 @@ BEGIN
 	ORDER BY nroPo,sufijoCodigoBarra,pagina,ultimosTresDigitosCB,codigoProducto,descripcionProducto,codigoBarra ASC --RL 16/10/2020 se agrupa y ordena por PO y sufijoy pagina generada  
   
 DROP TABLE #Etiqueta  
-END  
+END
   
 /*  
 declare @p1 xml  
