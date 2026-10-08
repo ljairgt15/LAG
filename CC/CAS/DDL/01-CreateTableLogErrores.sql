@@ -18,7 +18,5 @@ BEGIN
 		[LineaError] [int] NULL,
 		[MensajeError] [nvarchar](1024) NULL
 	) ON [PRIMARY]
-	GO
-
     PRINT 'Table created: LogErrores'
 END
