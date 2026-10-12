@@ -1,11 +1,11 @@
 /*    
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
-1           Luis De Andrade     06/07/2019          ----            Creacion de sp pro_EtiquetaClienteTempBoca para etiqueta de cliente Boca  
-2           Verónica Vicente    25/09/2020          ----            Se agreaga el Codigo de producto en la tabla CodigoBarraInfoAdicional, para que imprima de esta tabla cuando ingresa por XML  
-3           Rogger Lindao       06/08/2021          ----            Modificacion para hacer inner join con codigosBarrasInfoAdicional ahora se lo hace con idPODEtalle  
-4           Alex Rivera         11/05/2023          26555           Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional
-5           Jean Martillo       04/09/2024          43727           Modificacion de campo [itemNo], [shipTo], [tipoPieza], [codigoProducto] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores 
-6           Jair Gomez          12/10/2026          73041           Truncate the “note” (BoxCode / shipTo) field from 6 to 5 characters to prevent a break in the Telerik label layout.
+1           Luis De Andrade     2019-07-06          ----            Creacion de sp pro_EtiquetaClienteTempBoca para etiqueta de cliente Boca  
+2           Verónica Vicente    2020-09-25          ----            Se agreaga el Codigo de producto en la tabla CodigoBarraInfoAdicional, para que imprima de esta tabla cuando ingresa por XML  
+3           Rogger Lindao       2021-08-06          ----            Modificacion para hacer inner join con codigosBarrasInfoAdicional ahora se lo hace con idPODEtalle  
+4           Alex Rivera         2023-05-11          26555           Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional
+5           Jean Martillo       2024-09-04          43727           Modificacion de campo [itemNo], [shipTo], [tipoPieza], [codigoProducto] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores 
+6           Jair Gomez          2026-10-12          73041           Truncate the “note” (BoxCode / shipTo) field from 6 to 5 characters to prevent a break in the Telerik label layout.
 */  
   
 CREATE OR ALTER PROCEDURE [dbo].[pro_EtiquetaClienteTempBoca]   
@@ -15,7 +15,7 @@ BEGIN
 	DECLARE @query AS NVARCHAR(MAX);  
 	
 	DECLARE @tablaCodigos TABLE (
-	idCodigo UNIQUEIDENTIFIER);  
+	idCodigo UNIQUEIDENTIFIER)  
   
 	CREATE TABLE [dbo].[#Etiqueta](  
 		[nroGuia] [VARCHAR](21) NULL,  
@@ -75,7 +75,7 @@ BEGIN
 	END AS nroGuia,   
 	PO.codigo,  
 	PD.codigo,  
-	NULL, --YA NO SE USA EL CODIGO DE EX  
+	NULL,
 	COO.house,  
 	CBI.itemNo,  
 	IIF(CBI.codigoProducto IS NULL,IIF(CRB.codigo IS NULL,CRP.codigo,CRB.codigo),CBI.codigoProducto ) AS codigoProducto,
@@ -93,22 +93,22 @@ BEGIN
 	LEFT(CBI.nota, 5) AS shipTo,  
 	SUBSTRING(ITC.codigoPieza, 4, 6),  
 	SUBSTRING(ITC.codigoPieza, 9, 4)  
-	FROM dbo.InventarioTemporalCliente AS ITC WITH (NOLOCK)    
-	INNER JOIN dbo.Coordinaciones AS COO WITH (NOLOCK) ON COO.id = ITC.idCoordinacion     
-	INNER JOIN dbo.Guias AS G WITH (NOLOCK) ON G.id = COO.idGuia    
-	INNER JOIN dbo.Puertos AS PO ON PO.id = G.idPuertoOrigen  
-	INNER JOIN dbo.Puertos AS PD ON PD.id = G.idPuertoDestino  
-	INNER JOIN dbo.Clientes AS CLI ON G.idCliente = CLI.id  
-	INNER JOIN dbo.Exportadores AS EX ON COO.idExportador = EX.id  
+	FROM InventarioTemporalCliente AS ITC WITH (NOLOCK)    
+	INNER JOIN Coordinaciones AS COO WITH (NOLOCK) ON COO.id = ITC.idCoordinacion     
+	INNER JOIN Guias AS G WITH (NOLOCK) ON G.id = COO.idGuia    
+	INNER JOIN Puertos AS PO ON PO.id = G.idPuertoOrigen  
+	INNER JOIN Puertos AS PD ON PD.id = G.idPuertoDestino  
+	INNER JOIN Clientes AS CLI ON G.idCliente = CLI.id  
+	INNER JOIN Exportadores AS EX ON COO.idExportador = EX.id  
 	LEFT OUTER JOIN GrupoExportadores AS GE ON EX.idGrupo = GE.id     
-	LEFT JOIN dbo.CoordinacionInventarioTemporal AS CI on ITC.id = CI.idInventarioTemporalCliente  
-	LEFT JOIN dbo.CodigosDeBarrasInfoAdicional AS CBI WITH (NOLOCK) ON CI.idPoDetalle = CBI.idPoDetalle  
-	LEFT OUTER JOIN dbo.CodigosRelacionSistemas AS CRP ON ( ITC.codigoProducto = CRP.codigo AND CRP.idSistemaEntidad = 100 AND CRP.tipoEntidad = 'MERCANCIAS')  
-	LEFT OUTER JOIN dbo.CodigosRelacionSistemas AS CRB ON ( ITC.codigoProducto = CRB.codigo AND CRP.idEntidad = CRB.idEntidad AND CRB.idSistemaEntidad = 115 AND CRB.tipoEntidad = 'MERCANCIAS')  
-	LEFT OUTER JOIN dbo.CodigosRelacionSistemas AS CRS ON ( ITC.codigoCliente = CRS.codigo AND CRS.idSistemaEntidad = 100 AND CRS.tipoEntidad = 'CLIENTE')      
-	LEFT OUTER JOIN dbo.Clientes AS CLE ON CRS.idEntidad = CLE.id   
-	LEFT OUTER JOIN dbo.Ciudades AS CCE ON CLE.idCiudad = CCE.id   
-	LEFT OUTER JOIN dbo.Estados AS ECE ON CLE.idEstado = ECE.id  
+	LEFT JOIN CoordinacionInventarioTemporal AS CI on ITC.id = CI.idInventarioTemporalCliente  
+	LEFT JOIN CodigosDeBarrasInfoAdicional AS CBI WITH (NOLOCK) ON CI.idPoDetalle = CBI.idPoDetalle  
+	LEFT OUTER JOIN CodigosRelacionSistemas AS CRP ON ( ITC.codigoProducto = CRP.codigo AND CRP.idSistemaEntidad = 100 AND CRP.tipoEntidad = 'MERCANCIAS')  
+	LEFT OUTER JOIN CodigosRelacionSistemas AS CRB ON ( ITC.codigoProducto = CRB.codigo AND CRP.idEntidad = CRB.idEntidad AND CRB.idSistemaEntidad = 115 AND CRB.tipoEntidad = 'MERCANCIAS')  
+	LEFT OUTER JOIN CodigosRelacionSistemas AS CRS ON ( ITC.codigoCliente = CRS.codigo AND CRS.idSistemaEntidad = 100 AND CRS.tipoEntidad = 'CLIENTE')      
+	LEFT OUTER JOIN Clientes AS CLE ON CRS.idEntidad = CLE.id   
+	LEFT OUTER JOIN Ciudades AS CCE ON CLE.idCiudad = CCE.id   
+	LEFT OUTER JOIN Estados AS ECE ON CLE.idEstado = ECE.id  
 	WHERE ITC.id IN (SELECT idCodigo FROM @tablaCodigos)  
   
 	UPDATE  #Etiqueta  
@@ -120,7 +120,7 @@ BEGIN
 				ON (ss.nroPo = s.nroPo OR ss.nroPo IS NULL AND s.nroPo IS NULL)  AND ss.sufijoCodigoBarra=s.sufijoCodigoBarra  
   
 	SELECT   
-	RIGHT(1000 + (ROW_NUMBER() OVER (PARTITION BY nroPo,sufijoCodigoBarra ORDER BY nroPo,sufijoCodigoBarra,ultimosTresDigitosCB ASC)), 3) AS pagina,--CONTADOR DE ETIQUETAS  
+	RIGHT(1000 + (ROW_NUMBER() OVER (PARTITION BY nroPo,sufijoCodigoBarra ORDER BY nroPo,sufijoCodigoBarra,ultimosTresDigitosCB ASC)), 3) AS pagina,
 	[nroGuia],  
 	[codigoPuertoOrigen] + '-' + [codigoPuertoDestino] AS [codigoPuertoOrigen],  
 	NULL,  
@@ -141,13 +141,15 @@ BEGIN
 	[codigoMidExportador],  
 	[codigoShipTo] AS codigoShipTo  
 	FROM #Etiqueta  
-	ORDER BY nroPo,sufijoCodigoBarra,pagina,ultimosTresDigitosCB,codigoProducto,descripcionProducto,codigoBarra ASC --RL 16/10/2020 se agrupa y ordena por PO y sufijoy pagina generada  
-  
+	ORDER BY nroPo,sufijoCodigoBarra,pagina,ultimosTresDigitosCB,codigoProducto,descripcionProducto,codigoBarra ASC
 DROP TABLE #Etiqueta  
 END  
   
 /*  
 declare @p1 xml  
 set @p1=convert(xml,N'<codigos><c>DBFB3F69-7D62-46D1-8124-F87F16B028E9</c><c>21DFEBAF-822A-4130-88AB-F8ACE50B1DE8</c><c>8713B21F-F960-4AE0-B092-3C233D3B2A65</c></codigos>')  
-exec dbo.pro_EtiquetaClienteTempBoca_pcg @codigos=@p1  
+exec pro_EtiquetaClienteTempBoca_pcg @codigos=@p1
+
+set @p1=convert(xml,N'<codigos><c>1F5E2253-3CE1-44A0-A5BC-D67D285B4B08</c></codigos>')
+exec pro_EtiquetaClienteTempBoca @codigos=@p1
 */
