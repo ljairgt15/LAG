@@ -5,7 +5,7 @@ VERSION  AUTOR             FECHA        HU        CAMBIO
 3        Rogger Lindao     16/10/20220  ----      Se cambia el orden como se generan los CB ahora lo hace por sufijo de codigo barra y pagina de forma ascendente  
 4        Alex Rivera       11/05/2023   26555     Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional  
 5        Jean Martillo     04/09/2024   43727     Modificacion de campos [itemNo],[codigoProducto],[tipoPieza],[codigoShipTo] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores  
-6        Jair Gomez        08/10/2026   73041     Se modifica la longitud del campo nota (BoxCode / shipTo) de 6 a 5 caracteres para evitar ruptura en el diseño de la etiqueta Telerik.
+6        Jair Gomez        12/10/2026   73041     Truncate the “note” (BoxCode / shipTo) field from 6 to 5 characters to prevent a break in the Telerik label layout.
 */  
   
 CREATE OR ALTER PROCEDURE [dbo].[pro_EtiquetaClienteBoca]   
