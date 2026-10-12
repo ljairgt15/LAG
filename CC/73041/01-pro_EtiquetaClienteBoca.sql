@@ -1,11 +1,11 @@
 /*    
-VERSION  AUTOR             FECHA        HU        CAMBIO  
-1        Luis De Andrade   06/07/2019   ----      Creacion de sp pro_EtiquetaClienteBoca para etiqueta de cliente Boca  
-2        Verónica Vicente  25/09/2020   ----      Se agreaga el Codigo de producto en la tabla CodigoBarraInfoAdicional, para que imprima de esta tabla cuando ingresa por XML  
-3        Rogger Lindao     16/10/20220  ----      Se cambia el orden como se generan los CB ahora lo hace por sufijo de codigo barra y pagina de forma ascendente  
-4        Alex Rivera       11/05/2023   26555     Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional  
-5        Jean Martillo     04/09/2024   43727     Modificacion de campos [itemNo],[codigoProducto],[tipoPieza],[codigoShipTo] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores  
-6        Jair Gomez        12/10/2026   73041     Truncate the “note” (BoxCode / shipTo) field from 6 to 5 characters to prevent a break in the Telerik label layout.
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Luis De Andrade     06/07/2019          ----            Creacion de sp pro_EtiquetaClienteBoca para etiqueta de cliente Boca  
+2           Verónica Vicente    25/09/2020          ----            Se agreaga el Codigo de producto en la tabla CodigoBarraInfoAdicional, para que imprima de esta tabla cuando ingresa por XML  
+3           Rogger Lindao       16/10/20220         ----            Se cambia el orden como se generan los CB ahora lo hace por sufijo de codigo barra y pagina de forma ascendente  
+4           Alex Rivera         11/05/2023          26555           Agregar campo nota de la tabla CodigosDeBarrasInfoAdicional  
+5           Jean Martillo       04/09/2024          43727           Modificacion de campos [itemNo],[codigoProducto],[tipoPieza],[codigoShipTo] relacionados con la tabla CodigosDeBarrasInfoAdicional para que tengan los mismos valores  
+6           Jair Gomez          12/10/2026          73041           Truncate the “note” (BoxCode / shipTo) field from 6 to 5 characters to prevent a break in the Telerik label layout.
 */  
   
 CREATE OR ALTER PROCEDURE [dbo].[pro_EtiquetaClienteBoca]   
