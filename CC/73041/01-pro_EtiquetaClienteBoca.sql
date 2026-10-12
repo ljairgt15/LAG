@@ -158,5 +158,9 @@ END
 /*  
 declare @p1 xml  
 set @p1=convert(xml,N'<codigos><c>CDB12121452</c></codigos>')  
-exec dbo.pro_EtiquetaClienteBoca @codigos=@p1  
+exec dbo.pro_EtiquetaClienteBoca @codigos=@p1
+
+declare @p1 xml
+set @p1=convert(xml,N'<codigos><c>1F5E2253-3CE1-44A0-A5BC-D67D285B4B08</c></codigos>')
+exec dbo.pro_EtiquetaClienteTempBoca @codigos=@p1
 */  
