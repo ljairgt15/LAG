@@ -1,13 +1,9 @@
--------------------------------------------------------------------------
---  [pro_ListarCoordinacionesFacturaAsync]
---               
---  Sp para listar las Facturas de las Coordinaciones
---
---  VERSION		AUTOR					FECHA			HU			CAMBIO
---  1			Juan Domínguez			07-07-2020		-  			Codigo Inicial
---  2			Jonathan Merino			07-07-2020		SC 10268  	Cambio para ver si hay piezas retornadas en la factura
---  2			Jonathan Merino			13-07-2020		SC 10268  	Cambio para buscar fitos y certificados de guia master
--------------------------------------------------------------------------
+/*    
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1			Juan Domínguez		2020-07-07		    ----  			Codigo Inicial
+2			Jonathan Merino		2020-07-07		    SC 10268  	    Cambio para ver si hay piezas retornadas en la factura
+3			Jonathan Merino	    2020-07-13          SC 10268  	    Cambio para buscar fitos y certificados de guia master
+*/  
 CREATE OR ALTER PROCEDURE [dbo].[pro_ListarCoordinacionesFacturaAsync]
 (
     @FechaEmbarqueGuia DATE,
