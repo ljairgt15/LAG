@@ -4,8 +4,7 @@ VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_MercanciasRelacionCASS]
 	@Banderas varchar(20),
-	@Mercancia varchar(20),
-	@CodigoEmpresas varchar(3)
+	@Mercancia varchar(20)
 AS
 BEGIN
 	BEGIN TRY
@@ -53,8 +52,8 @@ BEGIN
 END
 GO
 /*
-EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'CODIGORELACION', @Mercancia = 'MER0001234', @CodigoEmpresas = '001'
-EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'TODOS', @Mercancia = 'GEN0001234', @CodigoEmpresas = '001'
-EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'TODOS', @Mercancia = 'MER0001234', @CodigoEmpresas = '001'
-EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'CATALOGO_COMPLETO', @Mercancia = '', @CodigoEmpresas = '001'
+EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'CODIGORELACION', @Mercancia = 'MER0001234'
+EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'TODOS', @Mercancia = 'GEN0001234'
+EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'TODOS', @Mercancia = 'MER0001234'
+EXEC [dbo].[AC_pro_MercanciasRelacionCASS] @Banderas = 'CATALOGO_COMPLETO', @Mercancia = ''
 */

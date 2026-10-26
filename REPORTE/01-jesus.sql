@@ -1,0 +1,201 @@
+/*
+VERSION     MODIFIEDBY          MODIFIEDDATE    HU      MODIFICATION
+1           Jair Gomez          2026-02-11      57746   Based on pro_reportes_analiticadespachoconsolidado.
+2           Jesús Yandún        2026-10-07      57746   Filtro por par Bill-to + Consignatario. El filtro anterior usaba solo
+                                                        GH.BilltoConsigneeId (NULL en muchas guías) y la API lo anulaba; el
+                                                        reporte traía guías de otras relaciones del consignatario (otro Bill-to).
+                                                        Ahora la guía pertenece al Bill-to si su relación (GH.BilltoConsigneeId)
+                                                        o su cliente legacy homologado (GH.idCliente = v_ClientsEntities.IdCliente)
+                                                        corresponde a una relación de ese Bill-to.
+*/
+ALTER   PROCEDURE [dbo].[AC_pro_GetConsolidatedDispatchAnalytics]
+(
+    @ConsigneeIds       VARCHAR(MAX) = NULL,
+    @BillToIds          VARCHAR(MAX) = NULL,
+    @StartDate          DATETIME,
+    @EndDate            DATETIME
+)
+AS
+BEGIN
+
+    BEGIN TRY
+     /* TABLAS TEMPORALES PARA FILTROS OPCIONALES */
+        CREATE TABLE #FilterConsignees  (
+            Id VARCHAR(16) PRIMARY KEY
+        )
+        CREATE TABLE #FilterBillTos     (
+            Id VARCHAR(16) PRIMARY KEY
+        )
+        /* Relaciones (Bill-to -> Consignatario) permitidas: Id de relación y cliente legacy homologado */
+        CREATE TABLE #FilterRelations   (
+            RelationId  VARCHAR(16),
+            IdCliente   VARCHAR(16)
+        )
+
+        IF (@ConsigneeIds IS NOT NULL AND @ConsigneeIds <> '')
+        BEGIN
+            INSERT INTO #FilterConsignees (Id)
+            SELECT DISTINCT TRIM(VALUE)
+            FROM STRING_SPLIT(@ConsigneeIds, ',')
+            WHERE TRIM(VALUE) <> ''
+        END
+
+        IF (@BillToIds IS NOT NULL AND @BillToIds <> '')
+        BEGIN
+            /* @BillToIds = EntityTypes.Id de los Bill-to (v_ClientsEntities.BillToId) */
+            INSERT INTO #FilterBillTos (Id)
+            SELECT DISTINCT TRIM(VALUE)
+            FROM STRING_SPLIT(@BillToIds, ',')
+            WHERE TRIM(VALUE) <> ''
+
+            INSERT INTO #FilterRelations (RelationId, IdCliente)
+            SELECT VCE.Id, VCE.IdCliente
+            FROM v_ClientsEntities VCE WITH(NOLOCK)
+            WHERE VCE.BillToId IN (SELECT Id FROM #FilterBillTos)
+              AND (
+                  NOT EXISTS (SELECT 1 FROM #FilterConsignees)
+                  OR VCE.ConsigneeId IN (SELECT Id FROM #FilterConsignees)
+              )
+        END
+
+        CREATE TABLE #TMP_DispatchAnalytics (
+            Shipper             NVARCHAR(256),
+            [Status]            VARCHAR(64),
+            Awb                 VARCHAR(32),
+            Origin              NVARCHAR(128),
+            PoNumber            VARCHAR(64),
+            [Type]              VARCHAR(8),
+            Equivalencia        DECIMAL(18,5),
+            Alto                DECIMAL(18,3),
+            Largo               DECIMAL(18,3),
+            Ancho               DECIMAL(18,3),
+            Boxes               INT,
+            TotalPcsHouse       INT,
+            TotalFullHouse      DECIMAL(18,3),
+            FechaDespacho       DATETIME,
+            IdGuiaHouse         UNIQUEIDENTIFIER,
+            IdGuiaHouseDetalle  UNIQUEIDENTIFIER,
+            IdPo                UNIQUEIDENTIFIER,
+            IdPoDetalle         UNIQUEIDENTIFIER,
+            Carrier             NVARCHAR(256),
+            Shipto              NVARCHAR(256)
+        )
+
+        INSERT INTO #TMP_DispatchAnalytics
+        SELECT
+            Shipper = EX.Nombre,
+            [Status] = GHD.EstadoPieza,
+            Awb = GH.NroGuia,
+            Origin = CD.Nombre,
+            PoNumber = CASE WHEN GHD.po = '' THEN NULL ELSE GHD.po END,
+            [Type] = TP.TipoPieza,
+            Equivalencia = TP.Equivalencia,
+            Alto = GHD.AltoIn,
+            Largo = GHD.LargoIn,
+            Ancho = GHD.AnchoIn,
+            Boxes = 1,
+            TotalPcsHouse = GH.TotalPcsHouse,
+            TotalFullHouse = GH.TotalFullHouse,
+            FechaDespacho = PC.FechaDespacho,
+            IdGuiaHouse = GH.Id,
+            IdGuiaHouseDetalle = GHD.Id,
+            IdPo = GHD.IdPoDetalle,
+            IdPoDetalle = GHD.IdPoDetalle,
+            Carrier = TS.Nombre,
+            Shipto = ST.Nombre
+        FROM GuiasHouse GH WITH(NOLOCK)
+        INNER JOIN GuiasHouseDetalles   GHD WITH(NOLOCK) ON GHD.IdGuiaHouse = GH.Id
+        INNER JOIN ProgramacionCarrier  PC WITH(NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
+        INNER JOIN v_ClientsEntities    ST  WITH(NOLOCK) ON GHD.ShipToId = ST.Id
+        INNER JOIN Exportadores         EX WITH(NOLOCK) ON EX.Id = GH.IdExportador
+        INNER JOIN TiposDePieza         TP WITH(NOLOCK) ON TP.Id = GHD.IdTipoDePieza
+        INNER JOIN Ciudades             CD WITH(NOLOCK) ON CD.Id = GH.IdCiudadPuertoOrigen
+        INNER JOIN Transportes          TS WITH(NOLOCK) ON PC.IdCarrier = TS.Id
+        WHERE PC.FechaDespacho BETWEEN @StartDate AND @EndDate AND GHD.EstadoPieza IN ('DISPATCHED WH','RECEIVED DR','RECEIVED WH','PENDING')
+          AND (
+              @BillToIds IS NULL OR @BillToIds = ''
+              OR EXISTS (SELECT 1 FROM #FilterRelations FR WHERE FR.RelationId = GH.BilltoConsigneeId)
+              OR EXISTS (SELECT 1 FROM #FilterRelations FR WHERE FR.IdCliente = GH.IdCliente)
+          )
+          AND (
+              @ConsigneeIds IS NULL OR @ConsigneeIds = ''
+             OR GH.ConsigneeId IN (SELECT Id FROM #FilterConsignees)
+          )
+
+        DELETE TMP
+        FROM #TMP_DispatchAnalytics TMP
+        INNER JOIN PoDetalles   PD WITH(NOLOCK) ON TMP.IdPoDetalle = PD.Id
+        INNER JOIN PoEncabezado PE WITH(NOLOCK) ON PD.IdPo = PE.Id
+        INNER JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id
+        INNER JOIN Catalogos    CA WITH(NOLOCK) ON OL.IdCatalogoStatus = CA.Id
+        WHERE CA.CodigoRelacion = 'CANCELADO'
+
+        UPDATE TMP
+        SET
+            TMP.Origin = CD.Nombre,
+
+            TMP.IdPo = CASE
+                           WHEN OL.Id IS NOT NULL THEN PE.Id
+                           ELSE TMP.IdPo
+                       END,
+            TMP.Awb  = CASE
+                           WHEN OL.Id IS NOT NULL THEN 'LOCAL'
+                           ELSE TMP.Awb
+                       END
+        FROM #TMP_DispatchAnalytics TMP
+        INNER JOIN PoDetalles   PD WITH(NOLOCK) ON TMP.IdPoDetalle = PD.Id
+        INNER JOIN PoEncabezado PE WITH(NOLOCK) ON PD.IdPo = PE.Id
+        INNER JOIN Empresas     EMP WITH(NOLOCK) ON PE.IdEmpresa = EMP.Id
+        INNER JOIN Ciudades     CD WITH(NOLOCK) ON EMP.IdCiudad = CD.Id
+        LEFT JOIN OrdenesLocales OL WITH(NOLOCK) ON PE.IdOrdenLocal = OL.Id
+
+        SELECT
+            Id              = CONVERT(VARCHAR(16), ROW_NUMBER() OVER (ORDER BY TMP.PoNumber, TMP.Shipper)),
+            IdConsignatario = '',
+            Consignatario   = '',
+            TMP.Shipper,
+            Boxes           = SUM(TMP.Boxes),
+            TMP.[Type],
+            Fb              = ROUND(SUM(TMP.Equivalencia), 2),
+            TMP.Largo,
+            TMP.Ancho,
+            TMP.Alto,
+            Cubic           = ROUND(SUM(TMP.Alto * TMP.Largo * TMP.Ancho / 1728), 2),
+            TMP.[Status],
+            TMP.Awb,
+            TMP.Origin,
+            TMP.PoNumber,
+            TMP.Carrier,
+            TMP.Shipto,
+            TMP.FechaDespacho
+        FROM #TMP_DispatchAnalytics TMP
+        GROUP BY
+            TMP.Shipper,
+            TMP.[Type],
+            TMP.Largo,
+            TMP.Alto,
+            TMP.Ancho,
+            TMP.[Status],
+            TMP.Awb,
+            TMP.Origin,
+            TMP.PoNumber,
+            TMP.Carrier,
+            TMP.Shipto,
+            TMP.FechaDespacho
+        ORDER BY TMP.Awb
+
+        DROP TABLE #TMP_DispatchAnalytics
+
+    END TRY
+    BEGIN CATCH
+        EXEC [dbo].[pro_LogError]
+    END CATCH
+END;
+/*
+-- Caso del bug: naranjobillto (Bill-to NARANJO FARMS ETY01336) + ALAMOGORDO (ETY011119).
+-- Esperado: solo guías de CLI0518391; NO debe aparecer el waybill 72991178776 (CLI0125531 / FLORALINK).
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds='ETY011119', @BillToIds='ETY01336', @StartDate='2026-09-01', @EndDate='2026-10-03';
+
+-- Interno sin Bill-to: comportamiento anterior (todas las relaciones del consignatario).
+execute [dbo].[AC_pro_GetConsolidatedDispatchAnalytics] @ConsigneeIds='ETY011119', @BillToIds=NULL, @StartDate='2026-09-01', @EndDate='2026-10-03';
+*/

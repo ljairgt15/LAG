@@ -14,22 +14,22 @@ AS
 BEGIN
 	BEGIN TRY
 		SELECT
-		CC01.idaerolineas,
-		CC01.codigofacturador,
-		CC01.fechainicial,
-		CC01.fechafinal,
-		ISNULL(CC01.notas, '') AS Notas,
-		ISNULL(CC01.tipo, '') AS Tipo,
-		ISNULL(CC01.adicional, '') AS Adicional
-		FROM	convenioscodigo001 CC01
-		WHERE	CC01.idaerolineas = @IdAerolineas
-		AND		CC01.codigoempresas = @CodigoEmpresas
-		AND		(CC01.codigofacturador = @CodigoFacturador OR CC01.codigofacturador = @IdConsignatario)
-		AND		CC01.destino = @Destino
-		AND		CC01.paisorigen = @PaisOrigen
-		AND		CC01.fechainicial <= @FechaInicial
-		AND		CC01.vigente = 1
-		ORDER BY CC01.fechainicial DESC
+		CON.idaerolineas,
+		CON.codigofacturador,
+		CON.fechainicial,
+		CON.fechafinal,
+		ISNULL(CON.notas, '') AS Notas,
+		ISNULL(CON.tipo, '') AS Tipo,
+		ISNULL(CON.adicional, '') AS Adicional
+		FROM convenioscodigo001 CON
+		WHERE CON.idaerolineas = @IdAerolineas
+		AND	CON.codigoempresas = @CodigoEmpresas
+		AND	(CON.codigofacturador = @CodigoFacturador OR CON.codigofacturador = @IdConsignatario)
+		AND	CON.destino = @Destino
+		AND	CON.paisorigen = @PaisOrigen
+		AND	CON.fechainicial <= @FechaInicial
+		AND	CON.vigente = 1
+		ORDER BY CON.fechainicial DESC
 	END TRY
 	BEGIN CATCH
 		EXEC [dbo].[pro_LogError]
