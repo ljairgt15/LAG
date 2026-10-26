@@ -26,7 +26,7 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
     DECLARE @TempId TABLE (id INT, unificado INT)
 
     -- =============================================
-    -- EMPLEADO (79 roles)
+    -- EMPLEADO (78 roles)
     -- =============================================
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '2ebf6a9f-bbe1-461c-bd3a-f892348a5ee6' AND [CatalogosId] = @CatEmployee)
     BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
@@ -388,11 +388,6 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
     VALUES (@Id,'5E687C15-AEDC-43C2-9FEB-0C754E7EA70A',@CatEmployee,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- SUPERVISOR VENTAS
 
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '83380485-21d4-4424-bcb8-d13c979cbff3' AND [CatalogosId] = @CatEmployee)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'83380485-21d4-4424-bcb8-d13c979cbff3',@CatEmployee,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- TEST5
-
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '3ab2403d-40bb-44c0-b6c4-68a880597ebf' AND [CatalogosId] = @CatEmployee)
     BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
@@ -424,37 +419,17 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
     VALUES (@Id,'857D7864-9846-463A-A31B-F8E91F89A706',@CatEmployee,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- VENTAS AMS
 
     -- =============================================
-    -- CLIENTE (10 roles)
+    -- CLIENTE (4 roles)
     -- =============================================
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '146e80da-cffa-4d03-a4bc-a39ccf178a7e' AND [CatalogosId] = @CatClient)
     BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
     VALUES (@Id,'146e80da-cffa-4d03-a4bc-a39ccf178a7e',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES
 
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '3361AEA8-536D-467B-8D9A-F7485FA62452' AND [CatalogosId] = @CatClient)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'3361AEA8-536D-467B-8D9A-F7485FA62452',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES 360
-
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '22EA7F22-5E76-4F99-813B-88F5E1A0C497' AND [CatalogosId] = @CatClient)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'22EA7F22-5E76-4F99-813B-88F5E1A0C497',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES 360 DESPACHO
-
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'DD13A4F4-77A3-4802-B93C-47D9AE9EB463' AND [CatalogosId] = @CatClient)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'DD13A4F4-77A3-4802-B93C-47D9AE9EB463',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES 360 INVENTARIO
-
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'E9778E85-FA4A-4A81-8699-4BB15FFDB875' AND [CatalogosId] = @CatClient)
     BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
     VALUES (@Id,'E9778E85-FA4A-4A81-8699-4BB15FFDB875',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES DESPACHO
-
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = 'B7D09D61-5B5C-43BB-B499-4C2D0FF07883' AND [CatalogosId] = @CatClient)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'B7D09D61-5B5C-43BB-B499-4C2D0FF07883',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES DESPACHO SIN OL
 
     IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '3BF88A61-729E-4C04-93BD-3B0BFDA4AA9D' AND [CatalogosId] = @CatClient)
     BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
@@ -465,16 +440,6 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
     BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
     INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
     VALUES (@Id,'ED18026E-4AD3-4577-9787-BFF822C9B2A1',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES INVENTARIO
-
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '09F299B5-FF76-4E98-B805-B066E6AD9D37' AND [CatalogosId] = @CatClient)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'09F299B5-FF76-4E98-B805-B066E6AD9D37',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES PLAN B
-
-    IF NOT EXISTS (SELECT 1 FROM [dbo].[RolesActors] WHERE [AspNetRoleId] = '1640BFBA-A151-48ED-ABC7-6A0FEA39A216' AND [CatalogosId] = @CatClient)
-    BEGIN DELETE FROM @TempId; INSERT INTO @TempId (id, unificado) EXEC dbo.AC_pro_General_GenerateBulkInt @table = 'RolesActors', @idEmpresa = @IdEmpresa; SELECT TOP 1 @Id = unificado FROM @TempId;
-    INSERT INTO [dbo].[RolesActors] ([Id],[AspNetRoleId],[CatalogosId],[Status],[CreatedBy],[CreatedDate],[ModifiedBy],[ModifiedDate])
-    VALUES (@Id,'1640BFBA-A151-48ED-ABC7-6A0FEA39A216',@CatClient,1,'qVYus9gi',GETDATE(),'qVYus9gi',GETDATE()); END; -- CLIENTES PO
 
     -- =============================================
     -- EXPORTADOR (12 roles)
