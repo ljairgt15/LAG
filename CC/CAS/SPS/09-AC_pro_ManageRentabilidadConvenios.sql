@@ -106,7 +106,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        EXEC [dbo].[pro_LogError];
+        EXEC [dbo].[pro_LogError]
     END CATCH
 END
 GO
