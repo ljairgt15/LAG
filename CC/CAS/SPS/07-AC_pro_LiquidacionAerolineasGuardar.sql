@@ -45,7 +45,7 @@ CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar]
    @TarifaSsc decimal(10,3),
    @Combustible decimal(10,3),
    @Seguridad decimal(10,3),
-   @FechaOver datetime, --------desde aqui
+   @FechaOver datetime,
    @VersionFila int,
    @FechaManejo datetime,
    @FechaComision datetime,
@@ -54,7 +54,7 @@ CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar]
    @FechaOverComision2 datetime,
    @FechaDiferenciaTarifas datetime,
    @FechaReclamo datetime,
-   @Cierre varchar(25), --desde aqui clientes
+   @Cierre varchar(25),
    @DiferenciaCass decimal(9,3),
    @StatusCass int,
    @ComisionCliente decimal(10,3),
@@ -117,7 +117,6 @@ BEGIN TRY
 		IF (@ContarGuia >0 ) 
 		BEGIN
 			
-			--SOLO MODIFICA LAS transacciones que son del sistema (S) y que ademas esten abiertas
 			UPDATE liquidacionaerolineas 
 			SET 
 			idaerolinea = @IdAerolinea, 
@@ -186,7 +185,6 @@ BEGIN TRY
 			SET @IdSucursal = 1
 			EXECUTE pro_GeneraridUnicoIntOut  'liquidacionaerolineas',@InicialCodigoEmpresas, @IdSucursal, @IdUnico OUT
 
-			-- Insert statements for procedure here
 			INSERT INTO liquidacionaerolineas           
 		   (id, nroguia, idaerolinea, cass, destino, fechaembarque, prepaid,
 			valorprepaid, fletetotalreal, fletetotalcorte,
