@@ -1,13 +1,13 @@
 {
   "OrderHeader": {
-    "Shipdate": "04/15/26",
+    "Shipdate": "08/18/26",
     "Shipper": "EQR",
-    "BarcodeAccount": "02",
-    "ShipdateOriginal": "2026-04-15T00:00:00"
+    "BarcodeAccount": "01",
+    "ShipdateOriginal": "2026-08-18T00:00:00"
   },
   "OrderDetail": [
     {
-      "UnitID": "U100000001",
+      "UnitID": "U400000001",
       "UnitOfMeasure": "Box",
       "Measure": "Inch",
       "FarmName": "EQR",
@@ -18,12 +18,12 @@
       "Height": 8.0,
       "Product": "9806",
       "ProductDescription": "BUPLEURUM",
-      "PO": "PO-SOFIS-001",
+      "PO": "PO-SOFIS-005",
       "Command": "A",
       "Remarks": "TEST EXITO 1"
     },
     {
-      "UnitID": "U100000002",
+      "UnitID": "U400000002",
       "UnitOfMeasure": "Box",
       "Measure": "Inch",
       "FarmName": "EQR",
@@ -34,7 +34,7 @@
       "Height": 8.0,
       "Product": "7845",
       "ProductDescription": "BOUQUET",
-      "PO": "PO-SOFIS-001",
+      "PO": "PO-SOFIS-00",
       "Command": "A",
       "Remarks": "TEST EXITO 2 - FALLBACK SHIPTO"
     }

@@ -4,41 +4,38 @@ VERSION		MODIFIEDBY			MODIFIEDDATE	  HU			 MODIFICATION
 */
 
 CREATE OR ALTER PROCEDURE [dbo].[Ac_pro_GetClientsPieceDimensions]
-    @IdClientes VARCHAR(MAX)
+    @RelationIds VARCHAR(MAX)
 AS
 BEGIN
-	CREATE TABLE #idClientes
+	CREATE TABLE #RelationIds
 	(
-		idCliente VARCHAR(16)
+		EntityRelationId VARCHAR(16)
 	)
 
-	INSERT INTO #idClientes
+	INSERT INTO #RelationIds
 	(
-		idCliente
+		EntityRelationId
 	)
-	SELECT idCliente
+	SELECT EntityRelationId
 	FROM
-		OPENJSON(@IdClientes)
+		OPENJSON(@RelationIds)
 		WITH
 		(
-			idCliente VARCHAR(16) '$.idCliente'
+			EntityRelationId VARCHAR(16) '$.EntityRelationId'
 		)
 
 	SELECT 
-	--no hace nada ni en el codigo
-		ROW_NUMBER() OVER (ORDER BY H.idCliente) AS id,
-		--
-		H.idCliente,
+		H.EntityRelationId AS EntityRelationId,
 		H.tipoPiezaInventario AS tipoPieza,
 		AVG(H.largo/2.54) AS largo,
 		AVG(H.alto/2.54) AS alto,
 		AVG(H.ancho/2.54) AS ancho
 	FROM HistoricoDimensiones H WITH(NOLOCK)
-	INNER JOIN #idClientes C ON H.idCliente = C.idCliente
-	GROUP BY H.idCliente, H.tipoPiezaInventario
+	INNER JOIN #RelationIds C ON H.EntityRelationId = C.EntityRelationId
+	GROUP BY H.EntityRelationId, H.tipoPiezaInventario
 
 END
 
 /*
-EXEC pro_ObtenerDimensionesPiezasClientes @IdClientes=N'[{"idCliente":"mhBQEBFmGwmE"},{"idCliente":"CLI0416427"},{"idCliente":"CLI012407"},{"idCliente":"mhBQEBFmGwmE"},{"idCliente":"CLI0420931"},{"idCliente":"CLI0116944"},{"idCliente":"CLI0120245"},{"idCliente":"CLI0421137"},{"idCliente":"CLI0420932"},{"idCliente":"CLI015247"}]'
+EXEC pro_ObtenerDimensionesPiezasClientes @RelationIds=N'[{"EntityRelationId":"mhBQEBFmGwmE"},{"EntityRelationId":"CLI0416427"},{"EntityRelationId":"CLI012407"},{"EntityRelationId":"mhBQEBFmGwmE"},{"EntityRelationId":"CLI0420931"},{"EntityRelationId":"CLI0116944"},{"EntityRelationId":"CLI0120245"},{"EntityRelationId":"CLI0421137"},{"EntityRelationId":"CLI0420932"},{"EntityRelationId":"CLI015247"}]'
 */

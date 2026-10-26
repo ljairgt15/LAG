@@ -36,13 +36,7 @@ BEGIN
             @WildcardDestinationDate = DATEADD(DAY, -90, @DateTo)
 
         CREATE TABLE #TMP_RelatedClients (
-        [Id]      VARCHAR(16),
-        [IdCliente]     VARCHAR(16),
-        [BillToConsigneeId] VARCHAR(16),
-        [BilltoId]     VARCHAR(16),
-        [ConsigneeId]     VARCHAR(16),
-        [BillToName]    VARCHAR(256),
-        [Name]          VARCHAR(256)
+        [ConsigneeId]     VARCHAR(16)
         )
         
         CREATE TABLE #TMP_Exporters ( 
@@ -89,10 +83,9 @@ BEGIN
         FROM Documentos 
         WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
-        EXEC [dbo].[AC_pro_GetClientsEntities]
-             @EntityId = @EntityId,
-             @UserType = @UserType 
+        INSERT INTO #TMP_RelatedClients (ConsigneeId)
+        SELECT ConsigneeId
+        FROM f_GetClientsEntities(@UserType, @EntityId);
 
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)
@@ -448,7 +441,7 @@ BEGIN
             TRA.Id AS IdCarrier, 
             TRA.Nombre AS NombreCarrier, 
             COR.Codigo AS CodigoCarrier, 
-            '' AS IdClienteConsignee, 
+            '' AS ConsigneeId, 
             VCC.Nombre AS NombreClienteConsignee,  
             '' AS IdPaisConsignee,
             '' AS NombrePaisConsignee,
@@ -461,7 +454,7 @@ BEGIN
             '' AS CodigoIsoPaisAlt, 
             ES.Id AS IdEstadoAlt, 
             ES.CodigoISO AS CodigoIsoEstadoAlt, 
-            TMP.ShipToId AS IdClienteFinal, 
+            TMP.ShipToId AS ShipToId, 
             VCS.Nombre AS NombreClienteFinal, 
             P.Id AS IdPais, 
             P.Nombre AS NombrePais,  

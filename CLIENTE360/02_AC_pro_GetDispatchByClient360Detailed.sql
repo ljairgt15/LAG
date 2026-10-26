@@ -37,15 +37,10 @@ BEGIN
             @IsPendingStatus         = CASE WHEN @IsPending = 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END,
             @WildcardDestinationDate = DATEADD(DAY, -90, @DateTo)
 
-        CREATE TABLE #TMP_RelatedClients (
-            [Id]                VARCHAR(16),
-            [IdCliente]         VARCHAR(16),
-            [BillToConsigneeId] VARCHAR(16),
-            [BillToId]          VARCHAR(16),
-            [ConsigneeId]       VARCHAR(16),
-            [BillToName]        VARCHAR(256),
-            [Name]              VARCHAR(256)
-        )
+        CREATE TABLE #TMP_RelatedClients
+        (
+            ConsigneeId VARCHAR(16)
+        );
         
         CREATE TABLE #TMP_FinalClients ( 
             [ShipToId] VARCHAR(16) 
@@ -88,11 +83,11 @@ BEGIN
         FROM Documentos 
         WHERE Codigo = 'MANIFEST'
 
-        INSERT INTO #TMP_RelatedClients (Id,IdCliente, BillToConsigneeId,BilltoId,ConsigneeId, BillToName, [Name])
-        EXEC [dbo].[AC_pro_GetClientsEntities]
-             @EntityId = @EntityId,
-             @UserType = @UserType 
+        INSERT INTO #TMP_RelatedClients (ConsigneeId)
+        SELECT ConsigneeId
+        FROM f_GetClientsEntities(@UserType, @EntityId);
 
+        
         SELECT TOP 1 @ConsolidatorStatus = 'CONSOLIDADOR'
         FROM GuiasHouse GH WITH(NOLOCK)
          INNER JOIN #TMP_RelatedClients REL ON REL.ConsigneeId = GH.ConsigneeId
@@ -446,7 +441,7 @@ BEGIN
             TRA.Id AS IdCarrier, 
             TRA.Nombre AS NombreCarrier, 
             '' AS CodigoCarrier,
-            TMP.ConsigneeClientId AS IdClienteConsignee, 
+            TMP.ConsigneeClientId AS ConsigneeId, 
             VCC.Nombre AS NombreClienteConsignee, 
             '' AS IdPaisConsignee,
             '' AS NombrePaisConsignee,
@@ -459,7 +454,7 @@ BEGIN
             PAS.CodigoISO AS CodigoIsoPaisAlt, 
             ESS.Id AS IdEstadoAlt, 
             ESS.CodigoISO AS CodigoIsoEstadoAlt, 
-            TMP.ShipToId AS IdClienteFinal, 
+            TMP.ShipToId AS ShipToId, 
             VCS.Nombre AS NombreClienteFinal, 
             PAS.Id AS IdPais,  
             PAS.Nombre AS NombrePais, 

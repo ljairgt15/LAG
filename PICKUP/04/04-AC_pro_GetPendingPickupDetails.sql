@@ -1,6 +1,9 @@
-/* 
+/*
 VERSION     MODIFIEDBY        MODIFIEDDATE    HU     MODIFICATION
 1           Jair Gomez        2026-02-03      57731  Based on pro_Despacho_DespachoDetallePickUp
+2           Oscar Yunda		  2026-06-16      57742  Catalog Parameters Implementation Billto - Manifest Generation
+3           Fernando Ordoñez  2026-08-31      57725  Change BillToConsigneeId to consigneeId
+4           Jair Gomez        2026-08-31      70112  PO filter is added in detail query 
 */
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_GetPendingPickupDetails]
 (
@@ -34,19 +37,19 @@ BEGIN
             Id                    UNIQUEIDENTIFIER NOT NULL,
             IdGuiaHouse           UNIQUEIDENTIFIER NOT NULL,
             EstadoPieza           NVARCHAR(64)     NOT NULL,
-            IdClienteFinal        VARCHAR(16)      NOT NULL,
+            IdClienteFinal        VARCHAR(16)      NULL,
             FechaDespacho         DATETIME         NOT NULL,
             NombreBodega          NVARCHAR(512)    NULL,
             IdBodega              VARCHAR(16)      NOT NULL,
             IdCarrier             VARCHAR(16)      NOT NULL,
             IdProgramacionCarrier UNIQUEIDENTIFIER NOT NULL,
-            NombreClienteFinal    VARCHAR(256)     NOT NULL,
+            NombreClienteFinal    VARCHAR(256)     NULL,
             NroGuia               VARCHAR(32)      NOT NULL,
             NroPo                 VARCHAR(50)      NULL,
             IdPaisCliente         VARCHAR(16)      NULL,
             TruckId               VARCHAR(10)      NULL,
             NombreConsignee       VARCHAR(512)     NULL,
-            IdConsignee           VARCHAR(16)      NOT NULL,
+            IdConsignee           VARCHAR(16)      NULL,
             IdUsuarioLogEdi       VARCHAR(16)      NULL,
             IdUsuarioLogHouse     VARCHAR(16)      NULL,
             NombreUsuario         NVARCHAR(64)     NULL,
@@ -93,7 +96,7 @@ BEGIN
                ,CLF.IdPais
                ,GHD.TruckId
                ,CGN.Nombre
-               ,CGN.Id
+               ,CGN.ConsigneeId
                ,EDI.IdUsuarioLog
                ,GH.IdUsuarioLog
                ,US.Nombre
@@ -121,10 +124,10 @@ BEGIN
                                               AND PCA.Valor = 'NO'
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id
-            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
-            INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = CGN.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
+            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa   AND PLC.actor = 'BILLTO'
+            LEFT JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
+            LEFT JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
+            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.BillToConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
             LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
@@ -159,6 +162,7 @@ BEGIN
               AND (@PalletLabel IS NULL OR PAL.Pallet LIKE '%' + @PalletLabel + '%')
               AND (@IdBodega IS NULL OR ISNULL(UB.IdBodega, GH.IdBodega) = @IdBodega)
               AND (@EsInventario IS NULL OR CI.ValorEsInventario = @EsInventario)
+              AND (@Po IS NULL OR GHD.Po LIKE '%' + @Po + '%')
             GROUP BY 
                 GHD.Id, 
                 GH.Id, 
@@ -175,7 +179,7 @@ BEGIN
                 CLF.IdPais,
                 GHD.TruckId, 
                 CGN.Nombre, 
-                CGN.Id, 
+                CGN.ConsigneeId, 
                 EDI.IdUsuarioLog, 
                 GH.IdUsuarioLog,
                 US.Nombre, 
@@ -200,6 +204,7 @@ BEGIN
                    ,APU.IdGuiaHouse
                    ,MD.Id AS IdManifiesto
                    ,DD.MailEnviado
+                   ,ISNULL(DD.EsPod, 0) AS EsPod
                    ,APU.EstadoPieza
                    ,APU.IdClienteFinal
                    ,APU.FechaDespacho
@@ -241,7 +246,7 @@ BEGIN
                     FROM DocumentosDespacho DD 
                     WHERE DD.IdManifiesto = MD.Id
                       AND DD.IdDocumento = 'DOC052395'
-                    ORDER BY DD.EsPod DESC
+                    ORDER BY DD.EsPod DESC, mailEnviado DESC
                 ) DD
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
@@ -254,13 +259,14 @@ BEGIN
                    ,APU.IdGuiaHouse
                    ,MD.Id AS IdManifiesto
                    ,DD.MailEnviado
+                   ,ISNULL(DD.EsPod, 0) AS EsPod
                    ,APU.EstadoPieza
                    ,APU.IdClienteFinal
                    ,APU.FechaDespacho
                    ,APU.NombreBodega
                    ,APU.IdBodega
                    ,ISNULL(ISNULL(APU.IdUsuarioLogEdi, MD.IdUsuarioLog), APU.IdUsuarioLogHouse) AS IdUsuarioLog
-                   ,CASE
+                    ,CASE
                        WHEN APU.IdUsuarioLogEdi IS NOT NULL THEN APU.NombreUsuario
                        WHEN MD.IdUsuarioLog IS NOT NULL THEN U.Nombre
                        ELSE USH.Nombre
@@ -295,12 +301,11 @@ BEGIN
                     FROM DocumentosDespacho DD
                     WHERE DD.IdManifiesto = MD.Id
                       AND DD.IdDocumento = 'DOC052395'
-                    ORDER BY DD.EsPod DESC
+                    ORDER BY DD.EsPod DESC, mailEnviado DESC
                 ) DD
                 LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
                 LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
                 WHERE MD.NroManifiesto = @NroManifiesto
-                AND ISNULL(DD.EsPod, 0) = 0
             END
         END
         ELSE IF (@Consulta = 2)
@@ -322,7 +327,7 @@ BEGIN
                ,CLF.IdPais
                ,GHD.TruckId
                ,CGN.Nombre
-               ,CGN.Id
+               ,CGN.ConsigneeId
                ,EDI.IdUsuarioLog
                ,GH.IdUsuarioLog
                ,US.Nombre
@@ -350,14 +355,14 @@ BEGIN
                                               AND PCA.Valor = 'NO'
             INNER JOIN GuiasHouseDetalles GHD WITH (NOLOCK) ON PC.IdGuiaHouseDetalle = GHD.Id 
             INNER JOIN GuiasHouse GH WITH (NOLOCK) ON GHD.IdGuiaHouse = GH.Id 
-            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa
-            INNER JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
-            INNER JOIN v_ClientsEntities CGN ON CGN.Id = ISNULL(GH.BillToConsigneeId, GH.ConsigneeId)
-            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.ConsigneeId AND PCAT.IdParametroLista = PLC.Id
+            INNER JOIN ParametrosLista PLC ON PLC.Codigo = 'TipoManifiestoDespacho' AND PLC.IdEmpresa = GH.IdEmpresa  AND PLC.actor = 'BILLTO'
+            LEFT JOIN v_ClientsEntities CLF ON CLF.Id = GHD.ShipToId
+            LEFT JOIN v_ClientsEntities CGN ON CGN.Id = GH.BillToConsigneeId
+            LEFT JOIN ParametrosCatalogos PCAT ON PCAT.IdEntidad = GH.BillToConsigneeId AND PCAT.IdParametroLista = PLC.Id
             LEFT JOIN ProgramacionTe TE ON PC.Id = TE.IdProgramacionCarrier  
             LEFT JOIN EDI ON PC.IdCarrier = EDI.IdCarrier AND PC.FechaDespacho = EDI.FechaDespacho
             LEFT JOIN Usuarios US ON EDI.IdUsuarioLog = US.Id
-            LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id -- Transaccional en lista
+            LEFT JOIN PoDetalles PD WITH (NOLOCK) ON GHD.IdPoDetalle = PD.Id 
             LEFT JOIN PoEncabezado PE ON PD.IdPo = PE.Id
             OUTER APPLY (
                 SELECT TOP (1) SV.Id, SV.NroOrden, SVD.Picking, SV.TipoVenta, SVD.TipoPieza
@@ -382,7 +387,6 @@ BEGIN
             ) AS CI
             WHERE PC.FechaDespacho > DATEADD(MM, -@FechaDesde, GETDATE())
             AND GH.IdEmpresa = @IdEmpresa                     
-            AND GHD.EsPod = 0
             AND (@Consignee IS NULL OR @Consignee = ''
                 OR GH.ConsigneeId IN (SELECT Id FROM dbo.f_SearchEntities(@Consignee, 'Consignee')))    
             AND (@BillTo IS NULL OR @BillTo = '' 
@@ -411,7 +415,7 @@ BEGIN
                 CLF.IdPais,
                 GHD.TruckId, 
                 CGN.Nombre, 
-                CGN.Id, 
+                CGN.ConsigneeId, 
                 EDI.IdUsuarioLog, 
                 GH.IdUsuarioLog,
                 US.Nombre, 
@@ -436,6 +440,7 @@ BEGIN
                ,APU.IdGuiaHouse
                ,MD.Id AS IdManifiesto
                ,DD.MailEnviado
+               ,ISNULL(DD.EsPod, 0) AS EsPod
                ,APU.EstadoPieza
                ,APU.IdClienteFinal
                ,APU.FechaDespacho
@@ -477,12 +482,11 @@ BEGIN
                 FROM DocumentosDespacho DD
                 WHERE DD.IdManifiesto = MD.Id
                   AND DD.IdDocumento = 'DOC052395'
-                ORDER BY DD.EsPod DESC
+                ORDER BY DD.EsPod DESC, mailEnviado DESC
             ) DD
             LEFT JOIN Usuarios U ON MD.IdUsuarioLog = U.Id
             LEFT JOIN Usuarios USH ON APU.IdUsuarioLogHouse = USH.Id
             WHERE (@NroManifiesto IS NULL OR MD.NroManifiesto LIKE '%' + @NroManifiesto + '%')
-              AND ISNULL(DD.EsPod, 0) = 0
         END;
 
     END TRY
