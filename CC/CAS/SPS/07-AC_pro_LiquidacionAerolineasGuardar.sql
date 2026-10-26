@@ -181,7 +181,7 @@ BEGIN TRY
          @InicialCodigoEmpresas VARCHAR(1), 
          @IdSucursal INT, 
          @IdUnico CHAR(11)
-         
+
 			SET @InicialCodigoEmpresas = 'U'
 			SET @IdSucursal = 1
 			EXECUTE pro_GeneraridUnicoIntOut  'liquidacionaerolineas',@InicialCodigoEmpresas, @IdSucursal, @IdUnico OUT
@@ -269,8 +269,6 @@ END
 GO
 
 /*
--- EJEMPLO DE EJECUCION
-
 EXEC [dbo].[AC_pro_LiquidacionAerolineasGuardar]
     @Id = '',
     @NroGuia = '12345678901',
