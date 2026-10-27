@@ -8,5 +8,5 @@ SET
     RC.activo = 0,
     RC.fechamodificacion = GETDATE()
 FROM RentabilidadConvenios RC
-WHERE RC.fechahasta < DATEADD(MONTH, -2, GETDATE())
+WHERE RC.fechahasta < DATEADD(MONTH, -4, GETDATE())
 AND RC.activo = 1;
