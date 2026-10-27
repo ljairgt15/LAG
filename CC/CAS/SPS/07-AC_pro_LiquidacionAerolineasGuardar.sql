@@ -2,8 +2,8 @@
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_LiquidacionAerolineasGuardar
 */
-CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar] 
-	@Id varchar(13),
+CREATE OR ALTER PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar] 
+   @Id varchar(13),
    @NroGuia varchar(13),
    @IdAerolinea varchar(4),
    @Cass varchar(1),
@@ -97,21 +97,21 @@ CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar]
    @TarifaMargen decimal(10,3),
    @IngresoXTarifa decimal(10,3),
    @IngresoXTarifaXKilo decimal(10,3),
-   @IngresoNeto decimal(10,3),	
+   @IngresoNeto decimal(10,3),   
    @MargenSinBia decimal(10,3),
    @IngresoSinBia decimal(10,3),
    @RetencionFuente decimal(10,5)
 AS
 BEGIN
 BEGIN TRY
-	DECLARE @ContarGuia INT
-	SET @ContarGuia = 0
-		
+   DECLARE @ContarGuia INT
+   SET @ContarGuia = 0
+      
    SELECT @ContarGuia = count(*) 
    FROM liquidacionaerolineas 
    WHERE nroguia = @NroGuia AND transaccion = 'S'
    
-   IF (@ContarGuia >0 ) 
+   IF (@ContarGuia > 0 ) 
    BEGIN
       
       UPDATE liquidacionaerolineas 
@@ -129,7 +129,7 @@ BEGIN TRY
       utilidadmanejo = @UtilidadManejo, comision = @Comision, overcomision = @OverComision, 
       diferenciatarifas = @DiferenciaTarifas, cliente = @Cliente, consignatario=@Consignatario, origen = @Origen,
       codigoempresas = @CodigoEmpresas, fechacontable = @FechaContable, observaciones = @Observaciones,
-      fechatransaccion = getdate(), tarifafsc = @TarifaFsc, tarifassc = @TarifaSsc, combustible = @Combustible, seguridad = @Seguridad,				
+      fechatransaccion = getdate(), tarifafsc = @TarifaFsc, tarifassc = @TarifaSsc, combustible = @Combustible, seguridad = @Seguridad,            
       empresa = @Empresa,
       urn = @Urn,
       cantidadfitos = @CantidadFitos,
@@ -149,22 +149,22 @@ BEGIN TRY
       idMercancia=@IdMercancia,
       maa=@Maa,
       paa=@Paa,
-      tra=@Tra,				
+      tra=@Tra,            
       reclamos=@Reclamos,
       comisioncliente = @ComisionCliente, 
       descuentocliente = @DescuentoCliente, 
       overcomisioncliente=@OverComisionCliente, 
       diferenciatarifascliente=@DiferenciaTarifasCliente,
       devolucioncliente=@DevolucionCliente,
-      reclamocliente = @ReclamoCliente,				
-      acuerdosComerciales=@AcuerdosComerciales,		
+      reclamocliente = @ReclamoCliente,            
+      acuerdosComerciales=@AcuerdosComerciales,    
       bfa=@Bfa,
       tarifacompra=@TarifaCompra,
       tarifaventa = @TarifaVenta,
       tarifamargen = @TarifaMargen,
       ingresoxtarifa = @IngresoXTarifa,
       ingresoxtarifaxkilo = @IngresoXTarifaXKilo,
-         ingresoneto = @IngresoNeto,
+      ingresoneto = @IngresoNeto,
       margensinbia = @MargenSinBia,
       ingresosinbia = @IngresoSinBia,
       oacliente=@OaCliente,
@@ -172,7 +172,7 @@ BEGIN TRY
       WHERE nroguia = @NroGuia AND transaccion = 'S' AND cierre='ABIERTA'
    END
    ELSE
-   BEGIN			
+   BEGIN       
       DECLARE 
       @InicialCodigoEmpresas VARCHAR(1), 
       @IdSucursal INT, 
@@ -182,7 +182,7 @@ BEGIN TRY
       SET @IdSucursal = 1
       EXECUTE pro_GeneraridUnicoIntOut  'liquidacionaerolineas',@InicialCodigoEmpresas, @IdSucursal, @IdUnico OUT
 
-      INSERT INTO liquidacionaerolineas           
+      INSERT INTO liquidacionaerolineas          
       (id, nroguia, idaerolinea, cass, destino, fechaembarque, prepaid,
       valorprepaid, fletetotalreal, fletetotalcorte,
       pesobruto, pesocargable, fletenetoreal, tarifareal, fletenetocorte, 
@@ -193,7 +193,7 @@ BEGIN TRY
          cantidadcertificadosorigen, producto, cajasvoladas, region, retencioniva,
       tarifaconvenio, fletenetoconvenio, biaconvenio, feaconvenio, fletetotalconvenio, tipoVuelo, 
       codigoContable, idCliente, idMercancia, maa, paa, tra, acuerdosComerciales, reclamos,
-      comisioncliente, descuentocliente, overcomisioncliente, diferenciatarifascliente, devolucioncliente, reclamocliente, bfa, tarifacompra, tarifaventa, tarifamargen, ingresoxtarifa, ingresoxtarifaxkilo, ingresoneto, margensinbia, ingresosinbia, oacliente, retencionfuente	)
+      comisioncliente, descuentocliente, overcomisioncliente, diferenciatarifascliente, devolucioncliente, reclamocliente, bfa, tarifacompra, tarifaventa, tarifamargen, ingresoxtarifa, ingresoxtarifaxkilo, ingresoneto, margensinbia, ingresosinbia, oacliente, retencionfuente  )
       VALUES 
       (@IdUnico, @NroGuia, @IdAerolinea, @Cass, @Destino, @FechaEmbarque, @Prepaid,
       @ValorPrepaid, @FleteTotalReal, @FleteTotalCorte,
@@ -209,11 +209,11 @@ BEGIN TRY
       )
    END
 
-	
-	END TRY
-		BEGIN CATCH
-		EXEC [dbo].[pro_LogError]
-	END CATCH
+   
+   END TRY
+      BEGIN CATCH
+      EXEC [dbo].[pro_LogError]
+   END CATCH
 END
 GO
 
@@ -316,6 +316,5 @@ EXEC [dbo].[AC_pro_LiquidacionAerolineasGuardar]
     @IngresoNeto = 0,
     @MargenSinBia = 0,
     @IngresoSinBia = 0,
-    @RetencionFuente = 0,
-    @Banderas = 'SISTEMA'
+    @RetencionFuente = 0
 */
