@@ -27,7 +27,9 @@ IF @Banderas = 'RENTABILIDADDIFERENCIASCAS'
 			WHERE (substring(CAS.nroguia,1,3) = '074' or substring(CAS.nroguia,1,3) = '172') and stockawb.nroguia is null )
 		END
 
-		DECLARE @SQL_DIFERENCIA_CAS VARCHAR(8000)
+		DECLARE @SQL_DIFERENCIA_CAS VARCHAR(8000),
+				@Empresa VARCHAR(100),
+				@Aerolinea VARCHAR(100)
 
 		IF @CodigoEmpresas = ''
 			SET @Empresa = '' 
