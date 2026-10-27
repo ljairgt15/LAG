@@ -4,7 +4,7 @@ VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 */
 
 
-CREATE  OR ALTER PROCEDURE [dbo].[pro_LogError]
+CREATE OR ALTER PROCEDURE [dbo].[pro_LogError]
 AS
 BEGIN
     --====================================        
@@ -28,5 +28,3 @@ END
 
 
 GO
-
-
