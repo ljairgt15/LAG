@@ -612,14 +612,14 @@ IF @Banderas = 'RENTABILIDADDIFERENCIASCAS'
 END
 GO
 /*
-EXEC [dbo].[AC_pro_LiquidacionAerolineasTraer]
-    @Id = '',
-    @NroGuia = '12345678901',
-    @Transaccion = 'S',
-    @FechaDesde = '20260801',
-    @FechaHasta = '20260831',
-    @CodigoEmpresas = '001',
-    @IdAerolinea = '1234',
-    @Prepaid = '',
-    @Banderas = 'TRANSACCION'
+	exec AC_pro_LiquidacionAerolineasTraer 
+	@id='',
+	@nroguia='',
+	@transaccion='',
+	@FechaDesde='2026-09-01 00:00:00',
+	@FechaHasta='2026-09-15 00:00:00',
+	@CodigoEmpresas='   ',
+	@IdAerolinea='    ',
+	@Prepaid='',
+	@Banderas='RENTABILIDADDIFERENCIASCAS    '
 */
