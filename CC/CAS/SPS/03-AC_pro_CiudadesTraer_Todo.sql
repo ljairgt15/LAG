@@ -1,6 +1,6 @@
 /*
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
-1           Roger Lindao        2026-08-31          64492           Based on pro_CiudadesTraer
+1           Roger Lindao        2026-08-31          64492           Understand and compare with the “destiny” field in CAS liquidation
 */
 
 CREATE OR ALTER PROCEDURE [dbo].[AC_pro_CiudadesTraer_Todo]

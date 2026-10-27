@@ -19,7 +19,6 @@ CREATE OR ALTER PROCEDURE [dbo].[AC_pro_RentabilidadConvenios]
 AS
 BEGIN
 	BEGIN TRY
-		-- 1. Búsqueda Específica
 		IF (@Bandera = '')
 		BEGIN
 			SELECT
