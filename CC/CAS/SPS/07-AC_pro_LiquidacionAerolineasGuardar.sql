@@ -100,165 +100,116 @@ CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar]
    @IngresoNeto decimal(10,3),	
    @MargenSinBia decimal(10,3),
    @IngresoSinBia decimal(10,3),
-   @RetencionFuente decimal(10,5),
-   @Banderas varchar(30)
+   @RetencionFuente decimal(10,5)
 AS
 BEGIN
 BEGIN TRY
 	DECLARE @ContarGuia INT
 	SET @ContarGuia = 0
-	IF @Banderas = 'SISTEMA'
-	BEGIN
 		
-		SELECT @ContarGuia = count(*) 
-      FROM liquidacionaerolineas 
-      WHERE nroguia = @NroGuia AND transaccion = 'S'
-		
-		IF (@ContarGuia >0 ) 
-		BEGIN
-			
-			UPDATE liquidacionaerolineas 
-			SET 
-			idaerolinea = @IdAerolinea, 
-         cass = @Cass, destino = @Destino, 
-         fechaembarque = @FechaEmbarque, 
-         prepaid = @Prepaid,
-         valorprepaid = @ValorPrepaid , 
-         fletetotalreal = @FleteTotalReal, 
-         fletetotalcorte = @FleteTotalCorte,
-         pesobruto = @PesoBruto, pesocargable = @PesoCargable, fletenetoreal = @FleteNetoReal, tarifareal = @TarifaReal, fletenetocorte = @FleteNetoCorte,
-         tarifacorte = @TarifaCorte, cca=@Cca, reclamo=@Reclamo, 
-         descuento=@Descuento, cargosaerolinea=@CargoAerolinea, manejo=@Manejo, costosmanejo = @CostosManejo,costootros = @CostoOtros,
-         utilidadmanejo = @UtilidadManejo, comision = @Comision, overcomision = @OverComision, 
-         diferenciatarifas = @DiferenciaTarifas, cliente = @Cliente, consignatario=@Consignatario, origen = @Origen,
-         codigoempresas = @CodigoEmpresas, fechacontable = @FechaContable, observaciones = @Observaciones,
-         fechatransaccion = getdate(), tarifafsc = @TarifaFsc, tarifassc = @TarifaSsc, combustible = @Combustible, seguridad = @Seguridad,				
-         empresa = @Empresa,
-         urn = @Urn,
-         cantidadfitos = @CantidadFitos,
-         cantidadcertificadosorigen = @CantidadCertificadosOrigen,
-         producto  = @Producto,
-         cajasvoladas = @CajasVoladas,
-         region=@Region,
-         retencioniva=@RetencionIva,
-         tarifaconvenio=@TarifaConvenio,
-         fletenetoconvenio=@FleteNetoConvenio,
-         biaconvenio=@BiaConvenio,
-         feaconvenio=@FeaConvenio,
-         fletetotalconvenio=@FleteTotalConvenio,
-         tipoVuelo=@TipoVuelo,
-         codigoContable=@CodigoContable,
-         idCliente=@IdCliente,
-         idMercancia=@IdMercancia,
-         maa=@Maa,
-         paa=@Paa,
-         tra=@Tra,				
-         reclamos=@Reclamos,
-         comisioncliente = @ComisionCliente, 
-         descuentocliente = @DescuentoCliente, 
-         overcomisioncliente=@OverComisionCliente, 
-         diferenciatarifascliente=@DiferenciaTarifasCliente,
-         devolucioncliente=@DevolucionCliente,
-         reclamocliente = @ReclamoCliente,				
-         acuerdosComerciales=@AcuerdosComerciales,		
-         bfa=@Bfa,
-         tarifacompra=@TarifaCompra,
-         tarifaventa = @TarifaVenta,
-         tarifamargen = @TarifaMargen,
-         ingresoxtarifa = @IngresoXTarifa,
-         ingresoxtarifaxkilo = @IngresoXTarifaXKilo,
-            ingresoneto = @IngresoNeto,
-         margensinbia = @MargenSinBia,
-         ingresosinbia = @IngresoSinBia,
-         oacliente=@OaCliente,
-         retencionfuente=@RetencionFuente
-			WHERE nroguia = @NroGuia AND transaccion = 'S' AND cierre='ABIERTA'
-		END
-		ELSE
-		BEGIN			
-			DECLARE 
-         @InicialCodigoEmpresas VARCHAR(1), 
-         @IdSucursal INT, 
-         @IdUnico CHAR(11)
+   SELECT @ContarGuia = count(*) 
+   FROM liquidacionaerolineas 
+   WHERE nroguia = @NroGuia AND transaccion = 'S'
+   
+   IF (@ContarGuia >0 ) 
+   BEGIN
+      
+      UPDATE liquidacionaerolineas 
+      SET 
+      idaerolinea = @IdAerolinea, 
+      cass = @Cass, destino = @Destino, 
+      fechaembarque = @FechaEmbarque, 
+      prepaid = @Prepaid,
+      valorprepaid = @ValorPrepaid , 
+      fletetotalreal = @FleteTotalReal, 
+      fletetotalcorte = @FleteTotalCorte,
+      pesobruto = @PesoBruto, pesocargable = @PesoCargable, fletenetoreal = @FleteNetoReal, tarifareal = @TarifaReal, fletenetocorte = @FleteNetoCorte,
+      tarifacorte = @TarifaCorte, cca=@Cca, reclamo=@Reclamo, 
+      descuento=@Descuento, cargosaerolinea=@CargoAerolinea, manejo=@Manejo, costosmanejo = @CostosManejo,costootros = @CostoOtros,
+      utilidadmanejo = @UtilidadManejo, comision = @Comision, overcomision = @OverComision, 
+      diferenciatarifas = @DiferenciaTarifas, cliente = @Cliente, consignatario=@Consignatario, origen = @Origen,
+      codigoempresas = @CodigoEmpresas, fechacontable = @FechaContable, observaciones = @Observaciones,
+      fechatransaccion = getdate(), tarifafsc = @TarifaFsc, tarifassc = @TarifaSsc, combustible = @Combustible, seguridad = @Seguridad,				
+      empresa = @Empresa,
+      urn = @Urn,
+      cantidadfitos = @CantidadFitos,
+      cantidadcertificadosorigen = @CantidadCertificadosOrigen,
+      producto  = @Producto,
+      cajasvoladas = @CajasVoladas,
+      region=@Region,
+      retencioniva=@RetencionIva,
+      tarifaconvenio=@TarifaConvenio,
+      fletenetoconvenio=@FleteNetoConvenio,
+      biaconvenio=@BiaConvenio,
+      feaconvenio=@FeaConvenio,
+      fletetotalconvenio=@FleteTotalConvenio,
+      tipoVuelo=@TipoVuelo,
+      codigoContable=@CodigoContable,
+      idCliente=@IdCliente,
+      idMercancia=@IdMercancia,
+      maa=@Maa,
+      paa=@Paa,
+      tra=@Tra,				
+      reclamos=@Reclamos,
+      comisioncliente = @ComisionCliente, 
+      descuentocliente = @DescuentoCliente, 
+      overcomisioncliente=@OverComisionCliente, 
+      diferenciatarifascliente=@DiferenciaTarifasCliente,
+      devolucioncliente=@DevolucionCliente,
+      reclamocliente = @ReclamoCliente,				
+      acuerdosComerciales=@AcuerdosComerciales,		
+      bfa=@Bfa,
+      tarifacompra=@TarifaCompra,
+      tarifaventa = @TarifaVenta,
+      tarifamargen = @TarifaMargen,
+      ingresoxtarifa = @IngresoXTarifa,
+      ingresoxtarifaxkilo = @IngresoXTarifaXKilo,
+         ingresoneto = @IngresoNeto,
+      margensinbia = @MargenSinBia,
+      ingresosinbia = @IngresoSinBia,
+      oacliente=@OaCliente,
+      retencionfuente=@RetencionFuente
+      WHERE nroguia = @NroGuia AND transaccion = 'S' AND cierre='ABIERTA'
+   END
+   ELSE
+   BEGIN			
+      DECLARE 
+      @InicialCodigoEmpresas VARCHAR(1), 
+      @IdSucursal INT, 
+      @IdUnico CHAR(11)
 
-			SET @InicialCodigoEmpresas = 'U'
-			SET @IdSucursal = 1
-			EXECUTE pro_GeneraridUnicoIntOut  'liquidacionaerolineas',@InicialCodigoEmpresas, @IdSucursal, @IdUnico OUT
+      SET @InicialCodigoEmpresas = 'U'
+      SET @IdSucursal = 1
+      EXECUTE pro_GeneraridUnicoIntOut  'liquidacionaerolineas',@InicialCodigoEmpresas, @IdSucursal, @IdUnico OUT
 
-			INSERT INTO liquidacionaerolineas           
-		   (id, nroguia, idaerolinea, cass, destino, fechaembarque, prepaid,
-			valorprepaid, fletetotalreal, fletetotalcorte,
-			pesobruto, pesocargable, fletenetoreal, tarifareal, fletenetocorte, 
-			tarifacorte, fechacontable, cca, reclamo, descuento, cargosaerolinea, manejo, costosmanejo,costootros,
-			utilidadmanejo, comision, overcomision, overcomision2, diferenciatarifas, cliente, consignatario, origen,
-			codigoempresas, transaccion, fechatransaccion, observaciones, cierre, tarifafsc, tarifassc, combustible, seguridad, fechaover,
-			fechamanejo, fechacomision, fechadescuento, fechaovercomision, fechaovercomision2, fechadiferenciatarifas, fechareclamo, empresa, urn, cantidadfitos,
-				cantidadcertificadosorigen, producto, cajasvoladas, region, retencioniva,
-			tarifaconvenio, fletenetoconvenio, biaconvenio, feaconvenio, fletetotalconvenio, tipoVuelo, 
-			codigoContable, idCliente, idMercancia, maa, paa, tra, acuerdosComerciales, reclamos,
-			comisioncliente, descuentocliente, overcomisioncliente, diferenciatarifascliente, devolucioncliente, reclamocliente, bfa, tarifacompra, tarifaventa, tarifamargen, ingresoxtarifa, ingresoxtarifaxkilo, ingresoneto, margensinbia, ingresosinbia, oacliente, retencionfuente	)
-			VALUES 
-         (@IdUnico, @NroGuia, @IdAerolinea, @Cass, @Destino, @FechaEmbarque, @Prepaid,
-         @ValorPrepaid, @FleteTotalReal, @FleteTotalCorte,
-         @PesoBruto, @PesoCargable, @FleteNetoReal, @TarifaReal, @FleteNetoCorte,
-         @TarifaCorte, @FechaContable, @Cca, @Reclamo, @Descuento, @CargoAerolinea, @Manejo, @CostosManejo, @CostoOtros,
-         @UtilidadManejo, @Comision, @OverComision, @OverComision2, @DiferenciaTarifas, @Cliente, @Consignatario, @Origen,
-         @CodigoEmpresas, 'S', getdate(), @Observaciones, 'ABIERTA', @TarifaFsc, @TarifaSsc, @Combustible, @Seguridad, @FechaOver,
-         @FechaManejo, @FechaComision, @FechaDescuento, @FechaOverComision, @FechaOverComision2, @FechaDiferenciaTarifas, @FechaReclamo, @Empresa, @Urn, @CantidadFitos ,
-         @CantidadCertificadosOrigen, @Producto, @CajasVoladas, @Region, @RetencionIva,
-         @TarifaConvenio, @FleteNetoConvenio, @BiaConvenio, @FeaConvenio, @FleteTotalConvenio, @TipoVuelo,
-         @CodigoContable, @IdCliente, @IdMercancia, @Maa, @Paa, @Tra, @AcuerdosComerciales, @Reclamos,
-         @ComisionCliente, @DescuentoCliente, @OverComisionCliente, @DiferenciaTarifasCliente, @DevolucionCliente, @ReclamoCliente, @Bfa, @TarifaCompra, @TarifaVenta, @TarifaMargen, @IngresoXTarifa, @IngresoXTarifaXKilo, @IngresoNeto, @MargenSinBia, @IngresoSinBia,@OaCliente, @RetencionFuente 
-			)
-		END
-	RETURN
-	END
+      INSERT INTO liquidacionaerolineas           
+      (id, nroguia, idaerolinea, cass, destino, fechaembarque, prepaid,
+      valorprepaid, fletetotalreal, fletetotalcorte,
+      pesobruto, pesocargable, fletenetoreal, tarifareal, fletenetocorte, 
+      tarifacorte, fechacontable, cca, reclamo, descuento, cargosaerolinea, manejo, costosmanejo,costootros,
+      utilidadmanejo, comision, overcomision, overcomision2, diferenciatarifas, cliente, consignatario, origen,
+      codigoempresas, transaccion, fechatransaccion, observaciones, cierre, tarifafsc, tarifassc, combustible, seguridad, fechaover,
+      fechamanejo, fechacomision, fechadescuento, fechaovercomision, fechaovercomision2, fechadiferenciatarifas, fechareclamo, empresa, urn, cantidadfitos,
+         cantidadcertificadosorigen, producto, cajasvoladas, region, retencioniva,
+      tarifaconvenio, fletenetoconvenio, biaconvenio, feaconvenio, fletetotalconvenio, tipoVuelo, 
+      codigoContable, idCliente, idMercancia, maa, paa, tra, acuerdosComerciales, reclamos,
+      comisioncliente, descuentocliente, overcomisioncliente, diferenciatarifascliente, devolucioncliente, reclamocliente, bfa, tarifacompra, tarifaventa, tarifamargen, ingresoxtarifa, ingresoxtarifaxkilo, ingresoneto, margensinbia, ingresosinbia, oacliente, retencionfuente	)
+      VALUES 
+      (@IdUnico, @NroGuia, @IdAerolinea, @Cass, @Destino, @FechaEmbarque, @Prepaid,
+      @ValorPrepaid, @FleteTotalReal, @FleteTotalCorte,
+      @PesoBruto, @PesoCargable, @FleteNetoReal, @TarifaReal, @FleteNetoCorte,
+      @TarifaCorte, @FechaContable, @Cca, @Reclamo, @Descuento, @CargoAerolinea, @Manejo, @CostosManejo, @CostoOtros,
+      @UtilidadManejo, @Comision, @OverComision, @OverComision2, @DiferenciaTarifas, @Cliente, @Consignatario, @Origen,
+      @CodigoEmpresas, 'S', getdate(), @Observaciones, 'ABIERTA', @TarifaFsc, @TarifaSsc, @Combustible, @Seguridad, @FechaOver,
+      @FechaManejo, @FechaComision, @FechaDescuento, @FechaOverComision, @FechaOverComision2, @FechaDiferenciaTarifas, @FechaReclamo, @Empresa, @Urn, @CantidadFitos ,
+      @CantidadCertificadosOrigen, @Producto, @CajasVoladas, @Region, @RetencionIva,
+      @TarifaConvenio, @FleteNetoConvenio, @BiaConvenio, @FeaConvenio, @FleteTotalConvenio, @TipoVuelo,
+      @CodigoContable, @IdCliente, @IdMercancia, @Maa, @Paa, @Tra, @AcuerdosComerciales, @Reclamos,
+      @ComisionCliente, @DescuentoCliente, @OverComisionCliente, @DiferenciaTarifasCliente, @DevolucionCliente, @ReclamoCliente, @Bfa, @TarifaCompra, @TarifaVenta, @TarifaMargen, @IngresoXTarifa, @IngresoXTarifaXKilo, @IngresoNeto, @MargenSinBia, @IngresoSinBia,@OaCliente, @RetencionFuente 
+      )
+   END
 
-	IF @Banderas = 'CERRAR'
-	BEGIN
-		UPDATE liquidacionaerolineas 
-      SET cierre = @Cierre
-      WHERE idaerolinea = @IdAerolinea AND transaccion = 'S' AND cierre='ABIERTA' AND empresa=@Empresa
-	END
-
-	IF @Banderas = 'OVERCOMISION'
-	BEGIN
-		UPDATE liquidacionaerolineas 
-      SET overcomision = @OverComision, overcomision2=@OverComision2 
-      WHERE id =@Id
-		RETURN
-	END	
-
-	IF @Banderas = 'ELIMINAR'
-	BEGIN
-		DELETE FROM liquidacionaerolineas WHERE id = @Id
-		RETURN
-	END
-
-	IF @Banderas = 'LIQUIDACIONCLIENTES'
-	BEGIN
-		print @NroGuia
-		print @ComisionCliente
-		
-		UPDATE liquidacionaerolineas 
-      SET comisioncliente = @ComisionCliente, descuentocliente = @DescuentoCliente, overcomisioncliente=@OverComisionCliente, diferenciatarifascliente=@DiferenciaTarifasCliente,
-		devolucioncliente=@DevolucionCliente, transporteacuerdogg=@TransporteAcuerdoGg, oacliente=@OaCliente, oagg=@Oagg
-		WHERE  nroguia=@NroGuia AND 
-		(isnull(comisioncliente,0)<>@ComisionCliente OR isnull(descuentocliente,0)<>@DescuentoCliente OR isnull(overcomisioncliente,0)<>@OverComisionCliente OR isnull(diferenciatarifascliente,0)<>@DiferenciaTarifasCliente
-		 OR isnull(devolucioncliente,0)<>@DevolucionCliente OR  isnull(transporteacuerdogg,0)<>@TransporteAcuerdoGg OR isnull(oacliente,0)<>@OaCliente OR isnull(oagg,0)<>@Oagg)
-		RETURN
-	END
-
-	IF @Banderas = 'INGRESARDEVOLUCION'
-	BEGIN
-		print @NroGuia
-		print @ComisionCliente
-		
-		UPDATE liquidacionaerolineas SET devolucion = @Devolucion
-		WHERE  nroguia=@NroGuia AND 
-		isnull(devolucion,0) <> @Devolucion
-		RETURN
-	END
+	
 	END TRY
 		BEGIN CATCH
 		EXEC [dbo].[pro_LogError]
