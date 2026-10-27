@@ -3,7 +3,7 @@ VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 1           Roger Lindao        2026-08-31          64492           Based on pro_LiquidacionAerolineasGuardar
 */
 CREATE OR ALTER   PROCEDURE [dbo].[AC_pro_LiquidacionAerolineasGuardar] 
-	@Id varchar(13)
+	@Id varchar(13),
    @NroGuia varchar(13),
    @IdAerolinea varchar(4),
    @Cass varchar(1),
