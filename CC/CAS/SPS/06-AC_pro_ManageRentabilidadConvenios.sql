@@ -112,7 +112,7 @@ END
 GO
 
 /*
-EXEC [dbo].[pro_RentabilidadConveniosGuardar] 
+EXEC [dbo].[AC_pro_ManageRentabilidadConvenios] 
     @Id = 'CONV000000001', 
     @Activo = 1, 
     @IdAerolinea = 'AL001', 

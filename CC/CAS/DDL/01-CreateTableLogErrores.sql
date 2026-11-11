@@ -16,7 +16,7 @@ BEGIN
 		[EstadoError] [int] NULL,
 		[ProcedimientoError] [varchar](64) NULL,
 		[LineaError] [int] NULL,
-		[MensajeError] [nvarchar](1024) NULL
+		[MensajeError] [varchar](1024) NULL
 	) ON [PRIMARY]
     PRINT 'Table created: LogErrores'
 END

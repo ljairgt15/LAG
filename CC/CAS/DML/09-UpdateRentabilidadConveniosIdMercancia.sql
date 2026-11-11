@@ -1,10 +1,12 @@
 /*
 VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
-1           Jair Gómez          2026-10-26          64492           Update RentabilidadConvenios IdMercancia 
+1           Jair Gómez          2026-10-26          64492           Update RentabilidadConvenios IdMercancia approximatly 50 rows
 */
 
 UPDATE RC
-SET RC.idMercancia = CAT.id
+SET 
+	RC.idMercancia = CAT.id,
+	RC.fechamodificacion = GETDATE()
 FROM rentabilidadconvenios RC
 INNER JOIN mercancias CAT
     ON (
@@ -26,5 +28,6 @@ INNER JOIN mercancias CAT
     )
 WHERE 
     RC.idMercancia NOT LIKE 'U%' 
-    AND RC.idMercancia <> 'TODOS';
+    AND RC.idMercancia <> 'TODOS'
+	AND RC.activo = 1
 

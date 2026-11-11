@@ -12,7 +12,7 @@ BEGIN
 			CI.nombre,
 			PA.codigopais,
 			CI.codigociudad
-		FROM Ciudades CI
+		FROM ciudades CI
 		LEFT JOIN paises PA ON CI.idpaises = PA.id
 	END TRY
 	BEGIN CATCH

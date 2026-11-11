@@ -17,35 +17,22 @@ BEGIN
 	BEGIN TRY
 		IF @Banderas = 'RENTABILIDADDIFERENCIASCAS'
 		BEGIN
-			-- ELIMINAR TODAS LAS GUIAS QUE NO PERTENEZCAN AL STOCK DE G&G ANTES DE HACER EL CHEQUEO
-			-- PACAS 18/07/2014 (Formato ISO YYYYMMDD independiente del idioma)
-			IF GETDATE() <= '20140815'
-			BEGIN
-				DELETE FROM CAS WHERE CAS.nroguia IN (
-					SELECT SUBSTRING(CAS.nroguia,1,11) 
-					FROM CAS 
-					LEFT JOIN stockawb ON CAS.nroguia = stockawb.nroguia
-					WHERE (SUBSTRING(CAS.nroguia,1,3) = '074' OR SUBSTRING(CAS.nroguia,1,3) = '172') 
-					  AND stockawb.nroguia IS NULL
-				)
-			END
-
 			DECLARE @SQL_DIFERENCIA_CAS VARCHAR(8000),
 					@Empresa VARCHAR(50),
 					@Aerolinea VARCHAR(50)
 
 			IF @CodigoEmpresas = ''
-				SET @Empresa = '' 
+				SELECT @Empresa = '' 
 			ELSE
-				SET @Empresa = 'AND liquidacionaerolineas.codigoempresas = ''' + @CodigoEmpresas + ''''
+				SELECT @Empresa = 'AND liquidacionaerolineas.codigoempresas = ''' + @CodigoEmpresas + ''''
 			
 			IF @IdAerolinea = ''
-				SET @Aerolinea = '' 
+				SELECT @Aerolinea = '' 
 			ELSE
-				SET @Aerolinea = 'AND idaerolinea = ''' + @IdAerolinea + ''''
+				SELECT @Aerolinea = 'AND idaerolinea = ''' + @IdAerolinea + ''''
 
 			-- Estilo 112 (YYYYMMDD) en lugar de 101 (MM/DD/YYYY)
-			SET @SQL_DIFERENCIA_CAS = 'SELECT liquidacionaerolineas.*
+			SELECT @SQL_DIFERENCIA_CAS = 'SELECT liquidacionaerolineas.*
 						INTO #TEMP_RENT_CAS FROM liquidacionaerolineas 								
 						WHERE fechaembarque>= ''' + CONVERT(VARCHAR(8),@FechaDesde,112) + ''' and fechaembarque <= ''' + CONVERT(VARCHAR(8),@FechaHasta,112) + '''' +
 					  ' ' + @Empresa + 
@@ -54,7 +41,7 @@ BEGIN
 
 			IF @FechaHasta <= '20150115'
 			BEGIN
-				SET @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
+				SELECT @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
 						#TEMP_RENT_CAS.fletetotalcorte, #TEMP_RENT_CAS.fletetotalreal, #TEMP_RENT_CAS.pesobruto, #TEMP_RENT_CAS.pesocargable, #TEMP_RENT_CAS.fletenetoreal, #TEMP_RENT_CAS.tarifareal, #TEMP_RENT_CAS.fletenetocorte, 
 						#TEMP_RENT_CAS.tarifacorte, #TEMP_RENT_CAS.fechacontable, #TEMP_RENT_CAS.cca, #TEMP_RENT_CAS.cargosaerolinea, #TEMP_RENT_CAS.costosmanejo, 
 						#TEMP_RENT_CAS.costootros, #TEMP_RENT_CAS.utilidadmanejo, #TEMP_RENT_CAS.comision, #TEMP_RENT_CAS.fechacomision, #TEMP_RENT_CAS.manejo, #TEMP_RENT_CAS.fechamanejo, #TEMP_RENT_CAS.reclamo, #TEMP_RENT_CAS.fechareclamo,#TEMP_RENT_CAS.overcomision, #TEMP_RENT_CAS.fechaovercomision, #TEMP_RENT_CAS.diferenciatarifas, #TEMP_RENT_CAS.fechadiferenciatarifas,
@@ -81,7 +68,8 @@ BEGIN
 						#TEMP_RENT_CAS.idCliente AS idCliente,
 						#TEMP_RENT_CAS.idMercancia AS idMercancia
 						INTO ##TEMP_CAS
-						FROM #TEMP_RENT_CAS INNER JOIN GUIAS ON #TEMP_RENT_CAS.nroguia = guias.nroguia
+						FROM #TEMP_RENT_CAS 
+						INNER JOIN GUIAS ON #TEMP_RENT_CAS.nroguia = guias.nroguia
 						INNER JOIN mercancias on guias.idmercancia = mercancias.id						
 						INNER JOIN guicon on guias.nroguia = guicon.nroguia and cntetiq=1				
 						LEFT JOIN ciudades on ciudades.codigociudad=#TEMP_RENT_CAS.destino	
@@ -94,7 +82,7 @@ BEGIN
 
 			IF @FechaHasta >= '20150116' AND @FechaHasta <= '20160531'
 			BEGIN
-				SET @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
+				SELECT @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
 						#TEMP_RENT_CAS.fletetotalcorte, #TEMP_RENT_CAS.fletetotalreal, #TEMP_RENT_CAS.pesobruto, #TEMP_RENT_CAS.pesocargable, #TEMP_RENT_CAS.fletenetoreal, #TEMP_RENT_CAS.tarifareal, #TEMP_RENT_CAS.fletenetocorte, 
 						#TEMP_RENT_CAS.tarifacorte, #TEMP_RENT_CAS.fechacontable, #TEMP_RENT_CAS.cca, #TEMP_RENT_CAS.cargosaerolinea, #TEMP_RENT_CAS.costosmanejo, 
 						#TEMP_RENT_CAS.costootros, #TEMP_RENT_CAS.utilidadmanejo, #TEMP_RENT_CAS.comision, #TEMP_RENT_CAS.fechacomision, #TEMP_RENT_CAS.manejo, #TEMP_RENT_CAS.fechamanejo, #TEMP_RENT_CAS.reclamo, #TEMP_RENT_CAS.fechareclamo,#TEMP_RENT_CAS.overcomision, #TEMP_RENT_CAS.fechaovercomision, #TEMP_RENT_CAS.diferenciatarifas, #TEMP_RENT_CAS.fechadiferenciatarifas,
@@ -135,7 +123,7 @@ BEGIN
 
 			IF @FechaHasta >= '20160601' AND @FechaHasta <= '20170531'
 			BEGIN
-				SET @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
+				SELECT @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
 						#TEMP_RENT_CAS.fletetotalcorte, #TEMP_RENT_CAS.fletetotalreal, #TEMP_RENT_CAS.pesobruto, #TEMP_RENT_CAS.pesocargable, #TEMP_RENT_CAS.fletenetoreal, #TEMP_RENT_CAS.tarifareal, #TEMP_RENT_CAS.fletenetocorte, 
 						#TEMP_RENT_CAS.tarifacorte, #TEMP_RENT_CAS.fechacontable, #TEMP_RENT_CAS.cca, #TEMP_RENT_CAS.cargosaerolinea, #TEMP_RENT_CAS.costosmanejo, 
 						#TEMP_RENT_CAS.costootros, #TEMP_RENT_CAS.utilidadmanejo, #TEMP_RENT_CAS.comision, #TEMP_RENT_CAS.fechacomision, #TEMP_RENT_CAS.manejo, #TEMP_RENT_CAS.fechamanejo, #TEMP_RENT_CAS.reclamo, #TEMP_RENT_CAS.fechareclamo,#TEMP_RENT_CAS.overcomision, #TEMP_RENT_CAS.fechaovercomision, #TEMP_RENT_CAS.diferenciatarifas, #TEMP_RENT_CAS.fechadiferenciatarifas,
@@ -177,7 +165,7 @@ BEGIN
 			
 			IF @FechaHasta >= '20170601' AND @FechaHasta < '20240401'
 			BEGIN
-				SET @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
+				SELECT @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
 						#TEMP_RENT_CAS.fletetotalcorte, #TEMP_RENT_CAS.fletetotalreal, #TEMP_RENT_CAS.pesobruto, #TEMP_RENT_CAS.pesocargable, #TEMP_RENT_CAS.fletenetoreal, #TEMP_RENT_CAS.tarifareal, #TEMP_RENT_CAS.fletenetocorte, 
 						#TEMP_RENT_CAS.tarifacorte, #TEMP_RENT_CAS.fechacontable, #TEMP_RENT_CAS.cca, #TEMP_RENT_CAS.cargosaerolinea, #TEMP_RENT_CAS.costosmanejo, 
 						#TEMP_RENT_CAS.costootros, #TEMP_RENT_CAS.utilidadmanejo, #TEMP_RENT_CAS.comision, #TEMP_RENT_CAS.fechacomision, #TEMP_RENT_CAS.manejo, #TEMP_RENT_CAS.fechamanejo, #TEMP_RENT_CAS.reclamo, #TEMP_RENT_CAS.fechareclamo,#TEMP_RENT_CAS.overcomision, #TEMP_RENT_CAS.fechaovercomision, #TEMP_RENT_CAS.diferenciatarifas, #TEMP_RENT_CAS.fechadiferenciatarifas,
@@ -240,7 +228,7 @@ BEGIN
 
 			IF @FechaHasta >= '20240401'
 			BEGIN
-				SET @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
+				SELECT @SQL_DIFERENCIA_CAS = @SQL_DIFERENCIA_CAS + 'SELECT #TEMP_RENT_CAS.id, #TEMP_RENT_CAS.nroguia, #TEMP_RENT_CAS.idaerolinea, #TEMP_RENT_CAS.origen, #TEMP_RENT_CAS.destino, #TEMP_RENT_CAS.cass, #TEMP_RENT_CAS.fechaembarque, #TEMP_RENT_CAS.prepaid, #TEMP_RENT_CAS.valorprepaid, 
 						#TEMP_RENT_CAS.fletetotalcorte, #TEMP_RENT_CAS.fletetotalreal, #TEMP_RENT_CAS.pesobruto, #TEMP_RENT_CAS.pesocargable, #TEMP_RENT_CAS.fletenetoreal, #TEMP_RENT_CAS.tarifareal, #TEMP_RENT_CAS.fletenetocorte, 
 						#TEMP_RENT_CAS.tarifacorte, #TEMP_RENT_CAS.fechacontable, #TEMP_RENT_CAS.cca, #TEMP_RENT_CAS.cargosaerolinea, #TEMP_RENT_CAS.costosmanejo, 
 						#TEMP_RENT_CAS.costootros, #TEMP_RENT_CAS.utilidadmanejo, #TEMP_RENT_CAS.comision, #TEMP_RENT_CAS.fechacomision, #TEMP_RENT_CAS.manejo, #TEMP_RENT_CAS.fechamanejo, #TEMP_RENT_CAS.reclamo, #TEMP_RENT_CAS.fechareclamo,#TEMP_RENT_CAS.overcomision, #TEMP_RENT_CAS.fechaovercomision, #TEMP_RENT_CAS.diferenciatarifas, #TEMP_RENT_CAS.fechadiferenciatarifas,

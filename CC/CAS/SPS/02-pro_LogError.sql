@@ -7,12 +7,11 @@ VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 CREATE OR ALTER PROCEDURE [dbo].[pro_LogError]
 AS
 BEGIN
-    --====================================        
-    DECLARE @MENSAJE_ERROR NVARCHAR(4000)
-    DECLARE @NUMERO_ERROR INT
-    DECLARE @ERROR_SEVERITY INT
-    DECLARE @ERROR_STATE INT
-    --====================================    
+    DECLARE 
+	 @MENSAJE_ERROR VARCHAR(1024),
+     @NUMERO_ERROR INT,
+     @ERROR_SEVERITY INT,
+     @ERROR_STATE INT
 
 		SELECT @MENSAJE_ERROR = ERROR_MESSAGE(),
                @NUMERO_ERROR = ERROR_NUMBER(),
