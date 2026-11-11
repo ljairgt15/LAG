@@ -4,7 +4,7 @@ VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
 */
 
 
-CREATE  OR ALTER PROCEDURE [dbo].[pro_LogError]
+CREATE OR ALTER PROCEDURE [dbo].[pro_LogError]
 AS
 BEGIN
     --====================================        
@@ -25,8 +25,3 @@ BEGIN
     RAISERROR(@MENSAJE_ERROR, @ERROR_SEVERITY, @ERROR_STATE)
 
 END
-
-
-GO
-
-
