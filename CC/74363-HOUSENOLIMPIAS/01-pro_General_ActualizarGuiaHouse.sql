@@ -1,59 +1,40 @@
-USE [alliance_desa]
-GO
-/****** Object:  StoredProcedure [dbo].[pro_General_ActualizarGuiaHouse]    Script Date: 25/11/2026 09:15:55 a. m. ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+/*    
+VERSION     MODIFIEDBY          MODIFIEDDATE        HU              MODIFICATION
+1           Raul Reyes          2019-01-15          ----            Creacion de Stored procedure PRO_General_ActualizarGuiaHouse para Recepcion 
+2           Juan Domínguez      2020-07-09          ----            Se realiza una simplificación del SP, eliminan variables, y se quita el * de la ultima consulta
+3           Luis De Andrade     2020-07-14          ----            Se desarrolla la parte del recalculo de estados de la Guia Master
+4           Juan Domínguez      2020-07-20          HU-LAG-V08      Se elimina el calculo del estadoGuia en GuiaHouse las pcsStandby por pedido de la HU-LAG-V08 NO CONSIDERAR STANDBY PARA ESTATUS DE RECEPCION
+5           Juan Domínguez      2020-07-22          ----            Se realizan actualizaciones en el calculo del estado, queda igual que el los servicios del api.
+6           Jonathan Merino     2020-08-06          ----            Se actualiza el conteo de piezas por el nuevo estado SHORT que reemplaza a LOST
+7           Raul Reyes          2020-11-09          ----            Se pasa toda la logica a al modulo de Recepcion
+8           Raul Reyes          2020-11-16          ----            Quitamos la consulta de la guia house
+9           Raul Reyes          2020-12-19          ----            Se agrega actualizacion a tabla GuiasHouseAgrupado
+10          Jair Gomez          2026-11-25          CC HU-74363     Switch to a left join so that the update doesn't fail when there are no records in the details view
+*/  
 
-
-
-/* 
-Fecha de Modificacion: 6 Agosto 2020
- Objeto: Procedimiento                                                
- Nombre: PRO_General_ActualizarGuiaHouse
- Modulo: General  
- Responsable Modificacion: Jonathan Merino
- Observacion: se actualiza el conteo de piezas por el nuevo estado SHORT que reemplaza a LOST
-
-
- Fecha de Modificacion: 15 Enero 2019
- Objeto: SP                                              
- Nombre: PRO_General_ActualizarGuiaHouse
- Modulo: Recepcion
- Responsable Creacion: Raul Reyes
- Observacion: Creacion de Stored procedure PRO_General_ActualizarGuiaHouse
- Modificacion: 09/07/2020 Juan Domínguez, se realiza una simplificación del SP, eliminan variables, y se quita el * de la ultima consulta
- Modificacion: 14/07/2020 Luis De Andrade, Se desarrolla la parte del recalculo de estados de la Guia Master
- Modificacion: 20/07/2020 Juan Domínguez, se elimina el calculo del estadoGuia en GuiaHouse las pcsStandby por pedido de la HU-LAG-V08 NO CONSIDERAR STANDBY PARA ESTATUS DE RECEPCION
-               22/07/2020 Juan Domínguez se realizan actualizaciones en el calculo del estado, queda igual que el los servicios del api.
-			   09/11/2020 RR - Se pasa toda la logica a al modulo de Recepcion
-			   16/11/2020 RR - Quitamos la consulta de la guia house
-			   29/12/2020 RR - Se agrega actualizacion a tabla GuiasHouseAgrupado
-*/
-ALTER PROCEDURE [dbo].[pro_General_ActualizarGuiaHouse] (@idGuiaHouse UNIQUEIDENTIFIER)
+CREATE OR ALTER PROCEDURE [dbo].[pro_General_ActualizarGuiaHouse] (@idGuiaHouse UNIQUEIDENTIFIER)
 AS
 BEGIN
-    SET NOCOUNT ON;
+    SET NOCOUNT ON
 
-	DECLARE @totalPcsHoldReceived INT;
+	DECLARE @totalPcsHoldReceived INT
 
-    UPDATE gH
-    SET gH.pcsPending = ISNULL(vGuias.pcsPending, 0),
-        gH.pcsReceivedDr = ISNULL(vGuias.pcsReceivedDr, 0),
-        gH.pcsReceivedWh = ISNULL(vGuias.pcsReceivedWh, 0),
-        gH.pcsDispatchedWh = ISNULL(vGuias.pcsDispatchedWh, 0),
-        gH.pcsHold = ISNULL(vGuias.pcsHold, 0),
-        gH.pcsShort = ISNULL(vGuias.pcsShort, 0),
-		gH.pcsLost = ISNULL(vGuias.pcsLost, 0),
-        gH.pcsStandby = ISNULL(vGuias.pcsStandby, 0),
-        gH.totalFullHouse = ISNULL(vGuias.totalFullHouse, 0.00),
-        gH.totalPcsHouse = ISNULL(vGuias.totalPcsHouse, 0),
-        gH.pesoVolumenHouse = ISNULL(vGuias.pesoVolumenHouse, 0.00),
-        gH.totalPcsCarrier = ISNULL(vGuias.totalPcsCarrier, 0)
-    FROM dbo.GuiasHouse gH
-        INNER JOIN dbo.VistaGuiasIndexGuiasHouseDetalles vGuias
-            ON vGuias.idGuiaHouse = gH.id
-    WHERE gH.id = @idGuiaHouse;	 
+    UPDATE GH
+    SET GH.pcsPending = ISNULL(vGuias.pcsPending, 0),
+        GH.pcsReceivedDr = ISNULL(vGuias.pcsReceivedDr, 0),
+        GH.pcsReceivedWh = ISNULL(vGuias.pcsReceivedWh, 0),
+        GH.pcsDispatchedWh = ISNULL(vGuias.pcsDispatchedWh, 0),
+        GH.pcsHold = ISNULL(vGuias.pcsHold, 0),
+        GH.pcsShort = ISNULL(vGuias.pcsShort, 0),
+		GH.pcsLost = ISNULL(vGuias.pcsLost, 0),
+        GH.pcsStandby = ISNULL(vGuias.pcsStandby, 0),
+        GH.totalFullHouse = ISNULL(vGuias.totalFullHouse, 0.00),
+        GH.totalPcsHouse = ISNULL(vGuias.totalPcsHouse, 0),
+        GH.pesoVolumenHouse = ISNULL(vGuias.pesoVolumenHouse, 0.00),
+        GH.totalPcsCarrier = ISNULL(vGuias.totalPcsCarrier, 0)
+    FROM dbo.GuiasHouse GH
+    INNER JOIN dbo.VistaGuiasIndexGuiasHouseDetalles vGuias
+    ON vGuias.idGuiaHouse = GH.id
+    WHERE GH.id = @idGuiaHouse	 
 	 
-END;
+END
