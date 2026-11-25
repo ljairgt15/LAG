@@ -33,8 +33,11 @@ BEGIN
         GH.pesoVolumenHouse = ISNULL(vGuias.pesoVolumenHouse, 0.00),
         GH.totalPcsCarrier = ISNULL(vGuias.totalPcsCarrier, 0)
     FROM dbo.GuiasHouse GH
-    INNER JOIN dbo.VistaGuiasIndexGuiasHouseDetalles vGuias
+    LEFT JOIN dbo.VistaGuiasIndexGuiasHouseDetalles vGuias
     ON vGuias.idGuiaHouse = GH.id
     WHERE GH.id = @idGuiaHouse	 
 	 
 END
+/*
+EXEC pro_General_ActualizarGuiaHouse @idGuiaHouse='E9319B7D-8E81-44A9-9F9E-752529541333'
+*/
